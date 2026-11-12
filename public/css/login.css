@@ -1,0 +1,57 @@
+:root {
+    --primary-blue: #0d6efd;
+    --dark-blue: #0b5ed7;
+    /* para hover */
+    --light-blue: #cfe2ff;
+    /* alertas o detalles */
+
+    --primary-green: #198754;
+    --dark-green: #157347;
+    /* para hover */
+    --light-green: #d1e7dd;
+    /* fondo */
+
+    --pure-white: #ffffff;
+    --off-white: #f8f9fa;
+    /* fondo general de la app*/
+    --gray-text: #6c757d;
+    /* texto secundario o placeholders */
+}
+
+body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: var(--off-white);
+    color: #212529;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+}
+
+.contenedor-login,
+.contenedor-signin {
+   border-radius: 15px;
+    overflow: hidden;
+    border: none;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0.075, 0.15, 0.1);
+}
+
+.contenedor-login {
+    max-width: 850px;
+    width: 100%;
+}
+
+.contenedor-signin {
+    margin: 40px;
+    width: 700px;
+}
+
+hr{
+border: none;
+  height: 3px;
+  background-color:var(--primary-green);
+  width: 80%;
+  margin: 20px auto;
+}
+
