@@ -15,56 +15,80 @@
                         <form action="" method="POST" enctype="multipart/form-data">
                             @csrf
                             {{-- revisar si falta algo más en la validación en html --}}
-
-                            {{-- la idea podria ser que a medida que se va clickeando una opcion vayan apareciendo los otros selects con la informacion ya cargada dinamicamente(o sea que se muestren los correspondientes a esa eleccion) --}}
+                            {{-- acá tenemos que traer los medicos que trabajen con la obra social que tenga el paciente en sus datos --}}
                             <div class="mb-3">
                                 {{-- capaz que acá usamos tom select acá --}}
-                                <label for="especialidad" class="form-label fw-semibold">Especialidad</label>
-                                <select name="especialidad_id" id="especialidad" class="form-select" required>
-                                    <option value="" selected disabled>Seleccioná una especialidad...</option>
+                                <label for="tel" class="form-label">Buscar por profesional</label>
+                                <select name="medico" id="medico" class="form-select" required>
+                                    <option value="" selected disabled> 🔎︎ Ej: Marta Pereira</option>
                                 </select>
                             </div>
 
                             <div class="mb-3">
-                                {{-- capaz que acá usamos tom select acá y que cuando se seleccione esto se muestren los medicos que tienen esa especialidad --}}
-                                <label for="obraSocial" class="form-label fw-semibold">Obra Social / Cobertura</label>
-                                <select name="obra_social_id" id="obraSocial" class="form-select" required>
-                                    <option value="" selected disabled>Seleccioná tu obra social...</option>
-                                </select>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="medico" class="form-label fw-semibold">Profesional</label>
-                                <select name="medico_id" id="medico" class="form-select" required>
-                                    <option value="" selected disabled>Primero elegí una especialidad...</option>
+                                <label for="especialidad" class="form-label">Buscar por especialidad</label>
+                                <select name="especialidad" id="especialidad" class="form-select" required>
+                                    <option value="" selected disabled>🔎︎ Ej: Pedriatría</option>
                                 </select>
                             </div>
 
                             <div class="mb-4">
                                 {{-- capaz que acá usamos full calendar --}}
-                                <label class="form-label fw-semibold">Fecha y Hora</label>
+                                <label class="form-label fw-semibold">Fecha y hora</label>
                                 <div id='calendar' class="p-3 bg-light rounded-4 border">
                                     <p class="text-muted text-center mb-0 small">Seleccioná un profesional para ver sus
                                         horarios disponibles.</p>
                                 </div>
+                                <!-- input hidden que se ocupa por js cuando el usuario elige una fecha -->
+                                <input type="hidden" name="fecha_hora" id="fecha_hora_input" required>
                             </div>
 
                             <div class="mb-4">
-                                <label for="formFileMultiple" class="form-label fw-semibold">Derivación médica (opcional)
+                                <label for="formFileMultiple" class="form-label fw-semibold">Derivación médica /
+                                    orden(opcional)
                                     <input class="form-control" type="file" id="formFileMultiple" name="derivacion[]"
                                         multiple accept="image/jpeg, image/png, image/webp, application/pdf">
-                                    <div class="form-text">PDF, JPG, PNG o WEBP. Maximo 500 KB.</div>
+                                    <div class="form-text">PDF, JPG, PNG o WEBP. Maximo 5 MB.</div>
                             </div>
 
                             <div class="text-center d-flex flex-column gap-2">
-                                {{-- al apretar confirmar se podría mostrar un cartel de "estas a punto de confirmar el turno blablabla" --}}
-                                <button type="submit"
-                                    class="btn btn-outline-success btn-sm fw-semibold rounded-pill py-2 ">
-                                    Confirmar Turno
+                                <button type="button" class="btn btn-outline-primary btn-sm fw-semibold rounded-pill py-2"
+                                    data-bs-toggle="modal" data-bs-target="#modalTurno">
+                                    Detalles turno
                                 </button>
                                 <a href="{{ url('/') }}" class="text-secondary text-decoration-none small mt-2">
                                     Cancelar y volver
                                 </a>
+                            </div>
+
+                            {{-- codigo del modal que muestra los detalles de turno para posterior confirmacion --}}
+                            <div class="modal fade" id="modalTurno" tabindex="-1" aria-labelledby="modalTurnoLabel"
+                                aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="modalTurnoLabel">Confirmación de Turno</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="Close"></button>
+                                        </div>
+
+                                        <div class="modal-body text-start">
+                                            <p>Estás a punto de solicitar el turno con los datos seleccionados. Verificá que
+                                                todo esté correcto antes de confirmar.</p>
+                                            <!-- Acá podés inyectar con JS los datos seleccionados si querés hacerlo más dinámico -->
+                                        </div>
+
+                                        <div class="modal-footer">
+                                            <button type="button"
+                                                class="btn text-secondary text-decoration-none small mt-2"
+                                                data-bs-dismiss="modal">Volver
+                                                a revisar</button>
+                                            <button type="submit" class="btn btn-outline-success rounded-pill">Confirmar
+                                                turno</button>
+                                        </div>
+
+                                    </div>
+                                </div>
                             </div>
                         </form>
 

@@ -6,7 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Medico extends Model
 {
-    protected $fillable = ['user_id', 'matricula'];
+    // esto quedó coordinado con los formularios y las migrations que habia
+    protected $fillable = ['user_id', 'matricula', 'obra_social', 'imagen'];
 
     public function user()
     {

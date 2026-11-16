@@ -16,11 +16,16 @@
                     <div class="text-center mb-4">
                         <h1 class="h3 fw-bold">Nombre Clínica</h1>
                         <h5 class="text-muted">Inicio de sesión</h5>
+                        <h6 class="text-muted fst-italic">-Admin-</h6>
+
                     </div>
 
                     <form action="" method="POST">
                         @csrf
 
+                        <div>
+                            <p class="error"></p>
+                        </div>
                         <div class="mb-3">
                             <label for="email" class="form-label">Correo electrónico</label>
                             <input type="email" name="email" class="form-control" id="email"
@@ -31,7 +36,6 @@
                         <div class="mb-4">
                             <label for="password" class="form-label">Contraseña</label>
                             <input type="password" name="password" class="form-control" id="password"
-                                pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*_=+-]).{8,12}$"
                                 placeholder="••••••••••" required minlength="8" maxlength="12">
                         </div>
 
@@ -39,11 +43,6 @@
 
                         <hr class="my-3">
 
-                        <div class="text-center">
-                            <span class="text-muted d-block mb-2">¿No tenés cuenta?</span>
-                            <a href="{{ route('create.cuenta') }}" class="btn btn-outline-secondary w-100">Crear cuenta</a>
-                        </div>
-                        <br>
                         <div class="text-center">
                             <a href="{{ url('/') }}" class="text-secondary text-decoration-none small mb-0">Volver</a>
                         </div>

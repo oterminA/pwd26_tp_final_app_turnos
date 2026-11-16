@@ -6,11 +6,18 @@
             <div class="text-center mb-4">
                 <h1 class="h3 fw-bold">Nombre Clínica</h1>
                 <h5 class="text-muted">Crear cuenta</h5>
+                <h6 class="text-muted fst-italic">-Paciente-</h6>
+
             </div>
 
             <form action="" method="POST">
                 @csrf
                 {{-- revisar si falta algo más en la validación en html --}}
+
+                <div>
+                    <p class="error"></p>
+                </div>
+
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label for="nombre" class="form-label">Nombre</label>
@@ -25,9 +32,38 @@
                 </div>
 
                 <div class="mb-3">
+                    <label for="fechaNac" class="form-label">Fecha de nacimiento</label>
+                    <input type="date" name="fechaNac" id="fechaNac" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
                     <label for="dni" class="form-label">DNI</label>
-                    <input type="number" name="dni" id="dni" class="form-control" placeholder="Ej: 12345678"
-                        minlength="7" maxlength="8" pattern="[0-9]{7,8}" required>
+                    <input type="text" name="dni" id="dni" class="form-control" placeholder="Ej: 12345678"
+                        pattern="[0-9]{7,8}" title="El DNI debe tener entre 7 y 8 números" required>
+                </div>
+
+                {{-- obras sociales hardcodeadas --}}
+                <div class="mb-3">
+                    <label for="nombre" class="form-label">Obra social</label>
+                    <select class="form-select" name="obraSocial">
+                        <option selected>Seleccione una opción</option>
+                        <option value="particular">Particular</option>
+                        <option value="ipross">IPROSS</option>
+                        <option value="issn">ISSN</option>
+                        <option value="osecac">OSECAC</option>
+                        <option value="ospe">OSPE / Construir Salud</option>
+                        <option value="osde">OSDE</option>
+                        <option value="swiss">Swiss Medical</option>
+                        <option value="sancor">Sancor Salud</option>
+                        <option value="medife">Medifé</option>
+                        <option value="galeno">Galeno</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="tel" class="form-label">Teléfono</label>
+                    <input type="number" name="tel" id="tel" class="form-control" placeholder="Ej: 2991234567"
+                        pattern="[0-9]{7,8}" required>
                 </div>
 
                 <div class="mb-3">
@@ -44,14 +80,15 @@
                 <div class="mb-3">
                     <label for="password" class="form-label">Contraseña</label>
                     <input type="password" name="password" class="form-control" id="password"
-                        pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*_=+-]).{8,12}$"
-                        placeholder="8 a 12 caracteres" required>
+                        pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,12}"
+                        title="Debe contener al menos un número, una letra mayúscula, una minúscula, y entre 8 y 12 caracteres." placeholder="••••••••••"
+                        required>
                 </div>
 
                 <div class="mb-4">
                     <label for="password_confirmation" class="form-label">Repetir contraseña</label>
                     <input type="password" name="password_confirmation" class="form-control" id="password_confirmation"
-                        required>
+                       placeholder="••••••••••" required>
                 </div>
 
                 <button type="submit" class="btn btn-primary w-100 mb-3">Registrarse</button>
@@ -60,7 +97,8 @@
 
                 <div class="text-center">
                     <span class="text-muted">¿Ya tenés una cuenta?</span>
-                    <a href="{{ route('login') }}" class="text-decoration-none fw-bold link-secondary">Iniciar sesión</a>
+                    <a href="{{ route('login.paciente') }}" class="text-decoration-none fw-bold link-secondary">Iniciar
+                        sesión</a>
                 </div>
                 <br>
                 <div class="text-center">

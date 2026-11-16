@@ -91,3 +91,11 @@ img:nth-child(2) {
 img:nth-child(3) {
     animation-delay: 0.5s;
 }
+
+.error{
+    color: rgb(116, 33, 33);
+    background-color: rgb(250, 59, 59);
+    width: fit-content;
+    border: 1px solid red;
+    border-radius: 5px;
+}
