@@ -33,3 +33,30 @@ Route::get('/iniciar-sesion-profesional', [MedicoController::class, 'mostrarLogi
 Route::get('/iniciar-sesion-admin', function () {
     return view('usuarios.admin.login');
 })->name('login.admin');
+/* rutas para administrar especialidades */
+
+Route::prefix('admin')->name('admin.')->group(function () {
+
+    Route::get('/especialidades', [EspecialidadController::class, 'index'])
+        ->name('especialidades.index');
+
+    Route::get('/especialidades/crear', [EspecialidadController::class, 'create'])
+        ->name('especialidades.create');
+
+    Route::post('/especialidades', [EspecialidadController::class, 'store'])
+        ->name('especialidades.store');
+
+    Route::get('/especialidades/{id}', [EspecialidadController::class, 'show'])
+        ->name('especialidades.show');
+
+    Route::get('/especialidades/{id}/editar', [EspecialidadController::class, 'edit'])
+        ->name('especialidades.edit');
+
+    Route::put('/especialidades/{id}', [EspecialidadController::class, 'update'])
+        ->name('especialidades.update');
+
+    Route::delete('/especialidades/{id}', [EspecialidadController::class, 'delete'])
+        ->name('especialidades.delete');
+
+});
+
