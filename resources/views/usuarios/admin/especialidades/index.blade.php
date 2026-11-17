@@ -35,11 +35,12 @@
             <div class="table-responsive">
                 <table class="table table-hover align-middle">
 
-                    <thead style="background-color: var(--clinic-light);">
+                    <thead>
                         <tr>
                             <th>Nombre</th>
                             <th>Descripcion</th>
-                            <th>Duracion del turno</th>
+                            <th>Duracion</th>
+                            <th>Estado</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -48,8 +49,26 @@
                         @forelse($especialidades as $especialidad)
                             <tr>
                                 <td>{{ $especialidad->nombre }}</td>
-                                <td>{{ $especialidad->descripcion ?? '-' }}</td>
-                                <td>{{ $especialidad->duracion_turno }} minutos</td>
+
+                                <td>
+                                    {{ $especialidad->descripcion ?? '-' }}
+                                </td>
+
+                                <td>
+                                    {{ $especialidad->duracion_turno }} minutos
+                                </td>
+
+                                <td>
+                                    @if($especialidad->trashed())
+                                        <span class="badge bg-secondary">
+                                            Inactiva
+                                        </span>
+                                    @else
+                                        <span class="badge bg-success">
+                                            Activa
+                                        </span>
+                                    @endif
+                                </td>
 
                                 <td>
                                     <a href="{{ route('admin.especialidades.show', $especialidad->id) }}"
@@ -62,24 +81,27 @@
                                         Editar
                                     </a>
 
-                                    <form action="{{ route('admin.especialidades.delete', $especialidad->id) }}"
-                                          method="POST"
-                                          class="d-inline">
+                                    @if(!$especialidad->trashed())
+                                        <form action="{{ route('admin.especialidades.delete', $especialidad->id) }}"
+                                              method="POST"
+                                              class="d-inline">
 
-                                        @csrf
-                                        @method('DELETE')
+                                            @csrf
+                                            @method('DELETE')
 
-                                        <button type="submit"
-                                                class="btn btn-sm btn-outline-danger"
-                                                onclick="return confirm('¿Queres desactivar esta especialidad?')">
-                                            Desactivar
-                                        </button>
-                                    </form>
+                                            <button type="submit"
+                                                    class="btn btn-sm btn-outline-danger"
+                                                    onclick="return confirm('¿Queres desactivar esta especialidad?')">
+                                                Desactivar
+                                            </button>
+                                        </form>
+                                    @endif
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4" class="text-center text-muted py-4">
+                                <td colspan="5"
+                                    class="text-center text-muted py-4">
                                     No hay especialidades registradas.
                                 </td>
                             </tr>
