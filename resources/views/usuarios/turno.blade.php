@@ -9,10 +9,10 @@
                     <div class="card-body p-4 p-md-5">
 
                         <div class="text-center mb-4">
-                            <h2 class="fw-bold text-dark">Solicitar Turno</h2>
+                            <h2 class="fw-bold text-dark">Solicitar turno</h2>
                         </div>
 
-                        <form action="" method="POST" enctype="multipart/form-data">
+                        <form action="{{ route('create.turno') }}" method="POST">
                             @csrf
                             {{-- revisar si falta algo más en la validación en html --}}
                             {{-- acá tenemos que traer los medicos que trabajen con la obra social que tenga el paciente en sus datos --}}
@@ -20,14 +20,12 @@
                                 {{-- capaz que acá usamos tom select acá --}}
                                 <label for="tel" class="form-label">Buscar por profesional</label>
                                 <select name="medico" id="medico" class="form-select" required>
-                                    <option value="" selected disabled> 🔎︎ Ej: Marta Pereira</option>
                                 </select>
                             </div>
 
                             <div class="mb-3">
                                 <label for="especialidad" class="form-label">Buscar por especialidad</label>
                                 <select name="especialidad" id="especialidad" class="form-select" required>
-                                    <option value="" selected disabled>🔎︎ Ej: Pedriatría</option>
                                 </select>
                             </div>
 
@@ -40,14 +38,6 @@
                                 </div>
                                 <!-- input hidden que se ocupa por js cuando el usuario elige una fecha -->
                                 <input type="hidden" name="fecha_hora" id="fecha_hora_input" required>
-                            </div>
-
-                            <div class="mb-4">
-                                <label for="formFileMultiple" class="form-label fw-semibold">Derivación médica /
-                                    orden(opcional)
-                                    <input class="form-control" type="file" id="formFileMultiple" name="derivacion[]"
-                                        multiple accept="image/jpeg, image/png, image/webp, application/pdf">
-                                    <div class="form-text">PDF, JPG, PNG o WEBP. Maximo 5 MB.</div>
                             </div>
 
                             <div class="text-center d-flex flex-column gap-2">
@@ -67,7 +57,7 @@
                                     <div class="modal-content">
 
                                         <div class="modal-header">
-                                            <h5 class="modal-title" id="modalTurnoLabel">Confirmación de Turno</h5>
+                                            <h5 class="modal-title" id="modalTurnoLabel">Confirmación de turno</h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal"
                                                 aria-label="Close"></button>
                                         </div>
@@ -75,7 +65,7 @@
                                         <div class="modal-body text-start">
                                             <p>Estás a punto de solicitar el turno con los datos seleccionados. Verificá que
                                                 todo esté correcto antes de confirmar.</p>
-                                            <!-- Acá podés inyectar con JS los datos seleccionados si querés hacerlo más dinámico -->
+                                            {{-- de js podemos traer los datos para mostrarlos acá en el resumen --}}
                                         </div>
 
                                         <div class="modal-footer">

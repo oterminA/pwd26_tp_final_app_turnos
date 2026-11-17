@@ -20,12 +20,10 @@
 
                     </div>
 
-                    <form action="" method="POST">
+                    <form action="{{route('medico.autenticar')}}" method="POST">
                         @csrf
+<div class="alert alert-danger error d-none" role="alert"></div>
 
-                        <div>
-                            <p class="error"></p>
-                        </div>
 
                         {{-- tipos de matriculas hardcodeadas --}}
                         <div class="mb-3">

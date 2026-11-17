@@ -11,6 +11,9 @@
             {{-- ejemplo estático para ver cómo se ve --}}
             <div class="container my-5">
                 <div class="row g-4">
+                       {{-- @foreach ($medicos as $medico )
+
+                       @endforeach --}}
 
                     <div class="col-md-4">
                         <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden card-hover">
@@ -31,7 +34,7 @@
                                     <p class="text-muted small mb-3">M.N. 48.102 · Pediatra General</p>
                                 </div>
 
-                                <a href="{{ route('turno') }}"
+                                <a href="{{ route('create.turno') }}"
                                     class="btn btn-outline-success btn-sm w-100 fw-semibold rounded-pill py-2 mt-2">
                                     Solicitar turno
                                 </a>

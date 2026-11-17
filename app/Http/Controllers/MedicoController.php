@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use App\Models\Medico;
+
 
 
 class MedicoController extends Controller
@@ -16,4 +18,43 @@ class MedicoController extends Controller
         return view('usuarios.medico.login');
     }
 
+    /**
+     * funcion que muestra el formulario de edicion de datos
+     */
+    public function edit()
+    {
+        $user = auth()->user();
+        $medico = $user->medico;
+
+        return view('usuarios.medico.cuenta', compact('user', 'medico'));
+    }
+
+    /**
+     * funcion para guardar los datos editados del medico
+     */
+    public function update(Request $request)
+    {
+        $user = Auth::user();
+        $medico = $user->medico;
+
+        $datosValidados = $request->validate([
+            'name'             => 'required|string|max:255',
+            'email'            => 'required|email|unique:users,email,' . $user->id,
+            'password'         => 'nullable|min:8|confirmed',
+            'matricula'              => 'required|string|unique:medicos,matricula,' . $medico->id,
+            'imagen' => 'nullable|date|mimes:jpg,jpeg,png,webp|max:300',
+            'obra_social'      => 'nullable|string|max:100',
+        ]);
+
+        if ($request->hasFile('imagen')) {
+            if ($medico->imagen && Storage::disk('public')->exists($medico->imagen)) {
+                Storage::disk('public')->delete($medico->imagen);
+            }
+            $validated['imagen'] = $request->file('imagen')->store('peliculas', 'public');
+        }
+
+        $medico->updateDatos($datosValidados);
+
+        return redirect()->back()->with('success', 'Tus datos fueron actualizados correctamente.');
+    }
 }

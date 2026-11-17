@@ -20,12 +20,11 @@
 
                     </div>
 
-                    <form action="" method="POST">
+                    <form action="{{route('admin.autenticar')}}" method="POST">
                         @csrf
 
-                        <div>
-                            <p class="error"></p>
-                        </div>
+<div class="alert alert-danger error d-none" role="alert"></div>
+
                         <div class="mb-3">
                             <label for="email" class="form-label">Correo electrónico</label>
                             <input type="email" name="email" class="form-control" id="email"

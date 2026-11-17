@@ -90,8 +90,10 @@ document.addEventListener("DOMContentLoaded", () => {
             if (errores.length > 0) {
                 event.preventDefault();
                 msjError.innerHTML = errores.join('<br>'); //se le insertan los errores al campo de error en los formularios
+                msjError.classList.remove('d-none');
             } else {
                 msjError.innerHTML = ""; // si está todo bien se limpia el campo
+                 msjError.classList.add('d-none');
             }
         });
     }

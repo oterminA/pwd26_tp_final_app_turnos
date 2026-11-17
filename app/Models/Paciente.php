@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class Paciente extends Model
 {
@@ -23,5 +25,33 @@ class Paciente extends Model
     public function turnos()
     {
         return $this->hasMany(Turno::class);
+    }
+
+    /**
+     * funcion que hace una 'transaccion' para manejar el hecho de que tanto en user como en paciente manejamos datos de 'paciente', entonces al actualizar se tiene que cambiar en ambos lados y esto desde el control no se puede manejar
+     */
+    public function updateDatos($datos)
+    {
+        DB::transaction(function () use ($datos) {
+           //se actualizan los datos en la tabla user
+            $datosUser = [
+                'name'  => $datos['name'],
+                'email' => $datos['email'],
+            ];
+
+            if (!empty($datos['password'])) {
+                $datosUser['password'] = Hash::make($datos['password']);
+            }
+
+            $this->user->update($datosUser);
+
+            //se actualizan los datos en la tabla paciente
+            $this->update([
+                'dni'              => $datos['dni'],
+                'fecha_nacimiento' => $datos['fecha_nacimiento'],
+                'telefono'         => $datos['telefono'],
+                'obra_social'      => $datos['obra_social'],
+            ]);
+        });
     }
 }

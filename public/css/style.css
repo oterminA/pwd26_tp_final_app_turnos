@@ -1,10 +1,15 @@
 :root {
-   /* paleta de verdes */
-    --clinic-lightest: #F2FFFB; /* fondos, tarjetas o secciones */
-    --clinic-light: #CFF7EA;    /* badges, alertas */
-    --clinic-water: #7FE3C6;    /*bordes */
-    --clinic-primary: #68c3b7;  /* color ppal (botones, marca, enlaces activos) */
-    --clinic-dark: #124D41;     /* textos importantes, headers, footer o navbar */
+    /* paleta de verdes */
+    --clinic-lightest: #F2FFFB;
+    /* fondos, tarjetas o secciones */
+    --clinic-light: #CFF7EA;
+    /* badges, alertas */
+    --clinic-water: #7FE3C6;
+    /*bordes */
+    --clinic-primary: #68c3b7;
+    /* color ppal (botones, marca, enlaces activos) */
+    --clinic-dark: #124D41;
+    /* textos importantes, headers, footer o navbar */
 
     /* neutros */
     --pure-white: #ffffff;
@@ -92,10 +97,3 @@ img:nth-child(3) {
     animation-delay: 0.5s;
 }
 
-.error{
-    color: rgb(116, 33, 33);
-    background-color: rgb(250, 59, 59);
-    width: fit-content;
-    border: 1px solid red;
-    border-radius: 5px;
-}

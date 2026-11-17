@@ -20,12 +20,12 @@
 
                     </div>
 
-                    <form action="" method="POST">
+                    <form action="{{route('paciente.autenticar')}}" method="POST">
                         @csrf
 
-                        <div>
-                            <p class="error"></p>
-                        </div>
+
+<div class="alert alert-danger error d-none" role="alert"></div>
+
 
                         <div class="mb-3">
                             <label for="dni" class="form-label">DNI</label>

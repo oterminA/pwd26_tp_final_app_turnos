@@ -17,24 +17,53 @@ Route::get('/equipo', function () {
     return view('publica.equipo');
 })->name('show.equipo');
 
-Route::get('/solicitar-turno', function () {
-    return view('usuarios.turno');
-})->name('turno');
 
-/*para el login-registro de PACIENTE*/
-Route::get('/crear-cuenta-paciente', [PacienteController::class, 'create'])->name('create.paciente');
+/*PACIENTE*/
+Route::get('/registrarse-pacinte', [PacienteController::class, 'create'])->name('create.paciente');
+
+Route::post('/guardar-paciente', [PacienteController::class, 'store'])->name('store.paciente');
+
+
 Route::get('/iniciar-sesion-paciente', [PacienteController::class, 'mostrarLogin'])->name('login.paciente');
 
+Route::put('/mi-cuenta-paciente', [PacienteController::class, 'update'])->name('paciente.update');
 
-/*para el login-registro de MEDICO*/
+Route::get('/mi-cuenta-paciente', [PacienteController::class, 'edit'])->name('paciente.edit');
+
+Route::post('/ingresar-paciente', [UserController::class, 'autenticar'])->name('paciente.autenticar');
+
+
+/*MEDICO*/
 Route::get('/iniciar-sesion-profesional', [MedicoController::class, 'mostrarLogin'])->name('login.medico');
 
-/*para el login-registro de ADMIN*/
+Route::put('/mi-cuenta-profesional', [MedicoController::class, 'update'])->name('medico.update');
+
+Route::get('/mi-cuenta-profesional', [MedicoController::class, 'edit'])->name('medico.edit');
+
+Route::post('/ingresar-profesional', [UserController::class, 'autenticar'])->name('medico.autenticar');
+
+
+
+/*ADMIN*/
 Route::get('/iniciar-sesion-admin', function () {
     return view('usuarios.admin.login');
 })->name('login.admin');
-/* rutas para administrar especialidades */
 
+Route::get('/mi-cuenta-admin', [UserController::class, 'edit'])->name('admin.edit');
+
+Route::put('/mi-cuenta-admin', [UserController::class, 'update'])->name('admin.update');
+
+Route::post('/ingresar-admin', [UserController::class, 'autenticar'])->name('admin.autenticar');
+
+
+
+/*para el cerrar sesion de todos los roles*/
+Route::post('/logout', [UserController::class, 'logout'])
+    ->middleware('auth')
+    ->name('logout');
+
+
+/* rutas para administrar especialidades */
 Route::prefix('admin')->name('admin.')->group(function () {
 
     Route::get('/especialidades', [EspecialidadController::class, 'index'])
@@ -57,6 +86,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
     Route::delete('/especialidades/{id}', [EspecialidadController::class, 'delete'])
         ->name('especialidades.delete');
-
 });
 
+
+/* TURNO */
+Route::get('/solicitar-turno', [TurnoController::class, 'create'])->name('create.turno');
+
+Route::post('/confirmar-turno', [TurnoController::class, 'store'])->name('store.turno');

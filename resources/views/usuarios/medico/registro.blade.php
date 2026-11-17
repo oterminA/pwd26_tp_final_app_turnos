@@ -13,10 +13,8 @@
             <form action="" method="POST">
                 @csrf
                 {{-- revisar si falta algo más en la validación en html --}}
+<div class="alert alert-danger error d-none" role="alert"></div>
 
-                <div>
-                    <p class="error"></p>
-                </div>
 
                 <div class="row mb-3">
                     <div class="col-md-6">

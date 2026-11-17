@@ -10,13 +10,11 @@
 
             </div>
 
-            <form action="" method="POST">
+            <form action="{{route('store.paciente')}}" method="POST">
                 @csrf
                 {{-- revisar si falta algo más en la validación en html --}}
 
-                <div>
-                    <p class="error"></p>
-                </div>
+                <div class="alert alert-danger error d-none" role="alert"></div>
 
                 <div class="row mb-3">
                     <div class="col-md-6">
@@ -81,14 +79,14 @@
                     <label for="password" class="form-label">Contraseña</label>
                     <input type="password" name="password" class="form-control" id="password"
                         pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,12}"
-                        title="Debe contener al menos un número, una letra mayúscula, una minúscula, y entre 8 y 12 caracteres." placeholder="••••••••••"
-                        required>
+                        title="Debe contener al menos un número, una letra mayúscula, una minúscula, y entre 8 y 12 caracteres."
+                        placeholder="••••••••••" required>
                 </div>
 
                 <div class="mb-4">
                     <label for="password_confirmation" class="form-label">Repetir contraseña</label>
                     <input type="password" name="password_confirmation" class="form-control" id="password_confirmation"
-                       placeholder="••••••••••" required>
+                        placeholder="••••••••••" required>
                 </div>
 
                 <button type="submit" class="btn btn-primary w-100 mb-3">Registrarse</button>

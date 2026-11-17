@@ -39,15 +39,58 @@
                         <li class="nav-item">
                             <a class="nav-link active" aria-current="page" href="{{ url('/') }}">Inicio</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white-50" href="{{ route('login.paciente') }}">Portal Pacientes</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white-50" href="{{ route('login.medico') }}">Portal Profesional</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white-50" href="{{ route('login.admin') }}">Portal Admin</a>
-                        </li>
+
+                        @guest
+                            {{-- lo que aparece en la vista publica para gente no autenticada --}}
+                            <li class="nav-item">
+                                <a class="nav-link text-white-50" href="{{ route('login.paciente') }}">Portal Pacientes</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white-50" href="{{ route('login.medico') }}">Portal Profesional</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white-50" href="{{ route('login.admin') }}">Portal Admin</a>
+                            </li>
+                        @else
+                        {{-- esto le aparece a cada usuario autenticado, segun su rol --}}
+
+                            @if (Auth::user()->isPaciente())
+                                <li class="nav-item">
+                                    <a class="nav-link text-white-50" href="{{ route('paciente.edit') }}">Mi cuenta</a>
+                                </li>
+                            @endif
+
+                            @if (Auth::user()->isMedico())
+                                <li class="nav-item">
+                                    <a class="nav-link text-white-50" href="{{ route('medico.edit') }}">Mi cuenta</a>
+                                </li>
+                            @endif
+
+                            @if (Auth::user()->isAdmin())
+                                <li class="nav-item">
+                                    <a class="nav-link text-white-50" href="{{ route('admin.edit') }}">Mi cuenta</a>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle text-white-50" role="button"
+                                        data-bs-toggle="dropdown" href="#">Administración</a>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="{{ route('medicos.index') }}">Profesionales</a>
+                                        </li>
+                                        <li><a class="dropdown-item"
+                                                href="{{ route('especialidades.index') }}">Especialidades</a></li>
+                                    </ul>
+                                </li>
+                            @endif
+
+                            {{-- y cerrar sesion es para todos --}}
+                            <li class="nav-item ms-lg-2">
+                                <form action="{{ route('logout') }}" method="POST" class="d-inline">
+                                    @csrf
+                                    <button type="submit" class="nav-link text-danger bg-transparent border-0">Cerrar
+                                        sesión</button>
+                                </form>
+                            </li>
+                        @endguest
                     </ul>
                 </div>
             </div>
