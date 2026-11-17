@@ -31,11 +31,11 @@ class EspecialidadController extends Controller
 
         Especialidad::create($datos);
 
-        return redirect()->route('usuarios.admin.especialidades.index')
+        return redirect()->route('admin.especialidades.index')
             ->with('success', 'Especialidad agregada correctamente.');
     }
 
-    // muestra los datos de una especialidad
+    // muestra una especialidad
     public function show($id)
     {
         $especialidad = Especialidad::findOrFail($id);
@@ -64,7 +64,7 @@ class EspecialidadController extends Controller
 
         $especialidad->update($datos);
 
-        return redirect()->route('usuarios.admin.especialidades.index')
+        return redirect()->route('admin.especialidades.index')
             ->with('success', 'Especialidad modificada correctamente.');
     }
 
@@ -74,11 +74,11 @@ class EspecialidadController extends Controller
         $especialidad = Especialidad::findOrFail($id);
 
         if ($especialidad->turnos()->exists()) {
-            return redirect()->route('usuarios.admin.especialidades.index')
+            return redirect()->route('admin.especialidades.index')
                 ->with('error', 'No se puede desactivar la especialidad porque tiene turnos asociados.');
         }
 
-        return redirect()->route('usuarios.admin.especialidades.index')
+        return redirect()->route('admin.especialidades.index')
             ->with('error', 'Todavia falta configurar el borrado logico para desactivar especialidades.');
     }
 }
