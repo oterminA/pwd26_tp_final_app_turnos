@@ -8,8 +8,38 @@ use App\Http\Controllers\TurnoController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
-/*para la landing page*/
+/////////////////////////////////////////////////////////
+////////////////rutas de prueba para ver las vistas/////
+///////////////los formularios se ven desde la opcion 'conocer equipo'
+Route::get('/paciente-panel', function () {
+    return view('usuarios.paciente.panel');
+})->name('paciente.panel');
+Route::get('/paciente-cuenta', function () {
+    return view('usuarios.paciente.cuenta');
+})->name('paciente.cuenta');
+Route::get('/medico-panel', function () {
+    return view('usuarios.medico.panel');
+})->name('medico.panel');
+Route::get('/medico-registro', function () {
+    return view('usuarios.medico.registro');
+})->name('medico.registro');
+Route::get('/medico-cuenta', function () {
+    return view('usuarios.medico.cuenta');
+})->name('medico.cuenta');
+Route::get('/admin-panel', function () {
+    return view('usuarios.admin.panel');
+})->name('admin.panel');
+Route::get('/admin-cuenta', function () {
+    return view('usuarios.admin.cuenta');
+})->name('admin.cuenta');
 
+
+
+/////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////
+
+
+/*para la landing page*/
 Route::get('/', function () {
     return view('publica.landing');
 });

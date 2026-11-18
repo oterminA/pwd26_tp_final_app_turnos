@@ -30,7 +30,7 @@
                 </div>
 
                 <div class="mb-4">
-                    <label for="fotoProfesional" class="form-label fw-semibold">Imagen (opcional)
+                    <label for="fotoProfesional" class="form-label fw-semibold">Imagen de perfil (opcional)
                         <input class="form-control" type="file" id="fotoProfesional" name="fotoProfesional"
                             accept="image/jpeg, image/png, image/webp">
                         <div class="form-text">JPG, PNG o WEBP. Maximo 300 KB.</div>
@@ -38,7 +38,7 @@
 
                 <div class="mb-3">
                     <label class="form-label">Tipo de matrícula</label>
-                    <select class="form-select" class="tipoMat">
+                    <select class="form-select" class="tipoMat" required>
                         <option selected>Seleccione una opción</option>
                         <option value="MN99">Nacional</option>
                         <option value="MP2">Buenos Aires</option>
@@ -77,7 +77,7 @@
 
                 <div class="mb-3">
                     <label for="nombre" class="form-label">Obra social con la que trabaja</label>
-                    <select class="form-select" name="obraSocial">
+                    <select class="form-select" name="obraSocial" required>
                         <option selected>Seleccione una opción</option>
                         <option value="particular">Particular</option>
                         <option value="ipross">IPROSS</option>
@@ -95,8 +95,8 @@
                 <div class="mb-3">
                     {{-- las especialidades se cargan dinamicamente desde el control --}}
                     {{-- acá se usa tom select tambien --}}
-                    <label for="esp-registro" class="form-label">Especialidad</label>
-                    <select id="esp-registro" name="esp-registro" multiple autocomplete="off">
+                    <label for="especialidad" class="form-label">Especialidad</label>
+                    <select id="especialidad" name="especialidad" multiple autocomplete="off" required>
                         <option value="">Selecccione la/s especialidad/es</option>
                     </select>
                 </div>

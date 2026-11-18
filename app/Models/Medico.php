@@ -41,12 +41,12 @@ class Medico extends Model
         DB::transaction(function () use ($datos) {
             //se actualizan los datos en la tabla user
             $datosUser = [
-                'name'  => $datos['name'],
+                'name'  => trim($datos['nombre'] . ' ' . $datos['apellido']), //acá concatenamos nombre y apellido porque eso es lo que representa el 'name' en la tabla user
                 'email' => $datos['email'],
             ];
 
             if (!empty($datos['password'])) {
-                $datosUser['password'] = Hash::make($datos['password']);
+                $datosUser['password'] = $datos['password'];
             }
 
             $this->user->update($datosUser);
@@ -65,9 +65,13 @@ class Medico extends Model
     */
     public function urlImagen(?string $ruta): ?string
     {
-        if ($ruta === null || $ruta === '') {
-            return null;
-        }
-        return Storage::disk('public')->url($ruta);
+      if ($ruta === null || $ruta === '') {
+        return null;
+    }
+
+    /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+    $disk = Storage::disk('public');
+
+    return $disk->url($ruta);
     }
 }

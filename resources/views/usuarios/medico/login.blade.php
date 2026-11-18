@@ -28,7 +28,7 @@
                         {{-- tipos de matriculas hardcodeadas --}}
                         <div class="mb-3">
                             <label class="form-label">Tipo de matrícula</label>
-                            <select class="form-select" class="tipoMat">
+                            <select class="form-select" class="tipoMat" required>
                                 <option selected>Seleccione una opción</option>
                                 <option value="MN99">Nacional</option>
                                 <option value="MP2">Buenos Aires</option>

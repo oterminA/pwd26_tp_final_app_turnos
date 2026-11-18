@@ -52,7 +52,7 @@
                                 <a class="nav-link text-white-50" href="{{ route('login.admin') }}">Portal Admin</a>
                             </li>
                         @else
-                        {{-- esto le aparece a cada usuario autenticado, segun su rol --}}
+                            {{-- esto le aparece a cada usuario autenticado, segun su rol --}}
 
                             @if (Auth::user()->isPaciente())
                                 <li class="nav-item">
@@ -127,6 +127,14 @@
     <!-- el js de la app, o demás scripts-->
     <script src="{{ asset('js/validacionesForms.js') }}"></script>
     <script src="{{ asset('js/librerias.js') }}"></script>
+
+
+
+    <!-- cdn de flatpickr -->
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
 </body>
 
 </html>

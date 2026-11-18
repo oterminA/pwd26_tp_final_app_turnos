@@ -14,7 +14,7 @@
     {{-- css de la app --}}
     <link rel="stylesheet" href="{{ asset('css/login.css') }}">
     @stack('styles')
-    <title>Inicio de sesión</title>
+    <title></title>
 </head>
 
 <body>

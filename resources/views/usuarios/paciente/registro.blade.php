@@ -43,7 +43,7 @@
                 {{-- obras sociales hardcodeadas --}}
                 <div class="mb-3">
                     <label for="nombre" class="form-label">Obra social</label>
-                    <select class="form-select" name="obraSocial">
+                    <select class="form-select" name="obraSocial" required>
                         <option selected>Seleccione una opción</option>
                         <option value="particular">Particular</option>
                         <option value="ipross">IPROSS</option>

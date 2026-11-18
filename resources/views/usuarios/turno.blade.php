@@ -15,9 +15,7 @@
                         <form action="{{ route('create.turno') }}" method="POST">
                             @csrf
                             {{-- revisar si falta algo más en la validación en html --}}
-                            {{-- acá tenemos que traer los medicos que trabajen con la obra social que tenga el paciente en sus datos --}}
                             <div class="mb-3">
-                                {{-- capaz que acá usamos tom select acá --}}
                                 <label for="tel" class="form-label">Buscar por profesional</label>
                                 <select name="medico" id="medico" class="form-select" required>
                                 </select>
@@ -29,16 +27,23 @@
                                 </select>
                             </div>
 
-                            <div class="mb-4">
-                                {{-- capaz que acá usamos full calendar --}}
-                                <label class="form-label fw-semibold">Fecha y hora</label>
-                                <div id='calendar' class="p-3 bg-light rounded-4 border">
-                                    <p class="text-muted text-center mb-0 small">Seleccioná un profesional para ver sus
-                                        horarios disponibles.</p>
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-6">
+                                    <label for="fecha_turno" class="form-label fw-semibold">Fecha</label>
+                                    <input type="text" id="fecha_turno" class="form-control bg-white"
+                                        placeholder="Seleccioná un día..." readonly disabled>
                                 </div>
-                                <!-- input hidden que se ocupa por js cuando el usuario elige una fecha -->
-                                <input type="hidden" name="fecha_hora" id="fecha_hora_input" required>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Horarios disponibles</label>
+                                    <div id="contenedor-horarios"
+                                        class="d-flex flex-wrap gap-2 p-2 bg-light rounded border">
+                                        <span class="text-muted small">Elegí un médico y una fecha.</span>
+                                    </div>
+                                </div>
                             </div>
+
+                            <input type="hidden" name="fecha_hora" id="fecha_hora_input" required>
 
                             <div class="text-center d-flex flex-column gap-2">
                                 <button type="button" class="btn btn-outline-primary btn-sm fw-semibold rounded-pill py-2"

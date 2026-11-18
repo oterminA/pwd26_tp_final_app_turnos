@@ -35,12 +35,12 @@ class Paciente extends Model
         DB::transaction(function () use ($datos) {
            //se actualizan los datos en la tabla user
             $datosUser = [
-                'name'  => $datos['name'],
+                'name'  => trim($datos['nombre'] . ' ' . $datos['apellido']),//acá concatenamos nombre y apellido porque eso es lo que representa el 'name' en la tabla user
                 'email' => $datos['email'],
             ];
 
             if (!empty($datos['password'])) {
-                $datosUser['password'] = Hash::make($datos['password']);
+                $datosUser['password'] = $datos['password'];
             }
 
             $this->user->update($datosUser);

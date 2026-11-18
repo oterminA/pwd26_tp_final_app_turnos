@@ -12,7 +12,7 @@
                 </h5>
             </div>
 
-            {{-- @if (session('success'))
+            @if (session('success'))
                 <div class="alert alert-success">
                     {{ session('success') }}
                 </div>
@@ -22,7 +22,7 @@
                 <div class="alert alert-danger">
                     {{ session('error') }}
                 </div>
-            @endif --}}
+            @endif
 
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h4 class="fw-bold text-dark mb-0">Mis turnos</h4>
