@@ -26,7 +26,8 @@
 
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h4 class="fw-bold text-dark mb-0">Turnos agendados</h4>
-                <a href="{{route('create.turno')}}" class="btn text-white" style="background-color: var(--clinic-primary);">
+                <a href="{{ route('create.turno') }}" class="btn text-white"
+                    style="background-color: var(--clinic-primary);">
                     Nuevo turno
                 </a>
             </div>
@@ -58,7 +59,9 @@
                                         </td>
                                         <td>
                                             @if ($turno->estado == 'finalizado')
-                                                <span class="badge bg-warning text-dark">Finalizado</span>
+                                                <span class="badge bg-success text-dark">Finalizado</span>
+                                            @elseif($turno->estado == 'ausente')
+                                                <span class="badge bg-secondary">Ausente</span>
                                             @elseif($turno->estado == 'cancelado')
                                                 <span class="badge bg-danger">Cancelado</span>
                                             @else
@@ -67,7 +70,8 @@
                                         </td>
                                         <td>
                                             {{-- el medico solo cancela los turnos que lo conciernen solo si faltan más de X dias y el turno deberia estar disponible otra vez --}}
-                                            <form action="{{route('medico.turnos.delete')}}" method="POST" class="d-inline">
+                                            <form action="{{ route('medico.turnos.delete') }}" method="POST"
+                                                class="d-inline">
                                                 @csrf
                                                 @method('PATCH')
                                                 <button type="submit" class="btn btn-sm btn-outline-danger"

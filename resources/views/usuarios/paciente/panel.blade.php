@@ -26,7 +26,8 @@
 
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h4 class="fw-bold text-dark mb-0">Mis turnos</h4>
-                <a href="{{ route('create.turno') }}" class="btn text-white" style="background-color: var(--clinic-primary);">
+                <a href="{{ route('create.turno') }}" class="btn text-white"
+                    style="background-color: var(--clinic-primary);">
                     Solicitar nuevo turno
                 </a>
             </div>
@@ -60,7 +61,9 @@
                                         <td>
                                             {{-- estas son las badge para mostrar los estados del turno --}}
                                             @if ($turno->estado == 'finalizado')
-                                                <span class="badge bg-warning text-dark">Finalizado</span>
+                                                <span class="badge bg-success text-dark">Finalizado</span>
+                                            @elseif($turno->estado == 'ausente')
+                                                <span class="badge bg-secondary">Ausente</span>
                                             @elseif($turno->estado == 'cancelado')
                                                 <span class="badge bg-danger">Cancelado</span>
                                             @else
