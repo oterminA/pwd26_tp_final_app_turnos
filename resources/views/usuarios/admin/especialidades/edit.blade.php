@@ -40,7 +40,9 @@
                                    required>
 
                             @error('nombre')
-                                <small class="text-danger">{{ $message }}</small>
+                                <small class="text-danger">
+                                    {{ $message }}
+                                </small>
                             @enderror
                         </div>
 
@@ -55,11 +57,13 @@
                                       rows="3">{{ old('descripcion', $especialidad->descripcion) }}</textarea>
 
                             @error('descripcion')
-                                <small class="text-danger">{{ $message }}</small>
+                                <small class="text-danger">
+                                    {{ $message }}
+                                </small>
                             @enderror
                         </div>
 
-                        <div class="mb-4">
+                        <div class="mb-3">
                             <label for="duracion_turno" class="form-label">
                                 Duracion del turno (minutos)
                             </label>
@@ -73,9 +77,46 @@
                                    required>
 
                             @error('duracion_turno')
-                                <small class="text-danger">{{ $message }}</small>
+                                <small class="text-danger">
+                                    {{ $message }}
+                                </small>
                             @enderror
                         </div>
+
+                        <div class="mb-4">
+                            <label for="estado" class="form-label">
+                                Estado de la especialidad
+                            </label>
+
+                            <select name="estado"
+                                    id="estado"
+                                    class="form-select"
+                                    required>
+
+                                <option value="activa"
+                                    @selected(old('estado', $especialidad->trashed() ? 'inactiva' : 'activa') == 'activa')>
+                                    Activa
+                                </option>
+
+                                <option value="inactiva"
+                                    @selected(old('estado', $especialidad->trashed() ? 'inactiva' : 'activa') == 'inactiva')>
+                                    Inactiva
+                                </option>
+
+                            </select>
+
+                            @error('estado')
+                                <small class="text-danger">
+                                    {{ $message }}
+                                </small>
+                            @enderror
+                        </div>
+
+                        @if(session('error'))
+                            <div class="alert alert-danger">
+                                {{ session('error') }}
+                            </div>
+                        @endif
 
                         <div class="d-flex justify-content-end gap-2">
 

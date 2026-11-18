@@ -20,7 +20,15 @@
 
                 <div class="card-body p-4">
 
-                    <form action="{{ route('admin.especialidades.store') }}" method="POST">
+                    @if(session('error'))
+                        <div class="alert alert-danger">
+                            {{ session('error') }}
+                        </div>
+                    @endif
+
+                    <form action="{{ route('admin.especialidades.store') }}"
+                          method="POST">
+
                         @csrf
 
                         <div class="mb-3">
@@ -37,7 +45,9 @@
                                    required>
 
                             @error('nombre')
-                                <small class="text-danger">{{ $message }}</small>
+                                <small class="text-danger">
+                                    {{ $message }}
+                                </small>
                             @enderror
                         </div>
 
@@ -52,7 +62,9 @@
                                       rows="3">{{ old('descripcion') }}</textarea>
 
                             @error('descripcion')
-                                <small class="text-danger">{{ $message }}</small>
+                                <small class="text-danger">
+                                    {{ $message }}
+                                </small>
                             @enderror
                         </div>
 
@@ -70,7 +82,9 @@
                                    required>
 
                             @error('duracion_turno')
-                                <small class="text-danger">{{ $message }}</small>
+                                <small class="text-danger">
+                                    {{ $message }}
+                                </small>
                             @enderror
                         </div>
 
