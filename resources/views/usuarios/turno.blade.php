@@ -31,7 +31,7 @@
                                 <div class="col-md-6">
                                     <label for="fecha_turno" class="form-label fw-semibold">Fecha</label>
                                     <input type="text" id="fecha_turno" class="form-control bg-white"
-                                        placeholder="Seleccioná un día..." readonly disabled>
+                                        placeholder="Seleccioná un día..." readonly>
                                 </div>
 
                                 <div class="col-md-6">

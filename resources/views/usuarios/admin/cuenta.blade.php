@@ -21,6 +21,16 @@
             </div>
         @endif
 
+        @if ($errors->any())
+            <div class="alert alert-danger">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         <div class="row justify-content-center">
             <div class="col-md-8">
                 <div class="card shadow-sm border-0">
@@ -29,9 +39,11 @@
                     </div>
                     <div class="card-body p-4">
 
-                        <form action="{{route('admin.update')}}" method="POST">
+                        <form action="{{ route('admin.update') }}" method="POST">
                             @csrf
                             @method('PUT')
+
+                            <div class="alert alert-danger error d-none" role="alert"></div>
 
                             <div class="mb-3">
                                 <label for="name" class="form-label fw-semibold">Nombre y apellido</label>

@@ -1,8 +1,9 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\Medico;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -42,15 +43,20 @@ class MedicoController extends Controller
             'email'            => 'required|email|unique:users,email,' . $user->id,
             'password'         => 'nullable|min:8|confirmed',
             'matricula'              => 'required|string|unique:medicos,matricula,' . $medico->id,
-            'imagen' => 'nullable|date|mimes:jpg,jpeg,png,webp|max:300',
+            'imagen' => 'nullable|mimes:jpg,jpeg,png,webp|max:300',
             'obra_social'      => 'nullable|string|max:100',
         ]);
 
         if ($request->hasFile('imagen')) {
-            if ($medico->imagen && Storage::disk('public')->exists($medico->imagen)) {
-                Storage::disk('public')->delete($medico->imagen);
+            if ($medico->imagen && File::exists(public_path($medico->imagen))) {
+                File::delete(public_path($medico->imagen));
             }
-            $validated['imagen'] = $request->file('imagen')->store('peliculas', 'public');
+
+            $archivo = $request->file('imagen');
+            $nombreArchivo = time() . '_' . $archivo->getClientOriginalName();
+            $archivo->move(public_path('imagenes'), $nombreArchivo);
+
+            $validated['imagen'] = 'imagenes/' . $nombreArchivo;
         }
 
         $medico->updateDatos($datosValidados);

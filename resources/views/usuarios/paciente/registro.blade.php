@@ -10,7 +10,17 @@
 
             </div>
 
-            <form action="{{route('store.paciente')}}" method="POST">
+            @if ($errors->any())
+                <div class="alert alert-danger">
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            <form action="{{ route('store.paciente') }}" method="POST">
                 @csrf
                 {{-- revisar si falta algo más en la validación en html --}}
 
@@ -20,59 +30,62 @@
                     <div class="col-md-6">
                         <label for="nombre" class="form-label">Nombre</label>
                         <input type="text" name="nombre" id="nombre" class="form-control" placeholder="Ej: Marta"
-                            minlength="3" maxlength="30" required>
+                            value="{{ old('nombre') }}" minlength="3" maxlength="30" required>
                     </div>
                     <div class="col-md-6 mt-3 mt-md-0">
                         <label for="apellido" class="form-label">Apellido</label>
                         <input type="text" name="apellido" id="apellido" class="form-control" placeholder="Ej: Juarez"
-                            minlength="3" maxlength="30" required>
+                            value="{{ old('apellido') }}" minlength="3" maxlength="30" required>
                     </div>
                 </div>
 
                 <div class="mb-3">
                     <label for="fechaNac" class="form-label">Fecha de nacimiento</label>
-                    <input type="date" name="fechaNac" id="fechaNac" class="form-control" required>
+                    <input type="date" name="fechaNac" id="fechaNac" class="form-control" value="{{ old('fechaNac') }}"
+                        required>
                 </div>
 
                 <div class="mb-3">
                     <label for="dni" class="form-label">DNI</label>
                     <input type="text" name="dni" id="dni" class="form-control" placeholder="Ej: 12345678"
-                        pattern="[0-9]{7,8}" title="El DNI debe tener entre 7 y 8 números" required>
+                        value="{{ old('dni') }}" pattern="[0-9]{7,8}" title="El DNI debe tener entre 7 y 8 números"
+                        required>
                 </div>
 
-                {{-- obras sociales hardcodeadas --}}
                 <div class="mb-3">
-                    <label for="nombre" class="form-label">Obra social</label>
-                    <select class="form-select" name="obraSocial" required>
-                        <option selected>Seleccione una opción</option>
-                        <option value="particular">Particular</option>
-                        <option value="ipross">IPROSS</option>
-                        <option value="issn">ISSN</option>
-                        <option value="osecac">OSECAC</option>
-                        <option value="ospe">OSPE / Construir Salud</option>
-                        <option value="osde">OSDE</option>
-                        <option value="swiss">Swiss Medical</option>
-                        <option value="sancor">Sancor Salud</option>
-                        <option value="medife">Medifé</option>
-                        <option value="galeno">Galeno</option>
+                    <label for="obra_social" class="form-label">Obra social</label>
+                    <select class="form-select" id="obra_social" name="obra_social" required>
+                        <option value="" disabled @selected(!old('obra_social'))>Seleccione una opción</option>
+                        <option value="particular" @selected(old('obra_social') == 'particular')>Particular</option>
+                        <option value="ipross" @selected(old('obra_social') == 'ipross')>IPROSS</option>
+                        <option value="issn" @selected(old('obra_social') == 'issn')>ISSN</option>
+                        <option value="osecac" @selected(old('obra_social') == 'osecac')>OSECAC</option>
+                        <option value="ospe" @selected(old('obra_social') == 'ospe')>OSPE / Construir Salud</option>
+                        <option value="osde" @selected(old('obra_social') == 'osde')>OSDE</option>
+                        <option value="swiss" @selected(old('obra_social') == 'swiss')>Swiss Medical</option>
+                        <option value="sancor" @selected(old('obra_social') == 'sancor')>Sancor Salud</option>
+                        <option value="medife" @selected(old('obra_social') == 'medife')>Medifé</option>
+                        <option value="galeno" @selected(old('obra_social') == 'galeno')>Galeno</option>
                     </select>
                 </div>
 
                 <div class="mb-3">
                     <label for="tel" class="form-label">Teléfono</label>
-                    <input type="number" name="tel" id="tel" class="form-control" placeholder="Ej: 2991234567"
-                        pattern="[0-9]{7,8}" required>
+                    <input type="tel" name="tel" id="tel" class="form-control" placeholder="Ej: 2991234567"
+                        value="{{ old('tel') }}" pattern="[0-9]{8,15}"
+                        title="Ingresá solo números (entre 8 y 15 dígitos)" required>
                 </div>
 
                 <div class="mb-3">
                     <label for="email" class="form-label">Correo electrónico</label>
-                    <input type="email" name="email" class="form-control" id="email"
+                    <input type="email" name="email" class="form-control" id="email" value="{{ old('email') }}"
                         placeholder="Ej: nombre@gmail.com" required>
                 </div>
 
                 <div class="mb-3">
                     <label for="email_confirmation" class="form-label">Repetir correo electrónico</label>
-                    <input type="email" name="email_confirmation" class="form-control" id="email_confirmation" required>
+                    <input type="email" name="email_confirmation" class="form-control" id="email_confirmation"
+                        value="{{ old('email_confirmation') }}" required>
                 </div>
 
                 <div class="mb-3">

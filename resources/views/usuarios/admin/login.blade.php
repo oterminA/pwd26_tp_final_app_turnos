@@ -20,16 +20,25 @@
 
                     </div>
 
-                    <form action="{{route('admin.autenticar')}}" method="POST">
-                        @csrf
+                    @if ($errors->any())
+                        <div class="alert alert-danger">
+                            <ul>
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
 
-<div class="alert alert-danger error d-none" role="alert"></div>
+                    <form action="{{ route('admin.autenticar') }}" method="POST">
+                        @csrf
+                        <div class="alert alert-danger error d-none" role="alert"></div>
 
                         <div class="mb-3">
                             <label for="email" class="form-label">Correo electrónico</label>
                             <input type="email" name="email" class="form-control" id="email"
-                                placeholder="Ej: nombre@gmail.com" pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
-                                required>
+                                value="{{ old('email') }}" placeholder="Ej: nombre@gmail.com"
+                                pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}" required>
                         </div>
 
                         <div class="mb-4">

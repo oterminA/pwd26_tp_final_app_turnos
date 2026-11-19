@@ -4,8 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
 
 
 class Medico extends Model
@@ -61,17 +59,14 @@ class Medico extends Model
     }
 
     /**
-     *
-    */
+     *funcion para poder mostrar imagenes de medico
+     */
     public function urlImagen(?string $ruta): ?string
     {
-      if ($ruta === null || $ruta === '') {
-        return null;
-    }
+        if ($ruta === null || $ruta === '') {
+            return null;
+        }
 
-    /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
-    $disk = Storage::disk('public');
-
-    return $disk->url($ruta);
+        return asset($ruta);
     }
 }

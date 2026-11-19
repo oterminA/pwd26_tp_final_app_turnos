@@ -54,7 +54,7 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            'password' => 'hashed', //con esto no hace falta hashear la contraseña en medico o paciente
         ];
     }
 

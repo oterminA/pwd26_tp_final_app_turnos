@@ -1,5 +1,6 @@
 //// acá se maneja el código JS de las librerías Tom Select y Flatpickr ////
 document.addEventListener('DOMContentLoaded', function () {
+
     const opcionesEspecialidades = [
         { id: 1, nombre: "Pediatría" },
         { id: 2, nombre: "Cardiología" },
@@ -114,23 +115,45 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        selectMedico.enable();
-        // cuando se conecta la base ed datos acá va el fetch
-        selectMedico.addOptions(opcionesMedicos);
+        try {
+            /////esto es para cuando tengams conectado todo con la bd, despues se acomoda
+            // const response = await fetch(`/api/medicos por-especialidad/${especialidadId}`);
+            // if (!response.ok) throw new Error('Error al obtener los médicos');
+            // const medicos = await response.json();
+            //
+
+            selectMedico.enable();
+            selectMedico.addOptions(opcionesMedicos);
+
+        } catch (error) {
+            console.error("Error AJAX:", error);
+            contenedorHorarios.innerHTML = '<span class="text-danger small">No se pudieron cargar los médicos. Intentá nuevamente.</span>';
+        }
     });
 
-    selectMedico.on('change', function (medicoId) {
+    selectMedico.on('change', async function (medicoId) {
         resetearFechaYHorarios();
 
         if (!medicoId) {
             return;
         }
 
-        // cuando se conecta la base ed datos acá va el fetch
-        disponibilidadActual = disponibilidadPrueba;
+        try {
+            /////esto es para cuando tengams conectado todo con la bd, despues se acomoda
+            // const response = await fetch(`/api/disponibilidad/${medicoId}`);
+            // if (!response.ok) throw new Error('Error al obtener la disponibilidad');
+            // disponibilidadActual = await response.json();
+            //
 
-        flatPickr.set('enable', Object.keys(disponibilidadActual));
-        fechaInput.disabled = false;
-        contenedorHorarios.innerHTML = '<span class="text-muted small">Seleccioná un día en el calendario.</span>';
+            disponibilidadActual = disponibilidadPrueba;
+
+            flatPickr.set('enable', Object.keys(disponibilidadActual));
+            fechaInput.disabled = false;
+            contenedorHorarios.innerHTML = '<span class="text-muted small">Seleccioná un día en el calendario.</span>';
+
+        } catch (error) {
+            console.error("Error AJAX:", error);
+            contenedorHorarios.innerHTML = '<span class="text-danger small">No se pudo cargar la disponibilidad. Intentá nuevamente.</span>';
+        }
     });
 });

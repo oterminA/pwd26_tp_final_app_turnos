@@ -61,7 +61,7 @@ class UserController extends Controller
         $user = auth()->user();
 
         $datos = $request->validate([
-            'name'  => 'required| string|max:255',
+            'name'  => 'required| string|min:6|max:255|regex:/^[\pL\s]+$/u',
             'email' => 'required|email|unique:user,email,' . $user->id,
         ]);
 

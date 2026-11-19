@@ -39,36 +39,6 @@
                                     Solicitar turno
                                 </a>
 
-                                {{-- pruebas --}}
-                                <a href="{{ route('paciente.panel') }}"
-                                    class="btn btn-outline-success btn-sm w-100 fw-semibold rounded-pill py-2 mt-2">
-                                    paciente panel
-                                </a>
-                                <a href="{{ route('paciente.cuenta') }}"
-                                    class="btn btn-outline-success btn-sm w-100 fw-semibold rounded-pill py-2 mt-2">
-                                    paciente 'mi cuenta'
-                                </a>
-                                <a href="{{ route('medico.registro') }}"
-                                    class="btn btn-outline-success btn-sm w-100 fw-semibold rounded-pill py-2 mt-2">
-                                    medico registro
-                                </a>
-                                <a href="{{ route('medico.panel') }}"
-                                    class="btn btn-outline-success btn-sm w-100 fw-semibold rounded-pill py-2 mt-2">
-                                    medico panel
-                                </a>
-                                <a href="{{ route('medico.cuenta') }}"
-                                    class="btn btn-outline-success btn-sm w-100 fw-semibold rounded-pill py-2 mt-2">
-                                    medico 'mi cuenta'
-                                </a>
-
-                                <a href="{{ route('admin.panel') }}"
-                                    class="btn btn-outline-success btn-sm w-100 fw-semibold rounded-pill py-2 mt-2">
-                                    admin panel
-                                </a>
-                                <a href="{{ route('admin.cuenta') }}"
-                                    class="btn btn-outline-success btn-sm w-100 fw-semibold rounded-pill py-2 mt-2">
-                                    admin 'mi cuenta'
-                                </a>
                             </div>
                         </div>
                     </div>

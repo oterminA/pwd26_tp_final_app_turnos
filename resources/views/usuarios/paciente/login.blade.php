@@ -20,21 +20,31 @@
 
                     </div>
 
-                    <form action="{{route('paciente.autenticar')}}" method="POST">
+                    @if ($errors->any())
+                        <div class="alert alert-danger">
+                            <ul>
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
+                    <form action="{{ route('paciente.autenticar') }}" method="POST">
                         @csrf
-
-
-<div class="alert alert-danger error d-none" role="alert"></div>
-
+                        <div class="alert alert-danger error d-none" role="alert"></div>
 
                         <div class="mb-3">
                             <label for="dni" class="form-label">DNI</label>
-                           <input type="text" name="dni" id="dni" class="form-control" placeholder="Ej: 12345678" pattern="[0-9]{7,8}" title="El DNI debe tener entre 7 y 8 números" required>
+                            <input type="text" name="dni" id="dni" class="form-control"
+                                value="{{ old('dni') }}" placeholder="Ej: 12345678" pattern="[0-9]{7,8}"
+                                title="El DNI debe tener entre 7 y 8 números" required>
                         </div>
 
                         <div class="mb-4">
                             <label for="password" class="form-label">Contraseña</label>
-                            <input type="password" name="password" class="form-control" id="password" placeholder="••••••••••" required minlength="8" maxlength="12">
+                            <input type="password" name="password" class="form-control" id="password"
+                                placeholder="••••••••••" required minlength="8" maxlength="12">
                         </div>
 
                         <button type="submit" class="btn btn-primary w-100 mb-3">Ingresar</button>
@@ -43,7 +53,8 @@
 
                         <div class="text-center">
                             <span class="text-muted d-block mb-2">¿No tenés cuenta?</span>
-                            <a href="{{ route('create.paciente') }}" class="btn btn-outline-secondary w-100">Crear cuenta</a>
+                            <a href="{{ route('create.paciente') }}" class="btn btn-outline-secondary w-100">Crear
+                                cuenta</a>
                         </div>
                         <br>
                         <div class="text-center">
