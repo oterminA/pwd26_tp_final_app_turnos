@@ -16,12 +16,14 @@
                             @csrf
                             {{-- revisar si falta algo más en la validación en html --}}
                             <div class="mb-3">
+                                {{-- lleva tom select --}}
                                 <label for="tel" class="form-label">Buscar por profesional</label>
                                 <select name="medico" id="medico" class="form-select" required>
                                 </select>
                             </div>
 
                             <div class="mb-3">
+                                {{-- lleva tom select --}}
                                 <label for="especialidad" class="form-label">Buscar por especialidad</label>
                                 <select name="especialidad" id="especialidad" class="form-select" required>
                                 </select>

@@ -7,8 +7,19 @@ use Illuminate\Database\Eloquent\Model;
 class Turno extends Model
 {
     protected $fillable = [
-        'paciente_id', 'medico_id', 'especialidad_id', 'fecha',
-        'hora_inicio', 'hora_fin', 'estado', 'codigo'
+        'paciente_id',
+        'medico_id',
+        'especialidad_id',
+        'fecha',
+        'hora_inicio',
+        'hora_fin',
+        'estado',
+        'codigo'
+    ];
+
+    protected $casts = [
+        'fecha' => 'date',
+        'hora_inicio' => 'datetime',
     ];
 
     public function paciente()

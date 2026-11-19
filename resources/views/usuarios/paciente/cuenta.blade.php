@@ -78,6 +78,7 @@
                                        value="{{ old('telefono', $paciente->telefono) }}" required>
                             </div>
                             <div class="col-md-6 mb-3">
+                                {{-- lleva tom select --}}
                                 <label for="obra_social" class="form-label fw-semibold">Obra social</label>
                                 <select class="form-select" id="obra_social" name="obra_social" required>
                                     <option value="" disabled>Seleccione una opción</option>

@@ -54,8 +54,8 @@
                                         <td>{{ $turno->paciente->user->name }}</td>
                                         <td>{{ $turno->especialidad->nombre }}</td>
                                         <td>
-                                            {{ \Carbon\Carbon::parse($turno->fecha)->format('d/m/Y') }} -
-                                            {{ \Carbon\Carbon::parse($turno->hora_inicio)->format('H:i') }} hs
+                                        <td><strong>{{ $turno->fecha->format('d/m/Y') }}</strong></td>
+                                        <td><strong>{{ $turno->hora_inicio->format('H:i') }} hs</strong></td>
                                         </td>
                                         <td>
                                             @if ($turno->estado == 'finalizado')

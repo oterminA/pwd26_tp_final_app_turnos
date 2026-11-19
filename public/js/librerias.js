@@ -1,6 +1,5 @@
 //// acá se maneja el código JS de las librerías Tom Select y Flatpickr ////
 document.addEventListener('DOMContentLoaded', function () {
-
     const opcionesEspecialidades = [
         { id: 1, nombre: "Pediatría" },
         { id: 2, nombre: "Cardiología" },
@@ -60,7 +59,22 @@ document.addEventListener('DOMContentLoaded', function () {
         placeholder: "🔎︎ Ej: Marta Pereira"
     });
 
+    ///////////no se cargan dinamicamente ni nada pero tiene tom select
+    const configSelectEstatico = {
+        ...configuracionBase,
+        sortField: { field: "text", direction: "asc" }
+    };
 
+    const obraSocialEl = document.getElementById('obra_social');
+    if (obraSocialEl) { //se revisa que exista el select porque en el formulario de turnos no está pero en los otros si, para no generar problemas cuando no exista
+        new TomSelect(obraSocialEl, configSelectEstatico);
+    }
+
+    const tipoMatEl = document.getElementById('tipoMat');
+    if (tipoMatEl) {//se revisa que exista el select porque en el formulario de turnos no está pero en los otros si, para no generar problemas cuando no exista
+        new TomSelect(tipoMatEl, configSelectEstatico);
+    }
+    ///////////
 
     let disponibilidadActual = {};
 

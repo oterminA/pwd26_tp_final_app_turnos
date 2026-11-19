@@ -89,4 +89,14 @@ class TurnoPolicy
     {
         return false;
     }
+
+    /**
+     * solo el paciente DUEÑO del turno puede descargar el comprobante
+     */
+    public function descargarComprobante(User $user, Turno $turno): bool
+    {
+        return $user->rol === 'paciente'
+            && $user->paciente
+            && $user->paciente->id === $turno->paciente_id;
+    }
 }

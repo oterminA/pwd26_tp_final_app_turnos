@@ -53,6 +53,7 @@
                 </div>
 
                 <div class="mb-3">
+                    {{-- lleva tom select --}}
                     <label for="obra_social" class="form-label">Obra social</label>
                     <select class="form-select" id="obra_social" name="obra_social" required>
                         <option value="" disabled @selected(!old('obra_social'))>Seleccione una opción</option>

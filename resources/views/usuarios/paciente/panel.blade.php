@@ -55,8 +55,8 @@
                                         <td>{{ $turno->especialidad->nombre }}</td>
                                         <td>{{ $turno->medico->user->name }}</td>
                                         <td>
-                                            {{ \Carbon\Carbon::parse($turno->fecha)->format('d/m/Y') }} -
-                                            {{ \Carbon\Carbon::parse($turno->hora_inicio)->format('H:i') }} hs
+                                            <td><strong>{{ $turno->fecha->format('d/m/Y') }}</strong></td>
+<td><strong>{{ $turno->hora_inicio->format('H:i') }} hs</strong></td>
                                         </td>
                                         <td>
                                             {{-- estas son las badge para mostrar los estados del turno --}}
@@ -84,8 +84,15 @@
                                             <span class="text-muted small">-</span>
                                         </td>
                                         <td>
-                                            {{-- esto tendriamos que completarlo cuando agreguemos la libreria para descargar los pdf --}}
-                                            🖨️
+                                            {{-- acá se usa la policy de turno que no deja que otro paciente descargue el comprobante si no es el dueño --}}
+                                            @can('descargarComprobante', $turno)
+                                                @if ($turno->estado !== 'cancelado')
+                                                    <a href="{{ route('turno.comprobante', $turno->id) }}"
+                                                        class="btn btn-sm btn-outline-light" target="_blank">
+                                                        🖨️
+                                                    </a>
+                                                @endif
+                                            @endcan
                                         </td>
                                     </tr>
                                 @empty

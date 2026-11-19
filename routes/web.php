@@ -9,6 +9,7 @@ use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 /*para la landing page*/
+
 Route::get('/', function () {
     return view('publica.landing');
 });
@@ -92,3 +93,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
 Route::get('/solicitar-turno', [TurnoController::class, 'create'])->name('create.turno');
 
 Route::post('/confirmar-turno', [TurnoController::class, 'store'])->name('store.turno');
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/turnos-{turno}-comprobante', [TurnoController::class, 'descargarComprobante'])
+        ->name('turno.comprobante'); //para que el paciente pueda descargar el comprobante del turno
+});

@@ -45,6 +45,7 @@
                 </div>
 
                 <div class="mb-3">
+                    {{-- lleva tom select --}}
                     <label for="tipoMat" class="form-label">Tipo de matrícula</label>
                     <select class="form-select" id="tipoMat" name="tipoMat" required>
                         <option value="" disabled @selected(!old('tipoMat'))>Seleccione una opción</option>
@@ -83,6 +84,7 @@
                 </div>
 
                 <div class="mb-3">
+                    {{-- lleva tom select --}}
                     <label for="obraSocial" class="form-label">Obra social con la que trabaja</label>
                     <select class="form-select" id="obraSocial" name="obraSocial" required>
                         <option value="" disabled @selected(!old('obraSocial'))>Seleccione una opción</option>
@@ -100,6 +102,7 @@
                 </div>
 
                 <div class="mb-3">
+                    {{-- lleva tom select --}}
                     <label for="especialidad" class="form-label">Especialidad</label>
                     <select id="especialidad" name="especialidad[]" multiple autocomplete="off" required>
                         <option value="">Seleccione la/s especialidad/es</option>

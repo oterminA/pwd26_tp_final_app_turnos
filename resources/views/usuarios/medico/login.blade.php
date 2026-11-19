@@ -35,6 +35,7 @@
                         <div class="alert alert-danger error d-none" role="alert"></div>
 
                         <div class="mb-3">
+                            {{-- lleva tom select --}}
                             <label for="tipoMat" class="form-label">Tipo de matrícula</label>
                             <select class="form-select" id="tipoMat" name="tipoMat" required>
                                 <option value="" disabled @selected(!old('tipoMat'))>Seleccione una opción</option>

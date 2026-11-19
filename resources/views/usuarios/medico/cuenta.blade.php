@@ -66,6 +66,7 @@
                             </div>
 
                             <div class="mb-3">
+                                {{-- lleva tom select --}}
                                 <label for="tipoMat" class="form-label fw-semibold">Tipo de matrícula</label>
                                 <select class="form-select" id="tipoMat" name="tipoMat" required>
                                     <option value="" disabled>Seleccione una opción</option>
@@ -104,6 +105,7 @@
                                         value="{{ old('matricula', $medico->matricula) }}" required>
                                 </div>
                                 <div class="col-md-6 mb-3">
+                                    {{-- lleva tom select --}}
                                     <label for="obra_social" class="form-label fw-semibold">Obra social con la que
                                         trabaja</label>
                                     <select class="form-select" id="obra_social" name="obra_social" required>

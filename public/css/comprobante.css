@@ -1,0 +1,112 @@
+body {
+    font-family: DejaVu Sans, sans-serif;
+    color: #212529;
+    background-color: #ffffff;
+    font-size: 13px;
+    margin: 0;
+    padding: 20px;
+}
+
+.recibo-container {
+    border: 2px solid #7FE3C6;
+    /* --clinic-water */
+    border-radius: 12px;
+    padding: 25px;
+    max-width: 650px;
+    margin: 0 auto;
+    background-color: #ffffff;
+}
+
+.header {
+    background-color: #F2FFFB;
+    /* --clinic-lightest */
+    border-bottom: 3px solid #68c3b7;
+    /* --clinic-primary */
+    padding: 16px 20px;
+    margin: -25px -25px 20px -25px;
+    border-radius: 10px 10px 0 0;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 20px;
+    color: #124D41;
+    /* --clinic-dark */
+}
+
+.header p {
+    margin: 4px 0 0 0;
+    color: #6c757d;
+    /* --gray-text */
+    font-size: 12px;
+}
+
+.codigo-box {
+    background-color: #F2FFFB;
+    /* --clinic-lightest */
+    border: 1.5px dashed #68c3b7;
+    /* --clinic-primary */
+    padding: 12px 15px;
+    text-align: center;
+    margin-bottom: 18px;
+    border-radius: 8px;
+    color: #124D41;
+    /* --clinic-dark */
+}
+
+.codigo-box span {
+    font-size: 16px;
+    font-weight: bold;
+    color: #124D41;
+    /* --clinic-dark */
+    letter-spacing: 1px;
+}
+
+.hr-comprobante {
+    border: none;
+    border-top: 2px dashed #7FE3C6;
+    /* --clinic-water */
+    margin: 18px 0;
+}
+
+table.datos {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 15px;
+}
+
+table.datos td {
+    padding: 9px 6px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+table.datos td.etiqueta {
+    font-weight: bold;
+    width: 35%;
+    color: #124D41;
+    /* --clinic-dark */
+}
+
+.estado {
+    display: inline-block;
+    padding: 4px 10px;
+    background-color: #CFF7EA;
+    /* --clinic-light */
+    color: #124D41;
+    /* --clinic-dark */
+    border: 1px solid #7FE3C6;
+    /* --clinic-water */
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 11px;
+    text-transform: uppercase;
+}
+
+.footer {
+    margin-top: 15px;
+    font-size: 11px;
+    color: #6c757d;
+    /* --gray-text */
+    text-align: center;
+    line-height: 1.5;
+}
