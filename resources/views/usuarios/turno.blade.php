@@ -12,7 +12,7 @@
                             <h2 class="fw-bold text-dark">Solicitar turno</h2>
                         </div>
 
-                        <form action="{{ route('create.turno') }}" method="POST">
+                        <form action="{{ route('store.turno') }}" method="POST">
                             @csrf
                             {{-- revisar si falta algo más en la validación en html --}}
                             <div class="mb-3">
@@ -95,4 +95,7 @@
             </div>
         </div>
     </div>
+    <script>
+    window.especialidadesBD = @json($especialidades);
+    </script>
 @endsection

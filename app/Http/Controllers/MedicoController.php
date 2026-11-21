@@ -63,4 +63,31 @@ class MedicoController extends Controller
 
         return redirect()->back()->with('success', 'Tus datos fueron actualizados correctamente.');
     }
+    public function mostrarConfigurarTurno()
+{
+    $medico = auth()->user()->medico;
+    abort_unless($medico, 403, 'Acceso exclusivo para profesionales.');
+
+    // Si ya configuró la duración, lo mandamos a su cuenta/panel
+    if (!is_null($medico->duracion_turno)) {
+        return redirect()->route('medico.edit');
+    }
+
+    return view('usuarios.medico.configurar-turno');
+}
+
+public function guardarDuracionTurno(\Illuminate\Http\Request $request)
+{
+    $request->validate([
+        'duracion_turno' => 'required|integer|in:15,20,30,45,60',
+    ]);
+
+    $medico = auth()->user()->medico;
+    $medico->update([
+        'duracion_turno' => $request->duracion_turno,
+    ]);
+
+    return redirect()->route('medico.edit')
+        ->with('success', 'Duración estándar de turnos configurada correctamente.');
+}
 }

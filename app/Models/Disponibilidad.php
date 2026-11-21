@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Disponibilidad extends Model
 {
+    protected $table = 'disponibilidades';
+    
     protected $fillable = ['medico_id', 'dia_semana', 'hora_inicio', 'hora_fin'];
 
     public function medico()

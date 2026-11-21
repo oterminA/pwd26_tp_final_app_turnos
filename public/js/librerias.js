@@ -1,23 +1,9 @@
 //// acá se maneja el código JS de las librerías Tom Select y Flatpickr ////
 document.addEventListener('DOMContentLoaded', function () {
-    const opcionesEspecialidades = [
-        { id: 1, nombre: "Pediatría" },
-        { id: 2, nombre: "Cardiología" },
-        { id: 3, nombre: "Dermatología" }
-    ];
+const opcionesEspecialidades = window.especialidadesBD || [];
 
-    const opcionesMedicos = [
-        { id: 1, nombre: "Fulana", apellido: "Fulana", imagen: "/css/Assets/medico-3.png" },
-        { id: 2, nombre: "Marta", apellido: "Pereira", imagen: null }
-    ];
+    
 
-    const disponibilidadPrueba = {
-        "2026-11-18": ["09:00", "09:30", "10:00", "11:30"],
-        "2026-11-19": ["14:00", "14:30", "15:00"],
-        "2026-11-19": ["14:00", "14:30", "15:00"],
-        "2026-11-25": ["14:00", "14:30", "15:00"],
-        "2026-11-21": ["14:00"],
-    };
 
     const fechaInput = document.getElementById('fecha_turno');
     const contenedorHorarios = document.getElementById('contenedor-horarios');
@@ -50,7 +36,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const selectMedico = new TomSelect("#medico", {
         ...configuracionBase,
-        options: opcionesMedicos,
+        options: [],
         searchField: ["nombre", "apellido"],
         render: {
             option: mostrarMedico,
@@ -58,6 +44,7 @@ document.addEventListener('DOMContentLoaded', function () {
         },
         placeholder: "🔎︎ Ej: Marta Pereira"
     });
+    selectMedico.disable();
 
     ///////////no se cargan dinamicamente ni nada pero tiene tom select
     const configSelectEstatico = {
@@ -119,31 +106,28 @@ document.addEventListener('DOMContentLoaded', function () {
         contenedorHorarios.innerHTML = '<span class="text-muted small">Elegí un médico y una fecha.</span>';
     }
 
-    selectEspecialidad.on('change', function (especialidadId) {
-        selectMedico.clear();
-        selectMedico.clearOptions();
-        resetearFechaYHorarios();
+    selectEspecialidad.on('change', async function (especialidadId) {
+    selectMedico.clear();
+    selectMedico.clearOptions();
+    resetearFechaYHorarios();
 
-        if (!especialidadId) {
-            selectMedico.disable();
-            return;
-        }
+    if (!especialidadId) {
+        selectMedico.disable();
+        return;
+    }
 
-        try {
-            /////esto es para cuando tengams conectado todo con la bd, despues se acomoda
-            // const response = await fetch(`/api/medicos por-especialidad/${especialidadId}`);
-            // if (!response.ok) throw new Error('Error al obtener los médicos');
-            // const medicos = await response.json();
-            //
+    try {
+        const response = await fetch(`/turnos/ajax/medicos/${especialidadId}`);
+        if (!response.ok) throw new Error('Error al obtener los médicos');
+        const medicos = await response.json();
 
-            selectMedico.enable();
-            selectMedico.addOptions(opcionesMedicos);
-
-        } catch (error) {
-            console.error("Error AJAX:", error);
-            contenedorHorarios.innerHTML = '<span class="text-danger small">No se pudieron cargar los médicos. Intentá nuevamente.</span>';
-        }
-    });
+        selectMedico.enable();
+        selectMedico.addOptions(medicos);
+    } catch (error) {
+        console.error("Error AJAX:", error);
+        contenedorHorarios.innerHTML = '<span class="text-danger small">No se pudieron cargar los médicos. Intentá nuevamente.</span>';
+    }
+});
 
     selectMedico.on('change', async function (medicoId) {
         resetearFechaYHorarios();
@@ -154,12 +138,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
         try {
             /////esto es para cuando tengams conectado todo con la bd, despues se acomoda
-            // const response = await fetch(`/api/disponibilidad/${medicoId}`);
-            // if (!response.ok) throw new Error('Error al obtener la disponibilidad');
-            // disponibilidadActual = await response.json();
-            //
+        const response = await fetch(`/turnos/ajax/disponibilidad/${medicoId}`);
+        if (!response.ok) throw new Error('Error al obtener la disponibilidad');
+        disponibilidadActual = await response.json();
 
-            disponibilidadActual = disponibilidadPrueba;
+            
 
             flatPickr.set('enable', Object.keys(disponibilidadActual));
             fechaInput.disabled = false;

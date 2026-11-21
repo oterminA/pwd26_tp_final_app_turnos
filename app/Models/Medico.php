@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 class Medico extends Model
 {
     // esto quedó coordinado con los formularios y las migrations que habia
-    protected $fillable = ['user_id', 'matricula', 'obra_social', 'imagen'];
+    protected $fillable = ['user_id', 'matricula', 'obra_social', 'imagen', 'duracion_turno'];
 
     public function user()
     {
