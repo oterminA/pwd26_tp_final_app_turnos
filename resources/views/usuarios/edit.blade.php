@@ -12,7 +12,7 @@
             <div class="mb-3">
                 <label for="estado" class="form-label">Estado</label>
                 <select name="estado" id="estado" class="form-select" required>
-                    @foreach (['pendiente', 'confirmado', 'atendido', 'cancelado'] as $estado)
+                    @foreach (['finalizado', 'ausente', 'cancelado', 'pendiente'] as $estado)
                         <option value="{{ $estado }}" {{ $turno->estado === $estado ? 'selected' : '' }}>
                             {{ ucfirst($estado) }}
                         </option>
@@ -21,7 +21,7 @@
             </div>
 
             <button type="submit" class="btn btn-success btn-sm">Guardar cambios</button>
-            <a href="{{ route('turnos.index') }}" class="btn btn-outline-secondary btn-sm">Cancelar</a>
+            <a href="{{ route('medico.panel') }}" class="btn btn-outline-secondary btn-sm">Cancelar</a>
         </form>
     </div>
 </div>

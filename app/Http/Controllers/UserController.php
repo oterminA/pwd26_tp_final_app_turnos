@@ -12,22 +12,44 @@ class UserController extends Controller
 {
 
     /**
-     * funcion para autenticar al usuario que inicia sesion
+     * funcion para autenticar al usuario que inicia sesion (acá)
      */
     public function autenticar(Request $request)
     {
         $request->validate([
-            'user' => ['required'],
+            'email' => ['required', 'email'],
             'password' => ['required'],
         ]);
 
-        if (Auth::attempt(['user' => $request->user, 'password' => $request->password])) { //si las credenciales están bien
-            $request->session()->regenerate();
-            return redirect()->intended(route('peliculas.index'));
+        if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
+            if ($request->user()->rol !== 'admin') {
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+
+                $respuesta = back()->withErrors([
+                    'email' => 'Las credenciales proporcionadas no son válidas.',
+                ])->onlyInput('email');
+            } else {
+                $request->session()->regenerate();
+                $respuesta = redirect()->intended(route('usuarios.admin.panel'));
+            }
+        } else {
+            $respuesta = back()->withErrors([
+                'email' => 'Las credenciales proporcionadas no son válidas.',
+            ])->onlyInput('email');
         }
-        return back()->withErrors([ //si las credenciales están mal
-            'user' => 'Las credenciales proporcionadas no son válidas.',
-        ])->onlyInput('user');
+
+        return $respuesta;
+    }
+
+
+    /**
+     * funcion que manda panel de admin
+     */
+    public function panel()
+    {
+        return view('usuarios.admin.panel');
     }
 
 

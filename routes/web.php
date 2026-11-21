@@ -30,13 +30,18 @@ Route::put('/mi-cuenta-paciente', [PacienteController::class, 'update'])->name('
 
 Route::get('/mi-cuenta-paciente', [PacienteController::class, 'edit'])->name('paciente.edit');
 
-Route::post('/ingresar-paciente', [UserController::class, 'autenticar'])->name('paciente.autenticar');
+Route::post('/ingresar-paciente', [PacienteController::class, 'autenticar'])->name('paciente.autenticar');
+
+Route::get('/panel-paciente', [PacienteController::class, 'panel'])->name('usuarios.paciente.panel');
 
 
 /*MEDICO*/
 Route::get('/iniciar-sesion-profesional', [MedicoController::class, 'mostrarLogin'])->name('login.medico');
 
-Route::post('/ingresar-profesional', [UserController::class, 'autenticar'])->name('medico.autenticar');
+Route::post('/ingresar-profesional', [MedicoController::class, 'autenticar'])->name('medico.autenticar');
+
+Route::get('/panel-paciente', [MedicoController::class, 'panel'])->name('usuarios.medico.panel');
+
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/profesional/configurar-turno', [MedicoController::class, 'mostrarConfigurarTurno'])
@@ -86,6 +91,8 @@ Route::put('/mi-cuenta-admin', [UserController::class, 'update'])->name('admin.u
 
 Route::post('/ingresar-admin', [UserController::class, 'autenticar'])->name('admin.autenticar');
 
+Route::get('/panel-paciente', [UserController::class, 'panel'])->name('usuarios.admin.panel');
+
 
 
 /*para el cerrar sesion de todos los roles*/
@@ -123,10 +130,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
 /* TURNO */
 Route::middleware(['auth'])->group(function () {
     // 7 métodos estándar
-    Route::get('/turnos', [TurnoController::class, 'index'])->name('turnos.index');
+    // Route::get('/turnos', [TurnoController::class, 'index'])->name('turnos.index');
     Route::get('/solicitar-turno', [TurnoController::class, 'create'])->name('create.turno');
     Route::post('/confirmar-turno', [TurnoController::class, 'store'])->name('store.turno');
-    Route::get('/turnos/{id}', [TurnoController::class, 'show'])->name('turnos.show');
+    // Route::get('/turnos/{id}', [TurnoController::class, 'show'])->name('turnos.show');
     Route::get('/turnos/{id}/editar', [TurnoController::class, 'edit'])->name('turnos.edit');
     Route::put('/turnos/{id}', [TurnoController::class, 'update'])->name('turnos.update');
     Route::delete('/turnos/{id}', [TurnoController::class, 'delete'])->name('turnos.delete');

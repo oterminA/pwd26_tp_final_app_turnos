@@ -72,7 +72,7 @@
                                         </td>
                                         <td>
                                             {{-- el paciente solo cancela sus propios turnos solo si faltan más de X dias y el turno deberia estar disponible otra vez --}}
-                                            <form action="{{ route('paciente.turnos.delete') }}" method="POST"
+                                            <form action="{{ route('turnos.delete') }}" method="POST"
                                                 class="d-inline">
                                                 @csrf
                                                 @method('PATCH')

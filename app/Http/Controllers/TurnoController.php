@@ -111,8 +111,16 @@ class TurnoController extends Controller
             'codigo'          => strtoupper(Str::random(8)),
         ]);
 
-        return redirect()->route('turnos.index')
-            ->with('success', 'Turno reservado correctamente.');
+        //cambiado para que pueda redirigir tanto al panel del medico como al del paciente segun de donde venga la peticion de turno
+        if ($user && $user->isMedico()) {
+            $respuesta = redirect()->route('usuarios.medico.panel')
+                ->with('success', 'Turno reservado correctamente.');
+        } else {
+            $respuesta = redirect()->route('usuarios.paciente.panel')
+                ->with('success', 'Turno reservado correctamente.');
+        }
+
+        return $respuesta;
     }
 
     /**
@@ -134,7 +142,7 @@ class TurnoController extends Controller
         $turno = Turno::findOrFail($id);
         Gate::authorize('cambiarEstado', $turno);
 
-        return view('usuarios.turnos.edit', compact('turno'));
+        return view('usuarios.edit', compact('turno'));
     }
 
     /**
@@ -146,12 +154,12 @@ class TurnoController extends Controller
         Gate::authorize('cambiarEstado', $turno);
 
         $datos = $request->validate([
-            'estado' => 'required|in:pendiente,confirmado,atendido,cancelado',
+            'estado' => 'required|in:pendiente,cancelado,finalizado,ausente',
         ]);
 
         $turno->update($datos);
 
-        return redirect()->route('turnos.index')
+        return redirect()->route('usuarios.medico.panel')
             ->with('success', 'Estado del turno actualizado.');
     }
 
@@ -283,11 +291,11 @@ class TurnoController extends Controller
     }
 
     /**
-     * Comprobante PDF (intacto, hecho por tu compañera).
+     * funcion para descargar el comprobante
      */
     public function descargarComprobante(Turno $turno)
     {
-        Gate::authorize('descargarComprobante', $turno);
+        Gate::authorize('descargarComprobante', $turno); //POLICY TURNO donde solo el medico asignado y paciente dueño pueden descargarlo
 
         $turno->load(['paciente.user', 'medico.user', 'especialidad']);
 

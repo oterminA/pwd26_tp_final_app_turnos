@@ -11,6 +11,10 @@
     {{-- cdn de tom select --}}
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.7.0/dist/css/tom-select.css" rel="stylesheet">
 
+    {{-- cdn de flat picker --}}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+
     {{-- css de la app --}}
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     @stack('styles')
@@ -74,10 +78,10 @@
                                     <a class="nav-link dropdown-toggle text-white-50" role="button"
                                         data-bs-toggle="dropdown" href="#">Administración</a>
                                     <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item" href="{{ route('medicos.index') }}">Profesionales</a>
+                                        <li><a class="dropdown-item" href="#">Profesionales</a>
                                         </li>
                                         <li><a class="dropdown-item"
-                                                href="{{ route('especialidades.index') }}">Especialidades</a></li>
+                                                href="{{ route('admin.especialidades.index') }}">Especialidades</a></li>
                                     </ul>
                                 </li>
                             @endif
@@ -86,8 +90,7 @@
                             <li class="nav-item ms-lg-2">
                                 <form action="{{ route('logout') }}" method="POST" class="d-inline">
                                     @csrf
-                                    <button type="submit" class="nav-link text-danger bg-transparent border-0">Cerrar
-                                        sesión</button>
+                                    <button type="submit" class="nav-link text-white bg-transparent border-0">⏻</button>
                                 </form>
                             </li>
                         @endguest
@@ -116,25 +119,13 @@
     {{-- cdn de tom select --}}
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.7.0/dist/js/tom-select.complete.min.js"></script>
 
-    <!-- cdn de FullCalendar -->
-    <script src='https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.11/index.global.min.js'></script>
-    <script src='https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid@6.1.11/index.global.min.js'></script>
-    <script src='https://cdn.jsdelivr.net/npm/@fullcalendar/timegrid@6.1.11/index.global.min.js'></script>
-    <script src='https://cdn.jsdelivr.net/npm/@fullcalendar/interaction@6.1.11/index.global.min.js'></script>
-    <!-- idioma español para los días y meses -->
-    <script src='https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.11/locales/es.global.min.js'></script>
+    <!-- cdn de flatpickr -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
 
     <!-- el js de la app, o demás scripts-->
     <script src="{{ asset('js/validacionesForms.js') }}"></script>
     <script src="{{ asset('js/librerias.js') }}"></script>
-
-
-
-    <!-- cdn de flatpickr -->
-
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
 </body>
 
 </html>

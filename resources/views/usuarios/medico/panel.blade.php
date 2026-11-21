@@ -44,6 +44,7 @@
                                     <th>Fecha y hora</th>
                                     <th>Estado</th>
                                     <th>Acciones</th>
+                                    <th>Descargar comprobante</th>
                                 </tr>
                             </thead>
 
@@ -62,6 +63,8 @@
                                                 <span class="badge bg-success text-dark">Finalizado</span>
                                             @elseif($turno->estado == 'ausente')
                                                 <span class="badge bg-secondary">Ausente</span>
+                                            @elseif($turno->estado == 'pendiente')
+                                                <span class="badge bg-warning">Pendiente</span>
                                             @elseif($turno->estado == 'cancelado')
                                                 <span class="badge bg-danger">Cancelado</span>
                                             @else
@@ -70,16 +73,32 @@
                                         </td>
                                         <td>
                                             {{-- el medico solo cancela los turnos que lo conciernen solo si faltan más de X dias y el turno deberia estar disponible otra vez --}}
-                                            <form action="{{ route('medico.turnos.delete') }}" method="POST"
+                                            <form action="{{ route('turnos.delete', $turno->id) }}" method="POST"
                                                 class="d-inline">
                                                 @csrf
-                                                @method('PATCH')
+                                                @method('DELETE')
                                                 <button type="submit" class="btn btn-sm btn-outline-danger"
                                                     onclick="return confirm('¿Seguro que querés cancelar este turno?')">
                                                     Cancelar
                                                 </button>
                                             </form>
                                             <span class="text-muted small">-</span>
+
+                                            <a href="{{ route('turnos.edit', $turno->id) }}"
+                                                class="btn btn-sm btn-outline-light">
+                                                Editar estado
+                                            </a>
+                                        </td>
+                                        <td>
+                                            {{-- acá se usa la policy de turno que no deja que otro paciente descargue el comprobante si no es el dueño --}}
+                                            @can('descargarComprobante', $turno)
+                                                @if ($turno->estado !== 'cancelado')
+                                                    <a href="{{ route('turno.comprobante', $turno->id) }}"
+                                                        class="btn btn-sm btn-outline-light" target="_blank">
+                                                        🖨️
+                                                    </a>
+                                                @endif
+                                            @endcan
                                         </td>
                                     </tr>
                                 @empty

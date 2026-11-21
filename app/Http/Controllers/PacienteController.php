@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Paciente;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class PacienteController extends Controller
 {
@@ -16,6 +17,45 @@ class PacienteController extends Controller
         return view('usuarios.paciente.login');
     }
 
+
+    /**
+     * funcion para autenticar al usuario que inicia sesion
+     */
+    public function autenticar(Request $request)
+    {
+        $request->validate([
+            'dni' => ['required'],
+            'password' => ['required'],
+        ]);
+
+        $paciente = Paciente::with('user')
+            ->where('dni', $request->dni)
+            ->first();
+
+        if ($paciente && $paciente->user && Hash::check($request->password, $paciente->user->password)) {
+            Auth::login($paciente->user);
+            $request->session()->regenerate();
+
+            $respuesta = redirect()->intended(route('usuarios.paciente.panel'));
+        } else {
+            $respuesta = back()->withErrors([
+                'dni' => 'Las credenciales proporcionadas no son válidas.',
+            ])->onlyInput('dni');
+        }
+
+        return $respuesta;
+    }
+
+
+    /**
+     * funcion que manda panel de paciente
+     */
+    public function panel()
+    {
+        return view('usuarios.paciente.panel');
+    }
+
+
     /**
      * funcion que manda al formulario de inicio de sesion desde el de crear cuenta
      */
@@ -26,8 +66,8 @@ class PacienteController extends Controller
 
     /**
      *
-    */
-    public function store(){}
+     */
+    public function store() {}
 
     /**
      * funcion que muestra el formulario de edicion de datos

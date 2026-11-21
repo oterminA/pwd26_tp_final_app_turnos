@@ -6,8 +6,7 @@ use App\Models\Medico;
 use Illuminate\Support\Facades\File;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-
-
+use Illuminate\Support\Facades\Hash;
 
 class MedicoController extends Controller
 {
@@ -18,6 +17,47 @@ class MedicoController extends Controller
     {
         return view('usuarios.medico.login');
     }
+
+
+    /**
+     * funcion para autenticar al usuario que inicia sesion
+     */
+    public function autenticar(Request $request)
+    {
+        $request->validate([
+            'tipoMat' => ['required'],
+            'numMat' => ['required'],
+            'password' => ['required'],
+        ]);
+
+        $medico = Medico::with('user')
+            ->where('tipoMat', $request->tipoMat)
+            ->where('numMat', $request->numMat)
+            ->first();
+
+        if ($medico && $medico->user && Hash::check($request->password, $medico->user->password)) {
+            Auth::login($medico->user);
+            $request->session()->regenerate();
+
+            $respuesta = redirect()->intended(route('usuarios.medico.panel'));
+        } else {
+            $respuesta = back()->withErrors([
+                'numMat' => 'Las credenciales proporcionadas no son válidas.',
+            ])->onlyInput('tipoMat', 'numMat');
+        }
+
+        return $respuesta;
+    }
+
+
+    /**
+     * funcion que manda panel de medico
+     */
+    public function panel()
+    {
+        return view('usuarios.medico.panel');
+    }
+
 
     /**
      * funcion que muestra el formulario de edicion de datos
@@ -63,31 +103,33 @@ class MedicoController extends Controller
 
         return redirect()->back()->with('success', 'Tus datos fueron actualizados correctamente.');
     }
-    public function mostrarConfigurarTurno()
-{
-    $medico = auth()->user()->medico;
-    abort_unless($medico, 403, 'Acceso exclusivo para profesionales.');
 
-    // Si ya configuró la duración, lo mandamos a su cuenta/panel
-    if (!is_null($medico->duracion_turno)) {
-        return redirect()->route('medico.edit');
+
+    public function mostrarConfigurarTurno()
+    {
+        $medico = auth()->user()->medico;
+        abort_unless($medico, 403, 'Acceso exclusivo para profesionales.');
+
+        // Si ya configuró la duración, lo mandamos a su cuenta/panel
+        if (!is_null($medico->duracion_turno)) {
+            return redirect()->route('medico.edit');
+        }
+
+        return view('usuarios.medico.configurar-turno');
     }
 
-    return view('usuarios.medico.configurar-turno');
-}
+    public function guardarDuracionTurno(Request $request)
+    {
+        $request->validate([
+            'duracion_turno' => 'required|integer|in:15,20,30,45,60',
+        ]);
 
-public function guardarDuracionTurno(\Illuminate\Http\Request $request)
-{
-    $request->validate([
-        'duracion_turno' => 'required|integer|in:15,20,30,45,60',
-    ]);
+        $medico = auth()->user()->medico;
+        $medico->update([
+            'duracion_turno' => $request->duracion_turno,
+        ]);
 
-    $medico = auth()->user()->medico;
-    $medico->update([
-        'duracion_turno' => $request->duracion_turno,
-    ]);
-
-    return redirect()->route('medico.edit')
-        ->with('success', 'Duración estándar de turnos configurada correctamente.');
-}
+        return redirect()->route('medico.edit')
+            ->with('success', 'Duración estándar de turnos configurada correctamente.');
+    }
 }
