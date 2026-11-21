@@ -36,12 +36,43 @@ Route::post('/ingresar-paciente', [UserController::class, 'autenticar'])->name('
 /*MEDICO*/
 Route::get('/iniciar-sesion-profesional', [MedicoController::class, 'mostrarLogin'])->name('login.medico');
 
-Route::put('/mi-cuenta-profesional', [MedicoController::class, 'update'])->name('medico.update');
-
-Route::get('/mi-cuenta-profesional', [MedicoController::class, 'edit'])->name('medico.edit');
-
 Route::post('/ingresar-profesional', [UserController::class, 'autenticar'])->name('medico.autenticar');
 
+Route::middleware(['auth'])->group(function () {
+    Route::get('/profesional/configurar-turno', [MedicoController::class, 'mostrarConfigurarTurno'])
+        ->name('medico.configurar-turno');
+
+    Route::post('/profesional/configurar-turno', [MedicoController::class, 'guardarDuracionTurno'])
+        ->name('medico.guardar-turno');
+});
+/* Rutas protegidas del médico (si no configuró duracion_turno, el middleware lo frena acá) */
+Route::middleware(['auth', 'medico.onboarding'])->group(function () {
+    Route::get('/mi-cuenta-profesional', [MedicoController::class, 'edit'])->name('medico.edit');
+    Route::put('/mi-cuenta-profesional', [MedicoController::class, 'update'])->name('medico.update');
+});
+/* Rutas de disponibilidad del médico (requiere login y haber configurado duración de turno) */
+Route::middleware(['auth', 'medico.onboarding'])->prefix('profesional')->name('medico.')->group(function () {
+    Route::get('/disponibilidades', [DisponibilidadController::class, 'index'])
+        ->name('disponibilidades.index');
+
+    Route::get('/disponibilidades/crear', [DisponibilidadController::class, 'create'])
+        ->name('disponibilidades.create');
+
+    Route::post('/disponibilidades', [DisponibilidadController::class, 'store'])
+        ->name('disponibilidades.store');
+
+    Route::get('/disponibilidades/{id}', [DisponibilidadController::class, 'show'])
+        ->name('disponibilidades.show');
+
+    Route::get('/disponibilidades/{id}/editar', [DisponibilidadController::class, 'edit'])
+        ->name('disponibilidades.edit');
+
+    Route::put('/disponibilidades/{id}', [DisponibilidadController::class, 'update'])
+        ->name('disponibilidades.update');
+
+    Route::delete('/disponibilidades/{id}', [DisponibilidadController::class, 'delete'])
+        ->name('disponibilidades.delete');
+});
 
 
 /*ADMIN*/
@@ -90,11 +121,24 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
 
 /* TURNO */
-Route::get('/solicitar-turno', [TurnoController::class, 'create'])->name('create.turno');
-
-Route::post('/confirmar-turno', [TurnoController::class, 'store'])->name('store.turno');
-
 Route::middleware(['auth'])->group(function () {
+    // 7 métodos estándar
+    Route::get('/turnos', [TurnoController::class, 'index'])->name('turnos.index');
+    Route::get('/solicitar-turno', [TurnoController::class, 'create'])->name('create.turno');
+    Route::post('/confirmar-turno', [TurnoController::class, 'store'])->name('store.turno');
+    Route::get('/turnos/{id}', [TurnoController::class, 'show'])->name('turnos.show');
+    Route::get('/turnos/{id}/editar', [TurnoController::class, 'edit'])->name('turnos.edit');
+    Route::put('/turnos/{id}', [TurnoController::class, 'update'])->name('turnos.update');
+    Route::delete('/turnos/{id}', [TurnoController::class, 'delete'])->name('turnos.delete');
+
+    // Endpoints AJAX para Tom Select y Flatpickr (librerias.js)
+    Route::get('/turnos/ajax/medicos/{especialidadId}', [TurnoController::class, 'medicosPorEspecialidad'])
+        ->name('turnos.ajax.medicos');
+    Route::get('/turnos/ajax/disponibilidad/{medicoId}', [TurnoController::class, 'disponibilidadMedico'])
+        ->name('turnos.ajax.disponibilidad');
+
+    // Comprobante PDF
     Route::get('/turnos-{turno}-comprobante', [TurnoController::class, 'descargarComprobante'])
-        ->name('turno.comprobante'); //para que el paciente pueda descargar el comprobante del turno
+        ->name('turno.comprobante');
 });
+
