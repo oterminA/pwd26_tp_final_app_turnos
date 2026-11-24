@@ -3,13 +3,35 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 
 
 class Medico extends Model
 {
+    use SoftDeletes;
     // esto quedó coordinado con los formularios y las migrations que habia
-    protected $fillable = ['user_id', 'matricula', 'obra_social', 'imagen', 'duracion_turno'];
+    protected $fillable = ['user_id', 'matricula', 'tipoMat', 'numMat', 'obra_social', 'obras_sociales', 'imagen', 'duracion_turno'];
+
+    protected $casts = [
+        'obras_sociales' => 'array',
+    ];
+
+    // permite leer las coberturas nuevas y tambien los datos anteriores
+    public function obrasSocialesAsignadas(): array
+    {
+        if (!empty($this->obras_sociales)) {
+            return $this->obras_sociales;
+        }
+
+        return $this->obra_social ? [$this->obra_social] : [];
+    }
+
+    // metodo disponible para que el modulo de turnos lo use cuando se integre
+    public function aceptaObraSocial(?string $codigo): bool
+    {
+        return $codigo !== null && in_array($codigo, $this->obrasSocialesAsignadas(), true);
+    }
 
     public function user()
     {

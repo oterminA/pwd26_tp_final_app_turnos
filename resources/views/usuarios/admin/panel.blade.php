@@ -12,6 +12,11 @@
                 </h5>
             </div>
 
+            <div class="d-flex justify-content-center flex-wrap gap-3">
+                <a href="{{ route('admin.medicos.index') }}" class="btn text-white" style="background-color: var(--clinic-primary);">Administrar medicos</a>
+                <a href="{{ route('admin.especialidades.index') }}" class="btn btn-outline-secondary">Administrar especialidades</a>
+            </div>
+
             {{-- @if (session('success'))
                 <div class="alert alert-success">
                     {{ session('success') }}

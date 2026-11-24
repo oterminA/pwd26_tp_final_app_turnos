@@ -2,6 +2,9 @@
 
 use App\Http\Controllers\DisponibilidadController;
 use App\Http\Controllers\EspecialidadController;
+use App\Http\Controllers\AdminMedicoController;
+use App\Http\Controllers\AdminDashboardController;
+use App\Http\Middleware\SoloAdministrador;
 use App\Http\Controllers\MedicoController;
 use App\Http\Controllers\PacienteController;
 use App\Http\Controllers\TurnoController;
@@ -91,7 +94,9 @@ Route::put('/mi-cuenta-admin', [UserController::class, 'update'])->name('admin.u
 
 Route::post('/ingresar-admin', [UserController::class, 'autenticar'])->name('admin.autenticar');
 
-Route::get('/panel-paciente', [UserController::class, 'panel'])->name('usuarios.admin.panel');
+// Panel administrativo: ruta propia para evitar duplicar /panel-paciente.
+Route::get('/panel-admin', [AdminDashboardController::class, 'index'])
+    ->middleware(SoloAdministrador::class)->name('usuarios.admin.panel');
 
 
 
@@ -102,7 +107,19 @@ Route::post('/logout', [UserController::class, 'logout'])
 
 
 /* rutas para administrar especialidades */
-Route::prefix('admin')->name('admin.')->group(function () {
+Route::middleware([SoloAdministrador::class])->prefix('admin')->name('admin.')->group(function () {
+
+    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/calendario', [AdminDashboardController::class, 'calendario'])->name('dashboard.calendario');
+
+    // administracion de medicos
+    Route::get('/medicos', [AdminMedicoController::class, 'index'])->name('medicos.index');
+    Route::get('/medicos/crear', [AdminMedicoController::class, 'create'])->name('medicos.create');
+    Route::post('/medicos', [AdminMedicoController::class, 'store'])->name('medicos.store');
+    Route::get('/medicos/{id}', [AdminMedicoController::class, 'show'])->name('medicos.show');
+    Route::get('/medicos/{id}/editar', [AdminMedicoController::class, 'edit'])->name('medicos.edit');
+    Route::put('/medicos/{id}', [AdminMedicoController::class, 'update'])->name('medicos.update');
+    Route::delete('/medicos/{id}', [AdminMedicoController::class, 'delete'])->name('medicos.delete');
 
     Route::get('/especialidades', [EspecialidadController::class, 'index'])
         ->name('especialidades.index');
