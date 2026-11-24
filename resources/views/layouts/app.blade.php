@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="es">
 
@@ -6,20 +5,16 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
-          rel="stylesheet"
-          integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
-          crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     {{-- cdn de tom select --}}
-    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.7.0/dist/css/tom-select.css"
-          rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.7.0/dist/css/tom-select.css" rel="stylesheet">
 
     {{-- cdn de flatpickr --}}
-    <link rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
     {{-- css de la app --}}
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
@@ -37,132 +32,115 @@
 
                 {{-- logo de la clinica --}}
                 <a class="navbar-brand fw-bold"
-                   href="{{ Auth::check() && Auth::user()->isAdmin() ? route('admin.dashboard') : url('/') }}">
+                    href="{{ Auth::check() && Auth::user()->isAdmin() ? route('admin.dashboard') : url('/') }}">
                     <span>CLÍNICA MÉDICA</span>
                 </a>
 
                 {{-- boton para menu en celular --}}
-                <button class="navbar-toggler border-0"
-                        type="button"
-                        data-bs-toggle="collapse"
-                        data-bs-target="#navbarSupportedContent"
-                        aria-controls="navbarSupportedContent"
-                        aria-expanded="false"
-                        aria-label="Toggle navigation">
+                <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
 
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
-                <div class="collapse navbar-collapse"
-                     id="navbarSupportedContent">
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
 
                     <ul class="navbar-nav ms-auto gap-lg-3 align-items-lg-center">
 
                         @auth
 
-                            @if(Auth::user()->isAdmin())
-
+                            @if (Auth::user()->isAdmin())
                                 {{-- menu del administrador --}}
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('admin.dashboard', 'usuarios.admin.panel') ? 'active' : 'text-white-50' }}"
-                                       href="{{ route('admin.dashboard') }}">
+                                        href="{{ route('admin.dashboard') }}">
                                         Panel
                                     </a>
                                 </li>
 
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('admin.medicos.*') ? 'active' : 'text-white-50' }}"
-                                       href="{{ route('admin.medicos.index') }}">
+                                        href="{{ route('admin.medicos.index') }}">
                                         Profesionales
                                     </a>
                                 </li>
 
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('admin.especialidades.*') ? 'active' : 'text-white-50' }}"
-                                       href="{{ route('admin.especialidades.index') }}">
+                                        href="{{ route('admin.especialidades.index') }}">
                                         Especialidades
                                     </a>
                                 </li>
 
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('admin.edit') ? 'active' : 'text-white-50' }}"
-                                       href="{{ route('admin.edit') }}">
+                                        href="{{ route('admin.edit') }}">
                                         Mi cuenta
                                     </a>
                                 </li>
-
                             @else
-
                                 {{-- menu de pacientes y medicos --}}
-                                <li class="nav-item">
-                                    <a class="nav-link {{ request()->is('/') ? 'active' : 'text-white-50' }}"
-                                       href="{{ url('/') }}">
-                                        Inicio
-                                    </a>
-                                </li>
 
-                                @if(Auth::user()->isPaciente())
+
+
+                                @if (Auth::user()->isPaciente())
                                     <li class="nav-item">
-                                        <a class="nav-link text-white-50"
-                                           href="{{ route('paciente.edit') }}">
+                                        <a class="nav-link {{ request()->routeIs('usuarios.paciente.panel') ? 'active' : 'text-white-50' }}"
+                                            href="{{ route('usuarios.paciente.panel') }}">
+                                            Panel
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link text-white-50" href="{{ route('paciente.edit') }}">
                                             Mi cuenta
                                         </a>
                                     </li>
                                 @endif
 
-                                @if(Auth::user()->isMedico())
+                                @if (Auth::user()->isMedico())
                                     <li class="nav-item">
-                                        <a class="nav-link text-white-50"
-                                           href="{{ route('medico.edit') }}">
+                                        <a class="nav-link text-white-50" href="{{ route('medico.edit') }}">
                                             Mi cuenta
                                         </a>
                                     </li>
                                 @endif
-
                             @endif
 
                             {{-- cerrar sesion --}}
                             <li class="nav-item ms-lg-2">
-                                <form action="{{ route('logout') }}"
-                                      method="POST"
-                                      class="d-inline">
+                                <form action="{{ route('logout') }}" method="POST" class="d-inline">
 
                                     @csrf
 
-                                    <button type="submit"
-                                            class="nav-link text-white bg-transparent border-0">
+                                    <button type="submit" class="nav-link text-white bg-transparent border-0">
                                         Salir
                                     </button>
                                 </form>
                             </li>
-
                         @else
-
                             {{-- menu publico --}}
                             <li class="nav-item">
                                 <a class="nav-link {{ request()->is('/') ? 'active' : 'text-white-50' }}"
-                                   href="{{ url('/') }}">
+                                    href="{{ url('/') }}">
                                     Inicio
                                 </a>
                             </li>
 
                             <li class="nav-item">
-                                <a class="nav-link text-white-50"
-                                   href="{{ route('login.paciente') }}">
+                                <a class="nav-link text-white-50" href="{{ route('login.paciente') }}">
                                     Portal Pacientes
                                 </a>
                             </li>
 
                             <li class="nav-item">
-                                <a class="nav-link text-white-50"
-                                   href="{{ route('login.medico') }}">
+                                <a class="nav-link text-white-50" href="{{ route('login.medico') }}">
                                     Portal Profesional
                                 </a>
                             </li>
 
                             <li class="nav-item">
-                                <a class="nav-link text-white-50"
-                                   href="{{ route('login.admin') }}">
+                                <a class="nav-link text-white-50" href="{{ route('login.admin') }}">
                                     Portal Admin
                                 </a>
                             </li>

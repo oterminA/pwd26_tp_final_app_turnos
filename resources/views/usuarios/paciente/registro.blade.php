@@ -41,7 +41,7 @@
 
                 <div class="mb-3">
                     <label for="fechaNac" class="form-label">Fecha de nacimiento</label>
-                    <input type="date" name="fechaNac" id="fechaNac" class="form-control" value="{{ old('fechaNac') }}"
+                    <input type="date" name="fecha_nacimiento" id="fechaNac" class="form-control" value="{{ old('fechaNac') }}"
                         required>
                 </div>
 
@@ -72,7 +72,7 @@
 
                 <div class="mb-3">
                     <label for="tel" class="form-label">Teléfono</label>
-                    <input type="tel" name="tel" id="tel" class="form-control" placeholder="Ej: 2991234567"
+                    <input type="tel" name="telefono" id="tel" class="form-control" placeholder="Ej: 2991234567"
                         value="{{ old('tel') }}" pattern="[0-9]{8,15}"
                         title="Ingresá solo números (entre 8 y 15 dígitos)" required>
                 </div>

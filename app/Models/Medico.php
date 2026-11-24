@@ -53,6 +53,7 @@ class Medico extends Model
         return $this->hasMany(Turno::class);
     }
 
+
     /**
      * funcion que hace una 'transaccion' para manejar el hecho de que tanto en user como en medico manejamos datos de 'medico', entonces al actualizar se tiene que cambiar en ambos lados y esto desde el control no se puede manejar
      */
@@ -90,5 +91,19 @@ class Medico extends Model
         }
 
         return asset($ruta);
+    }
+
+
+
+    ///scope
+    /**
+     * scope para mostrar los medicos en el landing en la parte de equipo
+    */
+    public function scopeEquipoPublico($query)
+    {
+        return $query->with([
+            'user',
+            'especialidades',
+        ]);
     }
 }

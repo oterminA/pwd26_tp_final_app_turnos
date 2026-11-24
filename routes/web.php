@@ -16,9 +16,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('publica.landing');
 });
-Route::get('/equipo', function () {
-    return view('publica.equipo');
-})->name('show.equipo');
+Route::get('/equipo', [MedicoController::class, 'index'])->name('show.equipo');
+
 
 
 /*PACIENTE*/
@@ -43,7 +42,7 @@ Route::get('/iniciar-sesion-profesional', [MedicoController::class, 'mostrarLogi
 
 Route::post('/ingresar-profesional', [MedicoController::class, 'autenticar'])->name('medico.autenticar');
 
-Route::get('/panel-paciente', [MedicoController::class, 'panel'])->name('usuarios.medico.panel');
+Route::get('/panel-profesional', [MedicoController::class, 'panel'])->name('usuarios.medico.panel');
 
 
 Route::middleware(['auth'])->group(function () {
@@ -156,13 +155,15 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/turnos/{id}', [TurnoController::class, 'delete'])->name('turnos.delete');
 
     // Endpoints AJAX para Tom Select y Flatpickr (librerias.js)
-    Route::get('/turnos/ajax/medicos/{especialidadId}', [TurnoController::class, 'medicosPorEspecialidad'])
+    Route::get('/turnos/ajax/medicos/{especialidadId}', [TurnoController::class, 'mediscosPorEspecialidad'])
         ->name('turnos.ajax.medicos');
     Route::get('/turnos/ajax/disponibilidad/{medicoId}', [TurnoController::class, 'disponibilidadMedico'])
         ->name('turnos.ajax.disponibilidad');
+
+    Route::get('/turnos/ajax/especialidad/{medicoId}', [TurnoController::class, 'especialidadPorMedico'])
+        ->name('turnos.ajax.especialidad');
 
     // Comprobante PDF
     Route::get('/turnos-{turno}-comprobante', [TurnoController::class, 'descargarComprobante'])
         ->name('turno.comprobante');
 });
-

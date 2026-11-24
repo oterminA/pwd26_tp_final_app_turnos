@@ -70,12 +70,23 @@ class TurnoController extends Controller
         $medico = Medico::findOrFail($request->medico);
 
         // Si el usuario es paciente, verificamos que coincida la obra social
+        //modificado con esto de muchas obras sociales
         if ($user->rol === 'paciente' && $user->paciente) {
-            if ($medico->obra_social !== $user->paciente->obra_social) {
+            $coberturasMedico = is_array($medico->obras_sociales)
+                ? $medico->obras_sociales
+                : (json_decode($medico->obras_sociales ?? '[]', true) ?: []);
+
+            $obraSocialPaciente = $user->paciente->obra_social;
+
+            $atiendeObraSocial = ($obraSocialPaciente && in_array($obraSocialPaciente, $coberturasMedico, true))
+                || (!empty($medico->obra_social) && $medico->obra_social === $obraSocialPaciente);
+
+            if (!$atiendeObraSocial) {
                 return back()->withErrors([
                     'medico' => 'El profesional seleccionado no atiende tu obra social.'
                 ]);
             }
+
             $pacienteId = $user->paciente->id;
         } else {
             // Si un médico saca un turno, puede venir un paciente_id en el request
@@ -210,8 +221,14 @@ class TurnoController extends Controller
             });
 
         // Filtro automático por obra social del paciente
-        if ($user && $user->rol === 'paciente' && $user->paciente) {
-            $query->where('obra_social', $user->paciente->obra_social);
+        //modificacion por esto de muchas obras sociales
+        if ($user && $user->rol === 'paciente' && $user->paciente && $user->paciente->obra_social) {
+            $obraSocialPaciente = $user->paciente->obra_social;
+
+            $query->where(function ($q) use ($obraSocialPaciente) {
+                $q->whereJsonContains('obras_sociales', $obraSocialPaciente)
+                    ->orWhere('obra_social', $obraSocialPaciente);
+            });
         }
 
         $medicos = $query->get()->map(function ($medico) {
@@ -306,5 +323,26 @@ class TurnoController extends Controller
         $pdf = Pdf::loadView('turnos.comprobante_pdf', compact('turno'));
 
         return $pdf->stream("comprobante-turno-{$turno->codigo}.pdf");
+    }
+
+    /**
+     * ajax
+     * esta funcion es como la de medicoPorEspecialidad pero la inversa para poder mostrar las especialidades segun el medico
+     */
+    public function especialidadPorMedico($medicoId)
+    {
+        $medico = Medico::with('especialidades')->findOrFail($medicoId);
+
+        $especialidades = $medico->especialidades
+            ->sortBy('nombre')
+            ->values()
+            ->map(function ($especialidad) {
+                return [
+                    'id' => $especialidad->id,
+                    'nombre' => $especialidad->nombre,
+                ];
+            });
+
+        return response()->json($especialidades);
     }
 }

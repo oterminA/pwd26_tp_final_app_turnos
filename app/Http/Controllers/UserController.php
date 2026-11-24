@@ -21,20 +21,18 @@ class UserController extends Controller
             'password' => ['required'],
         ]);
 
-        if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
-            if ($request->user()->rol !== 'admin') {
+        $credenciales = $request->only('email', 'password');
+
+        if (Auth::attempt($credenciales) && $request->user()->rol === 'admin') {
+            $request->session()->regenerate();
+            $respuesta = redirect()->intended(route('usuarios.admin.panel'));
+        } else {
+            if (Auth::check()) {
                 Auth::logout();
                 $request->session()->invalidate();
                 $request->session()->regenerateToken();
-
-                $respuesta = back()->withErrors([
-                    'email' => 'Las credenciales proporcionadas no son válidas.',
-                ])->onlyInput('email');
-            } else {
-                $request->session()->regenerate();
-                $respuesta = redirect()->intended(route('usuarios.admin.panel'));
             }
-        } else {
+
             $respuesta = back()->withErrors([
                 'email' => 'Las credenciales proporcionadas no son válidas.',
             ])->onlyInput('email');

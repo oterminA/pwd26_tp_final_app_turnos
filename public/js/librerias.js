@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', function () {
             },
             placeholder: "Ej: Marta Pereira"
         });
-        selectMedico.disable();
+        // selectMedico.disable();
 
         let disponibilidadActual = {};
 

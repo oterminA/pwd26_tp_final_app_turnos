@@ -10,6 +10,17 @@ use Illuminate\Support\Facades\Hash;
 
 class MedicoController extends Controller
 {
+
+    /**
+     * index para mostrar los medicos en la pagina publica
+     */
+    public function index()
+    {
+        $medicos = Medico::equipoPublico()->get(); //o sea el scrope con la query para no mexclar responsabilidades del mvc
+
+        return view('publica.equipo', compact('medicos'));
+    }
+
     /**
      * funcion que manda al formulario de inicio de sesion desde el de crear cuenta
      */

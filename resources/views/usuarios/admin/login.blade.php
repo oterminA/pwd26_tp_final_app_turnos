@@ -38,7 +38,7 @@
                             <label for="email" class="form-label">Correo electrónico</label>
                             <input type="email" name="email" class="form-control" id="email"
                                 value="{{ old('email') }}" placeholder="Ej: nombre@gmail.com"
-                                pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}" required>
+                                pattern="[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}" required>
                         </div>
 
                         <div class="mb-4">

@@ -52,7 +52,13 @@ class PacienteController extends Controller
      */
     public function panel()
     {
-        return view('usuarios.paciente.panel');
+        $paciente = Auth::user()->paciente;
+
+        $turnos = $paciente
+            ? $paciente->turnos()->with(['medico.user', 'especialidad'])->orderByDesc('fecha')->orderByDesc('hora_inicio')->get()
+            : collect();
+
+        return view('usuarios.paciente.panel', compact('turnos'));
     }
 
 
@@ -67,7 +73,28 @@ class PacienteController extends Controller
     /**
      *
      */
-    public function store() {}
+    public function store(Request $request)
+    {
+        $datos = $request->validate([ //se validan los datos que vienen del formulario de registro
+            'nombre'           => 'required|string|max:120',
+            'apellido'         => 'required|string|max:120',
+            'email'            => 'required|email|unique:users,email',
+            'password'         => 'required|string|min:8|confirmed',
+            'dni'              => 'required|string|unique:pacientes,dni',
+            'fecha_nacimiento' => 'required|date',
+            'telefono'         => 'required|string|max:50',
+            'obra_social'      => 'nullable|string|max:100',
+        ]);
+
+        $paciente = new Paciente();
+        $user = $paciente->createDatos($datos); //esos datos se mandan al modelo para hacer la db::Transaction que es que en user y paciente se crea el usuario al mismo tiempo
+
+        Auth::login($user); //se loguea el usuario
+
+        return redirect()->route('usuarios.paciente.panel') //se redirige al panel de usuario
+            ->with('success', '¡Cuenta creada!');
+    }
+
 
     /**
      * funcion que muestra el formulario de edicion de datos
@@ -89,7 +116,8 @@ class PacienteController extends Controller
         $paciente = $user->paciente;
 
         $datosValidados = $request->validate([
-            'name'             => 'required|string|max:255',
+            'nombre'           => 'required|string|max:120',
+            'apellido'         => 'required|string|max:120',
             'email'            => 'required|email|unique:users,email,' . $user->id,
             'password'         => 'nullable|min:8|confirmed',
             'dni'              => 'required|string|unique:pacientes,dni,' . $paciente->id,
