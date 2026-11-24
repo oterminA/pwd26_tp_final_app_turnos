@@ -1,14 +1,19 @@
 
 @extends('layouts.app')
+@push('styles')<link rel="stylesheet" href="{{ asset('css/admin-gestion.css') }}">@endpush
 
 @section('content')
 
-<div class="container py-5">
+<div class="container py-4 py-lg-5 admin-gestion">
+    <div class="gestion-header mb-4">
+        <div><div class="gestion-eyebrow">ADMINISTRACIÓN / ESPECIALIDADES</div><h1>Editar especialidad</h1><p>Actualizá los datos y el estado de esta especialidad.</p></div>
+        <a href="{{ route('admin.especialidades.index') }}" class="btn btn-outline-secondary">Volver a especialidades</a>
+    </div>
 
     <div class="row justify-content-center">
         <div class="col-md-7">
 
-            <div class="card shadow-sm border-0">
+            <div class="card shadow-sm border-0 rounded-4">
 
                 <div class="card-header border-0 py-3"
                      style="background-color: var(--clinic-light);">

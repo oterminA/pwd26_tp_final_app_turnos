@@ -1,119 +1,62 @@
-
 @extends('layouts.app')
-
+@push('styles')<link rel="stylesheet" href="{{ asset('css/admin-gestion.css') }}">@endpush
 @section('content')
-
-<div class="container py-5">
-
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 style="color: var(--clinic-dark);">
-            Administracion de especialidades
-        </h2>
-
-        <a href="{{ route('admin.especialidades.create') }}"
-           class="btn text-white"
-           style="background-color: var(--clinic-primary);">
-            Agregar especialidad
-        </a>
+@php
+    $activas = $especialidades->filter(fn($e) => !$e->trashed())->count();
+@endphp
+<div class="container py-4 py-lg-5 admin-gestion">
+    <div class="gestion-header mb-4">
+        <div><div class="gestion-eyebrow">ADMINISTRACIÓN / ESPECIALIDADES</div><h1>Especialidades</h1><p>Organizá las áreas de atención y consultá los médicos asociados.</p></div>
+        <a href="{{ route('admin.especialidades.create') }}" class="btn gestion-btn-primary">+ Nueva especialidad</a>
     </div>
-
-    @if(session('success'))
-        <div class="alert alert-success">
-            {{ session('success') }}
+    @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
+    @if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
+    <div class="row g-3 mb-4">
+        <div class="col-4"><div class="gestion-stat"><span>Total</span><strong>{{ $especialidades->count() }}</strong><small>Registradas</small></div></div>
+        <div class="col-4"><div class="gestion-stat"><span>Activas</span><strong>{{ $activas }}</strong><small>Disponibles</small></div></div>
+        <div class="col-4"><div class="gestion-stat"><span>Inactivas</span><strong>{{ $especialidades->count() - $activas }}</strong><small>Desactivadas</small></div></div>
+    </div>
+    <div class="gestion-toolbar mb-4">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-8"><label class="form-label" for="buscarEspecialidad">Buscar especialidad</label><input type="search" class="form-control" id="buscarEspecialidad" placeholder="Escribí el nombre..."></div>
+            <div class="col-md-4"><label class="form-label" for="estadoEspecialidad">Estado</label><select id="estadoEspecialidad" class="form-select"><option value="todos">Todas</option><option value="activa">Activas</option><option value="inactiva">Inactivas</option></select></div>
         </div>
-    @endif
-
-    @if(session('error'))
-        <div class="alert alert-danger">
-            {{ session('error') }}
-        </div>
-    @endif
-
-    <div class="card shadow-sm border-0">
-        <div class="card-body">
-
-            <div class="table-responsive">
-                <table class="table table-hover align-middle">
-
-                    <thead>
-                        <tr>
-                            <th>Nombre</th>
-                            <th>Descripcion</th>
-                            <th>Duracion</th>
-                            <th>Estado</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        @forelse($especialidades as $especialidad)
-                            <tr>
-                                <td>{{ $especialidad->nombre }}</td>
-
-                                <td>
-                                    {{ $especialidad->descripcion ?? '-' }}
-                                </td>
-
-                                <td>
-                                    {{ $especialidad->duracion_turno }} minutos
-                                </td>
-
-                                <td>
-                                    @if($especialidad->trashed())
-                                        <span class="badge bg-secondary">
-                                            Inactiva
-                                        </span>
-                                    @else
-                                        <span class="badge bg-success">
-                                            Activa
-                                        </span>
-                                    @endif
-                                </td>
-
-                                <td>
-                                    <a href="{{ route('admin.especialidades.show', $especialidad->id) }}"
-                                       class="btn btn-sm btn-outline-secondary">
-                                        Ver
-                                    </a>
-
-                                    <a href="{{ route('admin.especialidades.edit', $especialidad->id) }}"
-                                       class="btn btn-sm btn-outline-primary">
-                                        Editar
-                                    </a>
-
-                                    @if(!$especialidad->trashed())
-                                        <form action="{{ route('admin.especialidades.delete', $especialidad->id) }}"
-                                              method="POST"
-                                              class="d-inline">
-
-                                            @csrf
-                                            @method('DELETE')
-
-                                            <button type="submit"
-                                                    class="btn btn-sm btn-outline-danger"
-                                                    onclick="return confirm('¿Queres desactivar esta especialidad?')">
-                                                Desactivar
-                                            </button>
-                                        </form>
-                                    @endif
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="5"
-                                    class="text-center text-muted py-4">
-                                    No hay especialidades registradas.
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-
-                </table>
+        <div class="gestion-filter-note mt-3"><span id="cantidadEspecialidades">{{ $especialidades->count() }}</span> especialidades encontradas</div>
+    </div>
+    <div class="row g-3" id="listadoEspecialidades">
+        @foreach($especialidades as $especialidad)
+            <div class="col-md-6 col-xl-4 gestion-especialidad-item" data-search="{{ mb_strtolower($especialidad->nombre.' '.$especialidad->descripcion) }}" data-estado="{{ $especialidad->trashed() ? 'inactiva' : 'activa' }}">
+                <article class="gestion-specialty-card h-100">
+                    <div class="d-flex justify-content-between align-items-start gap-2 mb-3"><div class="gestion-symbol" aria-hidden="true">✚</div><span class="gestion-status {{ $especialidad->trashed() ? 'gestion-off' : 'gestion-on' }}">{{ $especialidad->trashed() ? 'Inactiva' : 'Activa' }}</span></div>
+                    <h2 class="gestion-card-name mb-2">{{ $especialidad->nombre }}</h2>
+                    <p class="gestion-card-subtitle">{{ $especialidad->descripcion ?: 'Sin descripción registrada' }}</p>
+                    <div class="gestion-card-meta"><span>Duración de turno</span><strong>{{ $especialidad->duracion_turno }} minutos</strong></div>
+                    <div class="gestion-card-actions mt-auto"><a class="btn gestion-btn-primary btn-sm" href="{{ route('admin.especialidades.show',$especialidad->id) }}">Ver detalle</a><a class="btn btn-outline-secondary btn-sm" href="{{ route('admin.especialidades.edit',$especialidad->id) }}">Editar</a></div>
+                </article>
             </div>
-
-        </div>
+        @endforeach
     </div>
-
+    @if($especialidades->isEmpty())<div class="gestion-empty">No hay especialidades registradas.</div>@endif
+    <div id="sinResultadosEspecialidades" class="gestion-empty d-none">No encontramos especialidades con esos filtros.</div>
 </div>
-
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const buscar = document.getElementById('buscarEspecialidad');
+    const estado = document.getElementById('estadoEspecialidad');
+    const items = document.querySelectorAll('.gestion-especialidad-item');
+    function filtrar() {
+        const q = buscar.value.toLocaleLowerCase('es').trim();
+        let total = 0;
+        items.forEach(function (item) {
+            const visible = item.dataset.search.includes(q) && (estado.value === 'todos' || item.dataset.estado === estado.value);
+            item.classList.toggle('d-none', !visible);
+            if (visible) total++;
+        });
+        document.getElementById('cantidadEspecialidades').textContent = total;
+        document.getElementById('sinResultadosEspecialidades').classList.toggle('d-none', total !== 0 || items.length === 0);
+    }
+    buscar.addEventListener('input', filtrar);
+    estado.addEventListener('change', filtrar);
+});
+</script>
 @endsection

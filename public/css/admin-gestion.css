@@ -1,0 +1,43 @@
+/* Pantallas exclusivas de administracion: no afecta la web publica. */
+.admin-gestion{color:#243c35}
+.gestion-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem}
+.gestion-eyebrow{font-size:.7rem;font-weight:750;letter-spacing:.15em;color:#438d79;margin-bottom:.5rem}
+.gestion-header h1{font-weight:800;font-size:clamp(1.65rem,3vw,2.25rem);letter-spacing:-.04em;margin:0;color:var(--clinic-dark)}
+.gestion-header p{color:#6f817a;margin:.45rem 0 0}
+.gestion-btn-primary{background:var(--clinic-dark);border-color:var(--clinic-dark);color:#fff}
+.gestion-btn-primary:hover,.gestion-btn-primary:focus{background:#236f5d;border-color:#236f5d;color:#fff}
+.gestion-stat,.gestion-toolbar,.gestion-medico-card,.gestion-specialty-card,.gestion-profile,.gestion-form-section{background:#fff;border:1px solid #e2eee9;border-radius:18px;box-shadow:0 6px 24px rgba(19,63,54,.045)}
+.gestion-stat{padding:1.1rem 1.25rem;display:flex;flex-direction:column;gap:.12rem;border-top:3px solid var(--clinic-primary)}
+.gestion-stat span{font-size:.82rem;color:#638276;font-weight:650}
+.gestion-stat strong{font-size:1.95rem;line-height:1.2;color:var(--clinic-dark);font-weight:800}
+.gestion-stat small{font-size:.72rem;color:#879a92}
+.gestion-toolbar{padding:1.2rem 1.35rem}
+.gestion-toolbar .form-label{font-size:.85rem;color:#426b5d;font-weight:650}
+.gestion-filter-note{font-size:.8rem;color:#81938b}
+.gestion-medico-card,.gestion-specialty-card{padding:1.35rem;display:flex;flex-direction:column;gap:.4rem;transition:transform .18s,box-shadow .18s}
+.gestion-medico-card:hover,.gestion-specialty-card:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(19,63,54,.10)}
+.gestion-avatar{width:74px;height:74px;object-fit:cover;border-radius:17px;background:#d6f3e9;border:3px solid #f2fbf7;flex-shrink:0}
+.gestion-avatar-lg{width:116px;height:116px;border-radius:23px}
+.gestion-initials{display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:800;color:#2a7965}
+.gestion-card-name{font-size:1.13rem;font-weight:800;color:var(--clinic-dark);margin:1rem 0 .15rem}
+.gestion-card-subtitle{font-size:.85rem;color:#74877e;min-height:2.3em;margin-bottom:1.15rem}
+.gestion-status{font-size:.75rem;padding:.36rem .7rem;border-radius:999px;font-weight:750;white-space:nowrap}
+.gestion-on{background:#e6f7ec;color:#20764f}
+.gestion-off{background:#f0f1f3;color:#65717d}
+.gestion-card-meta{display:flex;align-items:baseline;justify-content:space-between;gap:.75rem;border-top:1px solid #f0f3f1;padding:.55rem 0;font-size:.8rem}
+.gestion-card-meta span{color:#87978f}
+.gestion-card-meta strong{color:#47665a;font-weight:650;max-width:66%;text-align:right}
+.gestion-card-actions{display:flex;gap:.5rem;padding-top:1rem}
+.gestion-card-actions .btn{flex:1;padding:.55rem}
+.gestion-symbol{width:48px;height:48px;border-radius:14px;background:#e4f6ee;color:#26765f;font-size:1.5rem;display:flex;align-items:center;justify-content:center}
+.gestion-empty{border:1px dashed #b9d8cb;border-radius:14px;text-align:center;padding:2.25rem;color:#6a867b;background:#f9fdfa;margin-top:1rem}
+.gestion-profile{padding:1.6rem}
+.gestion-profile-name{font-size:1.7rem;font-weight:800;color:var(--clinic-dark)}
+.gestion-profile-label{font-size:.77rem;color:#789084;font-weight:650;letter-spacing:.015em}
+.gestion-profile-value{font-size:.95rem;color:#34574b;overflow-wrap:anywhere}
+.gestion-tag{display:inline-block;background:#e9f7f0;color:#286f57;font-size:.8rem;font-weight:650;border-radius:999px;padding:.38rem .7rem;margin:.2rem .2rem .2rem 0}
+.gestion-form-section{padding:1.5rem}
+.gestion-form-title{font-size:1.02rem;font-weight:800;color:var(--clinic-dark);border-bottom:1px solid #e6efe9;padding-bottom:.8rem;margin-bottom:1.2rem}
+.gestion-form-section .form-label{font-size:.85rem;font-weight:650;color:#3b6355}
+.gestion-upload-preview{width:86px;height:86px;object-fit:cover;border-radius:16px;border:1px solid #deeee6}
+@media(max-width:600px){.gestion-stat{padding:.75rem}.gestion-stat strong{font-size:1.5rem}.gestion-stat span{font-size:.72rem}.gestion-stat small{font-size:.68rem}.gestion-header .btn{width:100%}.gestion-card-actions .btn{font-size:.82rem}.gestion-profile{padding:1.15rem}}

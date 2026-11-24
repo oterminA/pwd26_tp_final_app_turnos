@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Especialidad;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class EspecialidadController extends Controller
 {
@@ -49,7 +50,8 @@ class EspecialidadController extends Controller
                 ->with('error', 'Ya existe una especialidad con ese nombre.');
         }
 
-        Especialidad::create($datos);
+        $nueva = Especialidad::create($datos);
+        Log::info('Admin creo especialidad', ['admin_id' => auth()->id(), 'especialidad_id' => $nueva->id]);
 
         return redirect()->route('admin.especialidades.index')
             ->with('success', 'Especialidad agregada correctamente.');
@@ -108,6 +110,7 @@ class EspecialidadController extends Controller
             $especialidad->restore();
         }
 
+        Log::info('Admin modifico especialidad', ['admin_id' => auth()->id(), 'especialidad_id' => $especialidad->id, 'estado' => $datos['estado']]);
         return redirect()->route('admin.especialidades.index')
             ->with('success', 'Especialidad modificada correctamente.');
     }
@@ -125,6 +128,7 @@ class EspecialidadController extends Controller
 
         // realiza el borrado logico
         $especialidad->delete();
+        Log::info('Admin desactivo especialidad', ['admin_id' => auth()->id(), 'especialidad_id' => $especialidad->id]);
 
         return redirect()->route('admin.especialidades.index')
             ->with('success', 'Especialidad desactivada correctamente.');
