@@ -257,7 +257,8 @@ class TurnoController extends Controller
             $nombreDia = $mapaDias[$fecha->dayOfWeek];
             $fechaStr = $fecha->toDateString();
 
-            $franjas = $medico->disponibilidades->where('dia_semana', $nombreDia);
+            // $franjas = $medico->disponibilidades->where('dia_semana', $nombreDia);
+            $franjas = $medico->disponibilidades->where('dia_semana', $fecha->dayOfWeekIso);
             if ($franjas->isEmpty()) {
                 continue;
             }
@@ -266,8 +267,11 @@ class TurnoController extends Controller
             $ocupadosHoy = $turnosOcupados[$fechaStr] ?? [];
 
             foreach ($franjas as $franja) {
-                $cursor = Carbon::parse($fechaStr . ' ' . $franja->hora_inicio);
-                $finFranja = Carbon::parse($fechaStr . ' ' . $franja->hora_fin);
+                $horaInicioStr = Carbon::parse($franja->hora_inicio)->format('H:i:s');
+                $horaFinStr = Carbon::parse($franja->hora_fin)->format('H:i:s');
+
+                $cursor = Carbon::parse($fechaStr . ' ' . $horaInicioStr);
+                $finFranja = Carbon::parse($fechaStr . ' ' . $horaFinStr);
 
                 while ($cursor->copy()->addMinutes($duracion)->lte($finFranja)) {
                     $horaStr = $cursor->format('H:i');

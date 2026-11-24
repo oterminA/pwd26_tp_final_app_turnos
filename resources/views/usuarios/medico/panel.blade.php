@@ -30,6 +30,11 @@
                     style="background-color: var(--clinic-primary);">
                     Nuevo turno
                 </a>
+                {{-- dejo esto acá porque no sé como es el manejo para ir al panel de diponibilidades despues del onboarding --}}
+                <a href="#" class="btn text-white"
+                    style="background-color: var(--clinic-primary);">
+                    Disponibilidad
+                </a>
             </div>
 
             <div class="card shadow-sm border-0">

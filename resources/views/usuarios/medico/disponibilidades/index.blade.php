@@ -41,9 +41,9 @@
                 <tbody>
                     @foreach ($disponibilidades as $disponibilidad)
                         <tr>
-                            <td>{{ ucfirst($disponibilidad->dia_semana) }}</td>
-                            <td>{{ \Carbon\Carbon::parse($disponibilidad->hora_inicio)->format('H:i') }} hs</td>
-                            <td>{{ \Carbon\Carbon::parse($disponibilidad->hora_fin)->format('H:i') }} hs</td>
+                            <td><td>{{ $disponibilidad->dia_nombre }}</td></td>
+                            <td>{{ $disponibilidad->hora_inicio->format('H:i') }} hs</td>
+                            <td>{{ $disponibilidad->hora_fin->format('H:i') }} hs</td>
                             <td class="d-flex gap-1 flex-wrap">
                                 <a href="{{ route('medico.disponibilidades.show', $disponibilidad->id) }}" class="btn btn-sm btn-outline-primary">Ver</a>
                                 <a href="{{ route('medico.disponibilidades.edit', $disponibilidad->id) }}" class="btn btn-sm btn-outline-warning">Editar</a>

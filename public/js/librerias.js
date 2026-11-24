@@ -68,7 +68,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const flatPickr = flatpickr(fechaInput, {
             locale: "es",
-            dateFormat: "Y-m-d",
+            altInput: true,           // se hace un input visual alternativo para mostrar la fecha como nosotros, es la forma en la que funcionó
+            altFormat: "j F, Y",      // esto ve el usuario "25 Noviembre, 2026"
+            dateFormat: "Y-m-d", //esto es lo que se manda
             minDate: "today",
             enable: [],
             onChange: function (selectedDates, dateStr) {

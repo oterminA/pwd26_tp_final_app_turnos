@@ -24,11 +24,16 @@
                     <div class="mb-3">
                         <label for="dia_semana" class="form-label fw-semibold">Día de la semana</label>
                         <select name="dia_semana" id="dia_semana" class="form-select" required>
-                            @foreach ($dias as $dia)
+                            {{-- @foreach ($dias as $dia)
                                 <option value="{{ $dia }}" {{ old('dia_semana', $disponibilidad->dia_semana) === $dia ? 'selected' : '' }}>
                                     {{ ucfirst($dia) }}
                                 </option>
-                            @endforeach
+                            @endforeach --}}
+                            @foreach ($dias as $numDia => $nombreDia)
+    <option value="{{ $numDia }}" {{ (int) old('dia_semana', $disponibilidad->dia_semana ?? null) === $numDia ? 'selected' : '' }}>
+        {{ $nombreDia }}
+    </option>
+@endforeach
                         </select>
                     </div>
 
@@ -36,12 +41,12 @@
                         <div class="col-md-6">
                             <label for="hora_inicio" class="form-label fw-semibold">Hora inicio</label>
                             <input type="time" name="hora_inicio" id="hora_inicio" class="form-control"
-                                value="{{ old('hora_inicio', \Carbon\Carbon::parse($disponibilidad->hora_inicio)->format('H:i')) }}" required>
+                                value="{{ old('hora_inicio', $disponibilidad->hora_inicio->format('H:i') }}" required>
                         </div>
                         <div class="col-md-6">
                             <label for="hora_fin" class="form-label fw-semibold">Hora fin</label>
                             <input type="time" name="hora_fin" id="hora_fin" class="form-control"
-                                value="{{ old('hora_fin', \Carbon\Carbon::parse($disponibilidad->hora_fin)->format('H:i')) }}" required>
+                                value="{{ old('hora_fin',$disponibilidad->hora_fin->format('H:i')" required>
                         </div>
                     </div>
 

@@ -9,9 +9,18 @@ use Illuminate\Support\Facades\Gate;
 class DisponibilidadController extends Controller
 {
     // Listado de días válidos para mantener consistencia con Carbon más adelante
+    // private const DIAS_SEMANA = [
+    //     'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'
+    // ];
     private const DIAS_SEMANA = [
-        'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'
-    ];
+    1 => 'lunes',
+    2 => 'martes',
+    3 => 'miercoles',
+    4 => 'jueves',
+    5 => 'viernes',
+    6 => 'sabado',
+    7 => 'domingo',
+];
 
     /**
      * 1. INDEX: Lista todas las disponibilidades del médico logueado.
@@ -49,7 +58,8 @@ class DisponibilidadController extends Controller
 
         // Validamos día, formato de hora y que hora_fin sea mayor a hora_inicio
         $datos = $request->validate([
-            'dia_semana'  => 'required|in:' . implode(',', self::DIAS_SEMANA),
+            // 'dia_semana'  => 'required|in:' . implode(',', self::DIAS_SEMANA),
+            'dia_semana' => 'required|integer|between:1,7',
             'hora_inicio' => 'required|date_format:H:i',
             'hora_fin'    => 'required|date_format:H:i|after:hora_inicio',
         ]);
@@ -113,7 +123,8 @@ class DisponibilidadController extends Controller
         Gate::authorize('update', $disponibilidad);
 
         $datos = $request->validate([
-            'dia_semana'  => 'required|in:' . implode(',', self::DIAS_SEMANA),
+            // 'dia_semana'  => 'required|in:' . implode(',', self::DIAS_SEMANA),
+            'dia_semana' => 'required|integer|between:1,7',
             'hora_inicio' => 'required|date_format:H:i',
             'hora_fin'    => 'required|date_format:H:i|after:hora_inicio',
         ]);

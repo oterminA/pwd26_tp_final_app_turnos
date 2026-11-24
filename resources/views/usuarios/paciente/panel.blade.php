@@ -55,8 +55,8 @@
                                         <td>{{ $turno->especialidad->nombre }}</td>
                                         <td>{{ $turno->medico->user->name }}</td>
                                         <td>
-                                            <td><strong>{{ $turno->fecha->format('d/m/Y') }}</strong></td>
-<td><strong>{{ $turno->hora_inicio->format('H:i') }} hs</strong></td>
+                                        <td><strong>{{ $turno->fecha->format('d/m/Y') }}</strong></td>
+                                        <td><strong>{{ $turno->hora_inicio->format('H:i') }} hs</strong></td>
                                         </td>
                                         <td>
                                             {{-- estas son las badge para mostrar los estados del turno --}}
@@ -72,8 +72,7 @@
                                         </td>
                                         <td>
                                             {{-- el paciente solo cancela sus propios turnos solo si faltan más de X dias y el turno deberia estar disponible otra vez --}}
-                                            <form action="{{ route('turnos.delete') }}" method="POST"
-                                                class="d-inline">
+                                            <form action="{{ route('turnos.delete') }}" method="POST" class="d-inline">
                                                 @csrf
                                                 @method('PATCH')
                                                 <button type="submit" class="btn btn-sm btn-outline-danger"
