@@ -100,6 +100,12 @@
 
                                 @if (Auth::user()->isMedico())
                                     <li class="nav-item">
+                                        <a class="nav-link {{ request()->routeIs('usuarios.medico.panel') ? 'active' : 'text-white-50' }}"
+                                            href="{{ route('usuarios.medico.panel') }}">
+                                            Panel
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
                                         <a class="nav-link text-white-50" href="{{ route('medico.edit') }}">
                                             Mi cuenta
                                         </a>

@@ -31,23 +31,23 @@ class Paciente extends Model
      */
     public function createDatos($datos)
     {
-        $user = null;
-        $user = DB::transaction(function () use ($datos) {
-            $user = User::create([ //se crea primero el usuario
+        return DB::transaction(function () use ($datos) {
+            $user = User::create([
                 'name'     => trim($datos['nombre'] . ' ' . $datos['apellido']),
                 'email'    => $datos['email'],
                 'password' => $datos['password'],
                 'rol'      => 'paciente',
             ]);
-
-            $user->paciente()->create([ //despues se crea el paciente
+            $user->paciente()->create([
                 'dni'              => $datos['dni'],
                 'fecha_nacimiento' => $datos['fecha_nacimiento'],
                 'telefono'         => $datos['telefono'],
                 'obra_social'      => $datos['obra_social'] ?? null,
             ]);
-
-            return $user; //se retorna el user creado
+            if ($user->rol === 'paciente') {
+                return $user;
+            }
+            return $user;
         });
     }
 

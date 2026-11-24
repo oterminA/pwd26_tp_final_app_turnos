@@ -94,11 +94,10 @@ class Medico extends Model
     }
 
 
-
     ///scope
     /**
      * scope para mostrar los medicos en el landing en la parte de equipo
-    */
+     */
     public function scopeEquipoPublico($query)
     {
         return $query->with([

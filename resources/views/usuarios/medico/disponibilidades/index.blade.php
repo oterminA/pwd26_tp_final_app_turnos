@@ -41,7 +41,7 @@
                 <tbody>
                     @foreach ($disponibilidades as $disponibilidad)
                         <tr>
-                            <td><td>{{ $disponibilidad->dia_nombre }}</td></td>
+                            <td>{{ $disponibilidad->dia_nombre }}</td>
                             <td>{{ $disponibilidad->hora_inicio->format('H:i') }} hs</td>
                             <td>{{ $disponibilidad->hora_fin->format('H:i') }} hs</td>
                             <td class="d-flex gap-1 flex-wrap">

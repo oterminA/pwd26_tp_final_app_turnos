@@ -97,3 +97,29 @@ img:nth-child(3) {
     animation-delay: 0.5s;
 }
 
+.badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: bold;
+    text-transform: capitalize;
+}
+
+.estado-pendiente {
+    background-color: #fef3c7;
+    color: #000000;
+}
+
+.estado-finalizado {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.estado-cancelado {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+.estado-ausente {
+    background-color: #6c757d;
+    color: #ffffff;
+}

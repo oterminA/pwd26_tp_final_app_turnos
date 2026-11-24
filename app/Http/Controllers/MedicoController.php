@@ -35,29 +35,33 @@ class MedicoController extends Controller
      */
     public function autenticar(Request $request)
     {
-        $request->validate([
-            'tipoMat' => ['required'],
-            'numMat' => ['required'],
-            'password' => ['required'],
+        $datos = $request->validate([
+            'tipoMat'  => ['required', 'string'],
+            'numMat'   => ['required', 'string'],
+            'password' => ['required', 'string'],
         ]);
+        $matricula = strtoupper(trim($datos['tipoMat'])) . '-' . trim($datos['numMat']);
 
         $medico = Medico::with('user')
-            ->where('tipoMat', $request->tipoMat)
-            ->where('numMat', $request->numMat)
+            ->where('matricula', $matricula)
             ->first();
-
-        if ($medico && $medico->user && Hash::check($request->password, $medico->user->password)) {
-            Auth::login($medico->user);
-            $request->session()->regenerate();
-
-            $respuesta = redirect()->intended(route('usuarios.medico.panel'));
-        } else {
-            $respuesta = back()->withErrors([
-                'numMat' => 'Las credenciales proporcionadas no son válidas.',
-            ])->onlyInput('tipoMat', 'numMat');
+        if (
+            !$medico ||
+            !$medico->user ||
+            $medico->user->rol !== 'medico' ||
+            !Hash::check($datos['password'], $medico->user->password)
+        ) {
+            return back()
+                ->withInput($request->only('tipoMat', 'numMat'))
+                ->withErrors([
+                    'numMat' => 'Las credenciales ingresadas no son válidas.',
+                ]);
         }
 
-        return $respuesta;
+        Auth::login($medico->user);
+        $request->session()->regenerate();
+
+        return redirect()->intended(route('usuarios.medico.panel'));
     }
 
 
@@ -66,7 +70,17 @@ class MedicoController extends Controller
      */
     public function panel()
     {
-        return view('usuarios.medico.panel');
+        $user = auth()->user();
+        $medico = $user?->medico;
+
+        $turnos = $medico
+            ? $medico->turnos()
+            ->with(['paciente.user', 'especialidad'])
+            ->orderBy('fecha', 'desc')
+            ->orderBy('hora_inicio', 'desc')
+            ->get()
+            : collect();
+        return view('usuarios.medico.panel', compact('medico', 'turnos'));
     }
 
 
@@ -90,11 +104,12 @@ class MedicoController extends Controller
         $medico = $user->medico;
 
         $datosValidados = $request->validate([
-            'name'             => 'required|string|max:255',
+            'nombre'           => 'required|string|max:120',
+            'apellido'         => 'required|string|max:120',
             'email'            => 'required|email|unique:users,email,' . $user->id,
             'password'         => 'nullable|min:8|confirmed',
             'matricula'              => 'required|string|unique:medicos,matricula,' . $medico->id,
-            'imagen' => 'nullable|mimes:jpg,jpeg,png,webp|max:300',
+            'imagen' => 'nullable|mimes:jpg,jpeg,png,webp|max:2048',
             'obra_social'      => 'nullable|string|max:100',
         ]);
 

@@ -52,7 +52,9 @@
             </tr>
             <tr>
                 <td class="etiqueta">Estado:</td>
-                <td><span class="estado">{{ ucfirst($turno->estado) }}</span></td>
+                <td><span class="badge estado-{{ strtolower($turno->estado) }}">
+                        {{ ucfirst($turno->estado) }}
+                    </span></td>
             </tr>
         </table>
 

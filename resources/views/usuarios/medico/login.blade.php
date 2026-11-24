@@ -30,7 +30,7 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('medico.autenticar') }}" method="POST">
+                    <form action="{{ route('medico.autenticar') }}" method="POST" novalidate>
                         @csrf
                         <div class="alert alert-danger error d-none" role="alert"></div>
 

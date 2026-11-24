@@ -19,22 +19,23 @@ Route::get('/', function () {
 Route::get('/equipo', [MedicoController::class, 'index'])->name('show.equipo');
 
 
-
 /*PACIENTE*/
+
 Route::get('/registrarse-pacinte', [PacienteController::class, 'create'])->name('create.paciente');
 
 Route::post('/guardar-paciente', [PacienteController::class, 'store'])->name('store.paciente');
 
-
 Route::get('/iniciar-sesion-paciente', [PacienteController::class, 'mostrarLogin'])->name('login.paciente');
-
-Route::put('/mi-cuenta-paciente', [PacienteController::class, 'update'])->name('paciente.update');
-
-Route::get('/mi-cuenta-paciente', [PacienteController::class, 'edit'])->name('paciente.edit');
 
 Route::post('/ingresar-paciente', [PacienteController::class, 'autenticar'])->name('paciente.autenticar');
 
-Route::get('/panel-paciente', [PacienteController::class, 'panel'])->name('usuarios.paciente.panel');
+Route::middleware(['auth'])->group(function () {
+    Route::put('/mi-cuenta-paciente', [PacienteController::class, 'update'])->name('paciente.update');
+
+    Route::get('/mi-cuenta-paciente', [PacienteController::class, 'edit'])->name('paciente.edit');
+
+    Route::get('/panel-paciente', [PacienteController::class, 'panel'])->name('usuarios.paciente.panel');
+});
 
 
 /*MEDICO*/
@@ -82,14 +83,17 @@ Route::middleware(['auth', 'medico.onboarding'])->prefix('profesional')->name('m
 });
 
 
+
 /*ADMIN*/
 Route::get('/iniciar-sesion-admin', function () {
     return view('usuarios.admin.login');
 })->name('login.admin');
 
-Route::get('/mi-cuenta-admin', [UserController::class, 'edit'])->name('admin.edit');
+Route::middleware(['auth'])->group(function () {
+    Route::get('/mi-cuenta-admin', [UserController::class, 'edit'])->name('admin.edit');
 
-Route::put('/mi-cuenta-admin', [UserController::class, 'update'])->name('admin.update');
+    Route::put('/mi-cuenta-admin', [UserController::class, 'update'])->name('admin.update');
+});
 
 Route::post('/ingresar-admin', [UserController::class, 'autenticar'])->name('admin.autenticar');
 
@@ -151,11 +155,11 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/confirmar-turno', [TurnoController::class, 'store'])->name('store.turno');
     // Route::get('/turnos/{id}', [TurnoController::class, 'show'])->name('turnos.show');
     Route::get('/turnos/{id}/editar', [TurnoController::class, 'edit'])->name('turnos.edit');
-    Route::put('/turnos/{id}', [TurnoController::class, 'update'])->name('turnos.update');
+    // Route::patch('/turnos/{id}', [TurnoController::class, 'update'])->name('turnos.update');
     Route::delete('/turnos/{id}', [TurnoController::class, 'delete'])->name('turnos.delete');
 
     // Endpoints AJAX para Tom Select y Flatpickr (librerias.js)
-    Route::get('/turnos/ajax/medicos/{especialidadId}', [TurnoController::class, 'mediscosPorEspecialidad'])
+    Route::get('/turnos/ajax/medicos/{especialidadId}', [TurnoController::class, 'medicosPorEspecialidad'])
         ->name('turnos.ajax.medicos');
     Route::get('/turnos/ajax/disponibilidad/{medicoId}', [TurnoController::class, 'disponibilidadMedico'])
         ->name('turnos.ajax.disponibilidad');

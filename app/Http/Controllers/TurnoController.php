@@ -203,7 +203,7 @@ class TurnoController extends Controller
         // Marcamos como cancelado (libera el cupo automáticamente en disponibilidadMedico)
         $turno->update(['estado' => 'cancelado']);
 
-        return redirect()->route('turnos.index')
+        return redirect()->route('usuarios.paciente.panel')
             ->with('success', 'Turno cancelado correctamente. El horario volvió a quedar disponible.');
     }
 
@@ -320,7 +320,7 @@ class TurnoController extends Controller
 
         $turno->load(['paciente.user', 'medico.user', 'especialidad']);
 
-        $pdf = Pdf::loadView('turnos.comprobante_pdf', compact('turno'));
+        $pdf = Pdf::loadView('usuarios.comprobante', compact('turno'));
 
         return $pdf->stream("comprobante-turno-{$turno->codigo}.pdf");
     }

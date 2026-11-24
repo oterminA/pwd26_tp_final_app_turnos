@@ -45,11 +45,19 @@
 
                             <div class="alert alert-danger error d-none" role="alert"></div>
 
-                            <div class="mb-3">
-                                <label for="name" class="form-label fw-semibold">Nombre y apellido</label>
-                                <input type="text" class="form-control" id="name" name="name"
-                                    value="{{ old('name', $user->name) }}" minlength="6" maxlength="61"
-                                    pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+" required>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="nombre" class="form-label">Nombre</label>
+                                    <input type="text" name="nombre" id="nombre" class="form-control"
+                                         value="{{ old('nombre', $medico->nombre) }}" minlength="3" maxlength="30"
+                                        required>
+                                </div>
+                                <div class="col-md-6 mt-3 mt-md-0">
+                                    <label for="apellido" class="form-label">Apellido</label>
+                                    <input type="text" name="apellido" id="apellido" class="form-control"
+                                         value="{{ old('apellido', $medico->apellido) }}" minlength="3" maxlength="30"
+                                        required>
+                                </div>
                             </div>
 
                             <div class="mb-3">

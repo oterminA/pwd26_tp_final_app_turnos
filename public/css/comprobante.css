@@ -87,19 +87,31 @@ table.datos td.etiqueta {
     /* --clinic-dark */
 }
 
-.estado {
-    display: inline-block;
-    padding: 4px 10px;
-    background-color: #CFF7EA;
-    /* --clinic-light */
-    color: #124D41;
-    /* --clinic-dark */
-    border: 1px solid #7FE3C6;
-    /* --clinic-water */
-    border-radius: 6px;
+
+.badge {
+    padding: 4px 8px;
+    border-radius: 4px;
     font-weight: bold;
-    font-size: 11px;
-    text-transform: uppercase;
+}
+
+.estado-pendiente {
+    background-color: #fef3c7;
+    color: #000000;
+}
+
+.estado-finalizado {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.estado-cancelado {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+.estado-ausente {
+    background-color: #6c757d;
+    color: #ffffff;
 }
 
 .footer {
