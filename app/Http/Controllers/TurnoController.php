@@ -8,8 +8,8 @@ use App\Models\Turno;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Str;
 
 class TurnoController extends Controller
 {
@@ -60,100 +60,58 @@ class TurnoController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'medico'       => 'required|exists:medicos,id',
-            'especialidad' => 'required|exists:especialidades,id',
+        $datos = $request->validate([
+            'medico'       => 'required|integer|exists:medicos,id',
+            'especialidad' => 'required|integer|exists:especialidades,id',
             'fecha_hora'   => 'required|date_format:Y-m-d H:i:s',
         ]);
 
         $user = auth()->user();
-        $medico = Medico::findOrFail($request->medico);
-
-        // Si el usuario es paciente, verificamos que coincida la obra social
-        //modificado con esto de muchas obras sociales
-        if ($user->rol === 'paciente' && $user->paciente) {
-            $coberturasMedico = is_array($medico->obras_sociales)
-                ? $medico->obras_sociales
-                : (json_decode($medico->obras_sociales ?? '[]', true) ?: []);
-
-            $obraSocialPaciente = $user->paciente->obra_social;
-
-            $atiendeObraSocial = ($obraSocialPaciente && in_array($obraSocialPaciente, $coberturasMedico, true))
-                || (!empty($medico->obra_social) && $medico->obra_social === $obraSocialPaciente);
-
-            if (!$atiendeObraSocial) {
-                return back()->withErrors([
-                    'medico' => 'El profesional seleccionado no atiende tu obra social.'
-                ]);
-            }
-
-            $pacienteId = $user->paciente->id;
-        } else {
-            // Si un médico saca un turno, puede venir un paciente_id en el request
-            $pacienteId = $request->input('paciente_id');
-        }
-
-        $inicio = Carbon::createFromFormat('Y-m-d H:i:s', $request->fecha_hora);
-        // Duracion definida por la especialidad, no por el medico.
-        $especialidad = Especialidad::findOrFail($request->especialidad);
+        $inicio = Carbon::createFromFormat('!Y-m-d H:i:s', $datos['fecha_hora']);
+        $especialidad = Especialidad::findOrFail($datos['especialidad']);
         $duracion = (int) $especialidad->duracion_turno;
-        $fin = $inicio->copy()->addMinutes($duracion);
 
-        // La especialidad debe estar asignada al profesional.
-        if (!$medico->especialidades()->where('especialidades.id', $especialidad->id)->exists()) {
-            return back()->withErrors(['especialidad' => 'El profesional no atiende esa especialidad.']);
-        }
-
-        // Comprobamos que el turno este dentro de alguna franja semanal del medico.
-        $disponible = $medico->disponibilidades()
-            ->where('dia_semana', $inicio->dayOfWeekIso)
-            ->where(function ($q) use ($especialidad) {
-                $q->where('especialidad_id', $especialidad->id)->orWhereNull('especialidad_id');
-            })
-            ->where('hora_inicio', '<=', $inicio->format('H:i:s'))
-            ->where('hora_fin', '>=', $fin->format('H:i:s'))
-            ->exists();
-
-        if (!$inicio->isFuture() || $inicio->toDateString() !== $fin->toDateString() || !$disponible) {
-            return back()->withErrors(['fecha_hora' => 'La fecha y hora no estan disponibles para ese profesional.']);
-        }
-
-        // Controlamos intervalos completos, incluso turnos de otras especialidades.
-        $ocupado = Turno::where('medico_id', $medico->id)
-            ->whereDate('fecha', $inicio->toDateString())
-            ->where('hora_inicio', '<', $fin->format('H:i:s'))
-            ->where('hora_fin', '>', $inicio->format('H:i:s'))
-            ->where('estado', '!=', 'cancelado')
-            ->exists();
-
-        if ($ocupado) {
-            return back()->withErrors([
-                'fecha_hora' => 'Ese horario acaba de ser ocupado. Por favor elegí otro.'
+        if ($duracion < 1) {
+            throw ValidationException::withMessages([
+                'especialidad' => 'Esta especialidad no tiene una duracion de turno valida.',
             ]);
         }
 
-        // Creamos el turno con un código único
-        Turno::create([
-            'paciente_id'     => $pacienteId,
-            'medico_id'       => $medico->id,
-            'especialidad_id' => $request->especialidad,
-            'fecha'           => $inicio->toDateString(),
-            'hora_inicio'     => $inicio->format('H:i:s'),
-            'hora_fin'        => $fin->format('H:i:s'),
-            'estado'          => 'pendiente',
-            'codigo'          => strtoupper(Str::random(8)),
-        ]);
+        $fin = $inicio->copy()->addMinutes($duracion);
 
-        //cambiado para que pueda redirigir tanto al panel del medico como al del paciente segun de donde venga la peticion de turno
-        if ($user && $user->isMedico()) {
-            $respuesta = redirect()->route('usuarios.medico.panel')
-                ->with('success', 'Turno reservado correctamente.');
+        if (!$inicio->isFuture() || $inicio->toDateString() !== $fin->toDateString()) {
+            throw ValidationException::withMessages([
+                'fecha_hora' => 'El turno debe ser futuro y finalizar el mismo dia.',
+            ]);
+        }
+
+        $medico = Medico::findOrFail($datos['medico']);
+
+        // Por ahora se mantiene la regla de obras sociales de la version actual.
+        // La vamos a unificar en la siguiente correccion.
+        if ($user->rol === 'paciente' && $user->paciente) {
+            $coberturas = $medico->obrasSocialesAsignadas();
+            $obraSocialPaciente = $user->paciente->obra_social;
+            if (!$obraSocialPaciente || !in_array($obraSocialPaciente, $coberturas, true)) {
+                throw ValidationException::withMessages([
+                    'medico' => 'El profesional seleccionado no atiende tu obra social.',
+                ]);
+            }
+            $pacienteId = $user->paciente->id;
         } else {
-            $respuesta = redirect()->route('usuarios.paciente.panel')
+            // La asignacion segura por DNI queda para la siguiente etapa.
+            $pacienteId = $request->input('paciente_id');
+        }
+
+        Turno::reservarSiDisponible($medico->id, $especialidad, $inicio, $fin, $pacienteId);
+
+        if ($user->rol === 'medico') {
+            return redirect()->route('usuarios.medico.panel')
                 ->with('success', 'Turno reservado correctamente.');
         }
 
-        return $respuesta;
+        return redirect()->route('usuarios.paciente.panel')
+            ->with('success', 'Turno reservado correctamente.');
     }
 
     /**
@@ -287,46 +245,7 @@ class TurnoController extends Controller
             return response()->json(['message' => 'La especialidad no tiene una duracion valida.'], 422);
         }
 
-        $hoy = Carbon::now();
-        $limite = $hoy->copy()->addDays(30);
-        $turnosPorFecha = Turno::where('medico_id', $medico->id)
-            ->whereBetween('fecha', [$hoy->toDateString(), $limite->toDateString()])
-            ->where('estado', '!=', 'cancelado')
-            ->get()
-            ->groupBy(fn ($turno) => $turno->fecha->toDateString());
-
-        $resultado = [];
-        for ($fecha = $hoy->copy()->startOfDay(); $fecha->lte($limite); $fecha->addDay()) {
-            $dia = $fecha->toDateString();
-            $franjas = $medico->disponibilidades
-                ->where('dia_semana', $fecha->dayOfWeekIso)
-                ->filter(fn ($franja) => $franja->especialidad_id === null || (int) $franja->especialidad_id === (int) $especialidad->id);
-            $horarios = [];
-
-            foreach ($franjas as $franja) {
-                $cursor = Carbon::parse($dia . ' ' . Carbon::parse($franja->hora_inicio)->format('H:i:s'));
-                $finFranja = Carbon::parse($dia . ' ' . Carbon::parse($franja->hora_fin)->format('H:i:s'));
-
-                while ($cursor->copy()->addMinutes($duracion)->lte($finFranja)) {
-                    $finCandidato = $cursor->copy()->addMinutes($duracion);
-                    $ocupado = ($turnosPorFecha[$dia] ?? collect())->contains(function ($turno) use ($dia, $cursor, $finCandidato) {
-                        $inicioOcupado = Carbon::parse($dia . ' ' . Carbon::parse($turno->hora_inicio)->format('H:i:s'));
-                        $finOcupado = Carbon::parse($dia . ' ' . Carbon::parse($turno->hora_fin)->format('H:i:s'));
-                        return $inicioOcupado->lt($finCandidato) && $finOcupado->gt($cursor);
-                    });
-
-                    if ($cursor->gt($hoy) && !$ocupado) {
-                        $horarios[] = $cursor->format('H:i');
-                    }
-                    $cursor->addMinutes($duracion);
-                }
-            }
-
-            if ($horarios) {
-                $resultado[$dia] = array_values(array_unique($horarios));
-                sort($resultado[$dia]);
-            }
-        }
+        $resultado = Turno::horariosDisponibles($medico, $especialidad);
         return response()->json($resultado);
     }
 

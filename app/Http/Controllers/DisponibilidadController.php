@@ -6,7 +6,6 @@ use App\Models\Disponibilidad;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
-use Carbon\Carbon;
 
 class DisponibilidadController extends Controller
 {
@@ -73,8 +72,8 @@ class DisponibilidadController extends Controller
         ]);
 
         // Controlamos que no se superponga con otra franja del mismo médico ese día
-        $seSuperpone = $this->haySuperposicion(
-            $medico,
+        $seSuperpone = Disponibilidad::haySuperposicion(
+            $medico->id,
             $datos['dia_semana'],
             $datos['hora_inicio'],
             $datos['hora_fin']
@@ -141,8 +140,8 @@ class DisponibilidadController extends Controller
         ]);
 
         // Controlamos superposición excluyendo el registro que estamos editando
-        $seSuperpone = $this->haySuperposicion(
-            auth()->user()->medico,
+        $seSuperpone = Disponibilidad::haySuperposicion(
+            auth()->user()->medico->id,
             $datos['dia_semana'],
             $datos['hora_inicio'],
             $datos['hora_fin'],
@@ -161,32 +160,6 @@ class DisponibilidadController extends Controller
             ->with('success', 'Disponibilidad actualizada correctamente.');
     }
 
-
-    // Compara las horas sin importar si la BD las guardo con fecha o segundos.
-    // No filtramos por especialidad: el medico no puede atender dos a la vez.
-    private function haySuperposicion($medico, $dia, $inicio, $fin, $exceptoId = null)
-    {
-        $franjas = $medico->disponibilidades()
-            ->where('dia_semana', $dia)
-            ->when($exceptoId, function ($query) use ($exceptoId) {
-                $query->where('id', '!=', $exceptoId);
-            })
-            ->get();
-
-        $inicioNuevo = Carbon::parse($inicio)->format('H:i:s');
-        $finNuevo = Carbon::parse($fin)->format('H:i:s');
-
-        foreach ($franjas as $franja) {
-            $inicioExistente = Carbon::parse($franja->hora_inicio)->format('H:i:s');
-            $finExistente = Carbon::parse($franja->hora_fin)->format('H:i:s');
-
-            if ($inicioExistente < $finNuevo && $finExistente > $inicioNuevo) {
-                return true;
-            }
-        }
-
-        return false;
-    }
 
     /**
      * 7. DELETE: Elimina una disponibilidad del médico.
