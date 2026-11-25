@@ -84,16 +84,8 @@ class TurnoController extends Controller
 
         $medico = Medico::findOrFail($datos['medico']);
 
-        // Por ahora se mantiene la regla de obras sociales de la version actual.
-        // La vamos a unificar en la siguiente correccion.
+        // La obra social informa la cobertura, pero no impide reservar.
         if ($user->rol === 'paciente' && $user->paciente) {
-            $coberturas = $medico->obrasSocialesAsignadas();
-            $obraSocialPaciente = $user->paciente->obra_social;
-            if (!$obraSocialPaciente || !in_array($obraSocialPaciente, $coberturas, true)) {
-                throw ValidationException::withMessages([
-                    'medico' => 'El profesional seleccionado no atiende tu obra social.',
-                ]);
-            }
             $pacienteId = $user->paciente->id;
         } else {
             // La asignacion segura por DNI queda para la siguiente etapa.
@@ -196,36 +188,32 @@ class TurnoController extends Controller
 
     /**
      * ENDPOINT AJAX: Devuelve los médicos de una especialidad,
-     * filtrando automáticamente por la obra social del paciente logueado.
+     * indicando si aceptan la obra social del paciente logueado.
      */
     public function medicosPorEspecialidad($especialidadId)
     {
         $user = auth()->user();
 
-        $query = Medico::with('user')
-            ->whereHas('especialidades', function ($q) use ($especialidadId) {
-                $q->where('especialidades.id', $especialidadId);
-            });
-
-        // Filtro automático por obra social del paciente
-        //modificacion por esto de muchas obras sociales
-        if ($user && $user->rol === 'paciente' && $user->paciente && $user->paciente->obra_social) {
+        $obraSocialPaciente = null;
+        if ($user && $user->rol === 'paciente' && $user->paciente) {
             $obraSocialPaciente = $user->paciente->obra_social;
-
-            $query->where(function ($q) use ($obraSocialPaciente) {
-                $q->whereJsonContains('obras_sociales', $obraSocialPaciente)
-                    ->orWhere('obra_social', $obraSocialPaciente);
-            });
         }
 
-        $medicos = $query->get()->map(function ($medico) {
-            return [
-                'id'       => $medico->id,
-                'nombre'   => $medico->user->name,
-                'apellido' => '', // El nombre completo ya está concatenado en user->name
-                'imagen'   => $medico->urlImagen($medico->imagen),
-            ];
-        });
+        $medicos = Medico::with('user')
+            ->whereHas('especialidades', function ($query) use ($especialidadId) {
+                $query->where('especialidades.id', $especialidadId);
+            })
+            ->get()
+            ->map(function ($medico) use ($obraSocialPaciente, $user) {
+                return [
+                    'id' => $medico->id,
+                    'nombre' => $medico->user->nombre_visible,
+                    'apellido' => '',
+                    'imagen' => $medico->urlImagen($medico->imagen),
+                    'mostrar_cobertura' => $user && $user->rol === 'paciente',
+                    'acepta_obra_social' => $medico->aceptaObraSocial($obraSocialPaciente),
+                ];
+            });
 
         return response()->json($medicos);
     }
