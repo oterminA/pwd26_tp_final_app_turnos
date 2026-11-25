@@ -128,6 +128,40 @@ class Turno extends Model
         return $resultado;
     }
 
+    // Un turno pendiente es el unico que admite cambios de estado o cancelacion.
+    public function puedeCambiarEstado(): bool
+    {
+        return $this->estado === 'pendiente';
+    }
+
+    public function puedeCancelar(): bool
+    {
+        return $this->estado === 'pendiente';
+    }
+
+    // Usamos fecha y hora exactas, no solo los dias del calendario.
+    public function puedeCancelarPorPaciente(): bool
+    {
+        if (!$this->puedeCancelar()) {
+            return false;
+        }
+
+        $fechaHoraTurno = Carbon::parse(
+            $this->fecha->toDateString() . ' ' . Carbon::parse($this->hora_inicio)->format('H:i:s')
+        );
+        return Carbon::now()->addHours(48)->lte($fechaHoraTurno);
+    }
+
+    public function cancelar(): void
+    {
+        $this->update(['estado' => 'cancelado']);
+    }
+
+    public function marcarEstado(string $estado): void
+    {
+        $this->update(['estado' => $estado]);
+    }
+
     public function paciente()
     {
         return $this->belongsTo(Paciente::class);
