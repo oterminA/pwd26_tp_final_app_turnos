@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Disponibilidad;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\Rule;
 
 class DisponibilidadController extends Controller
 {
@@ -32,6 +33,7 @@ class DisponibilidadController extends Controller
 
         // Traemos solo las franjas horarias del médico actual
         $disponibilidades = $medico->disponibilidades()
+            ->with('especialidad')
             ->orderBy('dia_semana')
             ->orderBy('hora_inicio')
             ->get();
@@ -44,9 +46,12 @@ class DisponibilidadController extends Controller
      */
     public function create()
     {
+        $medico = auth()->user()->medico;
+        abort_unless($medico, 403);
+        $especialidades = $medico->especialidades()->orderBy('nombre')->get();
         $dias = self::DIAS_SEMANA;
 
-        return view('usuarios.medico.disponibilidades.create', compact('dias'));
+        return view('usuarios.medico.disponibilidades.create', compact('dias', 'especialidades'));
     }
 
     /**
@@ -55,21 +60,24 @@ class DisponibilidadController extends Controller
     public function store(Request $request)
     {
         $medico = auth()->user()->medico;
+        abort_unless($medico, 403);
 
         // Validamos día, formato de hora y que hora_fin sea mayor a hora_inicio
         $datos = $request->validate([
             // 'dia_semana'  => 'required|in:' . implode(',', self::DIAS_SEMANA),
+            'especialidad_id' => ['required', 'integer', Rule::exists('especialidad_medico', 'especialidad_id')->where('medico_id', $medico->id)],
             'dia_semana' => 'required|integer|between:1,7',
             'hora_inicio' => 'required|date_format:H:i',
             'hora_fin'    => 'required|date_format:H:i|after:hora_inicio',
         ]);
 
         // Controlamos que no se superponga con otra franja del mismo médico ese día
-        $seSuperpone = $medico->disponibilidades()
-            ->where('dia_semana', $datos['dia_semana'])
-            ->where('hora_inicio', '<', $datos['hora_fin'])
-            ->where('hora_fin', '>', $datos['hora_inicio'])
-            ->exists();
+        $seSuperpone = Disponibilidad::haySuperposicion(
+            $medico->id,
+            $datos['dia_semana'],
+            $datos['hora_inicio'],
+            $datos['hora_fin']
+        );
 
         if ($seSuperpone) {
             return back()
@@ -89,7 +97,7 @@ class DisponibilidadController extends Controller
      */
     public function show($id)
     {
-        $disponibilidad = Disponibilidad::findOrFail($id);
+        $disponibilidad = Disponibilidad::with('especialidad')->findOrFail($id);
 
         // Verificamos con la Policy que pertenezca al médico logueado
         Gate::authorize('update', $disponibilidad);
@@ -102,14 +110,15 @@ class DisponibilidadController extends Controller
      */
     public function edit($id)
     {
-        $disponibilidad = Disponibilidad::findOrFail($id);
+        $disponibilidad = Disponibilidad::with('especialidad')->findOrFail($id);
 
         // Policy: solo el médico dueño puede editarla
         Gate::authorize('update', $disponibilidad);
 
         $dias = self::DIAS_SEMANA;
+        $especialidades = auth()->user()->medico->especialidades()->orderBy('nombre')->get();
 
-        return view('usuarios.medico.disponibilidades.edit', compact('disponibilidad', 'dias'));
+        return view('usuarios.medico.disponibilidades.edit', compact('disponibilidad', 'dias', 'especialidades'));
     }
 
     /**
@@ -117,25 +126,27 @@ class DisponibilidadController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $disponibilidad = Disponibilidad::findOrFail($id);
+        $disponibilidad = Disponibilidad::with('especialidad')->findOrFail($id);
 
         // Policy: solo el médico dueño puede modificarla
         Gate::authorize('update', $disponibilidad);
 
         $datos = $request->validate([
             // 'dia_semana'  => 'required|in:' . implode(',', self::DIAS_SEMANA),
+            'especialidad_id' => ['required', 'integer', Rule::exists('especialidad_medico', 'especialidad_id')->where('medico_id', auth()->user()->medico->id)],
             'dia_semana' => 'required|integer|between:1,7',
             'hora_inicio' => 'required|date_format:H:i',
             'hora_fin'    => 'required|date_format:H:i|after:hora_inicio',
         ]);
 
         // Controlamos superposición excluyendo el registro que estamos editando
-        $seSuperpone = auth()->user()->medico->disponibilidades()
-            ->where('id', '!=', $disponibilidad->id)
-            ->where('dia_semana', $datos['dia_semana'])
-            ->where('hora_inicio', '<', $datos['hora_fin'])
-            ->where('hora_fin', '>', $datos['hora_inicio'])
-            ->exists();
+        $seSuperpone = Disponibilidad::haySuperposicion(
+            auth()->user()->medico->id,
+            $datos['dia_semana'],
+            $datos['hora_inicio'],
+            $datos['hora_fin'],
+            $disponibilidad->id
+        );
 
         if ($seSuperpone) {
             return back()
@@ -149,12 +160,13 @@ class DisponibilidadController extends Controller
             ->with('success', 'Disponibilidad actualizada correctamente.');
     }
 
+
     /**
      * 7. DELETE: Elimina una disponibilidad del médico.
      */
     public function delete($id)
     {
-        $disponibilidad = Disponibilidad::findOrFail($id);
+        $disponibilidad = Disponibilidad::with('especialidad')->findOrFail($id);
 
         // Policy: solo el médico dueño puede eliminarla
         Gate::authorize('delete', $disponibilidad);

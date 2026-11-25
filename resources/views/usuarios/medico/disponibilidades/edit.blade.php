@@ -21,6 +21,19 @@
                     @csrf
                     @method('PUT')
 
+                        <div class="mb-3">
+                            <label for="especialidad_id" class="form-label fw-semibold">Especialidad de esta franja</label>
+                            <select name="especialidad_id" id="especialidad_id" class="form-select" required>
+                                <option value="">Seleccionar especialidad</option>
+                                @foreach ($especialidades as $especialidad)
+                                    <option value="{{ $especialidad->id }}" @selected(old('especialidad_id', $disponibilidad->especialidad_id ?? null) == $especialidad->id)>
+                                        {{ $especialidad->nombre }} ({{ $especialidad->duracion_turno }} min por turno)
+                                    </option>
+                                @endforeach
+                            </select>
+                            <div class="form-text">Solo aparecen las especialidades que tenes asignadas.</div>
+                        </div>
+
                     <div class="mb-3">
                         <label for="dia_semana" class="form-label fw-semibold">Día de la semana</label>
                         <select name="dia_semana" id="dia_semana" class="form-select" required>

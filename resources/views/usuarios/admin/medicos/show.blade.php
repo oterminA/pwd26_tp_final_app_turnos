@@ -67,9 +67,14 @@
                     <div class="gestion-profile-value">{{ $obras ?: 'Sin especificar' }}</div>
                 </div>
                 <div class="col-md-6">
-                    <div class="gestion-profile-label">Duración estándar por turno</div>
+                    <div class="gestion-profile-label">Duración por especialidad</div>
                     <div class="gestion-profile-value">
-                        {{ $medico->duracion_turno ? $medico->duracion_turno . ' minutos' : 'Sin configurar' }}</div>
+                        @forelse ($medico->especialidades as $especialidad)
+                            <div>{{ $especialidad->nombre }}: {{ $especialidad->duracion_turno }} minutos</div>
+                        @empty
+                            Sin especialidades asignadas
+                        @endforelse
+                    </div>
                 </div>
             </div>
         </div>
