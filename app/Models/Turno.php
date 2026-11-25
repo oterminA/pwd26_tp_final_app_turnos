@@ -29,7 +29,8 @@ class Turno extends Model
     public static function proximosPorMedico($medicoId, Carbon $hoy, Carbon $limite)
     {
         return self::where('medico_id', $medicoId)
-            ->whereBetween('fecha', [$hoy->toDateString(), $limite->toDateString()])
+            ->whereDate('fecha', '>=', $hoy->toDateString())
+            ->whereDate('fecha', '<=', $limite->toDateString())
             ->where('estado', '!=', 'cancelado')
             ->get()
             ->groupBy(fn ($turno) => $turno->fecha->toDateString());
@@ -72,6 +73,15 @@ class Turno extends Model
                 ]);
             }
 
+            $horarios = self::horariosDisponibles($medico, $especialidad);
+            if ($inicio->format('s') !== '00'
+                || !$fin->eq($inicio->copy()->addMinutes((int) $especialidad->duracion_turno))
+                || !in_array($inicio->format('H:i'), $horarios[$inicio->toDateString()] ?? [], true)) {
+                throw ValidationException::withMessages([
+                    'fecha_hora' => 'Elegi uno de los horarios disponibles del calendario.',
+                ]);
+            }
+
             return self::create([
                 'paciente_id' => $pacienteId,
                 'medico_id' => $medico->id,
@@ -88,6 +98,9 @@ class Turno extends Model
     public static function horariosDisponibles(Medico $medico, Especialidad $especialidad): array
     {
         $duracion = (int) $especialidad->duracion_turno;
+        if ($duracion < 1 || $medico->trashed() || $especialidad->trashed()) {
+            return [];
+        }
         $hoy = Carbon::now();
         $limite = $hoy->copy()->addDays(30);
         $turnosPorFecha = self::proximosPorMedico($medico->id, $hoy, $limite);
@@ -113,7 +126,7 @@ class Turno extends Model
                         return $inicioOcupado->lt($finCandidato) && $finOcupado->gt($cursor);
                     });
 
-                    if ($cursor->gt($hoy) && !$ocupado) {
+                    if ($cursor->gt($hoy) && $cursor->format('s') === '00' && !$ocupado) {
                         $horarios[] = $cursor->format('H:i');
                     }
                     $cursor->addMinutes($duracion);
@@ -128,10 +141,24 @@ class Turno extends Model
         return $resultado;
     }
 
-    // Un turno pendiente es el unico que admite cambios de estado o cancelacion.
-    public function puedeCambiarEstado(): bool
+    public function puedeCambiarEstado(?string $estado = null): bool
     {
-        return $this->estado === 'pendiente';
+        if ($this->estado !== 'pendiente') {
+            return false;
+        }
+
+        $fecha = $this->fecha->toDateString();
+        $inicio = Carbon::parse($fecha . ' ' . Carbon::parse($this->hora_inicio)->format('H:i:s'));
+        $fin = Carbon::parse($fecha . ' ' . Carbon::parse($this->hora_fin)->format('H:i:s'));
+        $ahora = Carbon::now();
+
+        if ($estado === 'ausente') {
+            return $ahora->gte($fin);
+        }
+        if ($estado === null || $estado === 'finalizado') {
+            return $ahora->gte($inicio);
+        }
+        return false;
     }
 
     public function puedeCancelar(): bool
@@ -169,11 +196,11 @@ class Turno extends Model
 
     public function medico()
     {
-        return $this->belongsTo(Medico::class);
+        return $this->belongsTo(Medico::class)->withTrashed();
     }
 
     public function especialidad()
     {
-        return $this->belongsTo(Especialidad::class);
+        return $this->belongsTo(Especialidad::class)->withTrashed();
     }
 }

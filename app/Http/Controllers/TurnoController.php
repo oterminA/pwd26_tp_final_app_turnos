@@ -115,7 +115,7 @@ class TurnoController extends Controller
 
         if (!$turno->puedeCambiarEstado()) {
             return redirect()->route('usuarios.medico.panel')
-                ->withErrors(['turno' => 'Este turno ya no permite cambios de estado.']);
+                ->withErrors(['turno' => 'Este turno todavia no comenzo o ya no permite cambios de estado.']);
         }
 
         return view('usuarios.edit', compact('turno'));
@@ -134,9 +134,9 @@ class TurnoController extends Controller
             'estado' => 'required|in:finalizado,ausente',
         ]);
 
-        if (!$turno->puedeCambiarEstado()) {
+        if (!$turno->puedeCambiarEstado($datos['estado'])) {
             throw ValidationException::withMessages([
-                'estado' => 'Solo se puede cambiar el estado de un turno pendiente.',
+                'estado' => 'El turno debe estar pendiente y haber comenzado para finalizarlo, o haber terminado para marcarlo ausente.',
             ]);
         }
 

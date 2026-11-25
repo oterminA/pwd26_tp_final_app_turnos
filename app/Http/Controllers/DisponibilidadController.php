@@ -154,6 +154,12 @@ class DisponibilidadController extends Controller
                 ->withErrors(['hora_inicio' => 'Esa franja horaria se superpone con otra disponibilidad tuya.']);
         }
 
+        if ($disponibilidad->afectaTurnosPendientes($datos)) {
+            return back()->withInput()->withErrors([
+                'hora_inicio' => 'No podes modificar esta disponibilidad porque afecta turnos pendientes.',
+            ]);
+        }
+
         $disponibilidad->update($datos);
 
         return redirect()->route('medico.disponibilidades.index')
@@ -170,6 +176,12 @@ class DisponibilidadController extends Controller
 
         // Policy: solo el médico dueño puede eliminarla
         Gate::authorize('delete', $disponibilidad);
+
+        if ($disponibilidad->afectaTurnosPendientes()) {
+            return redirect()->route('medico.disponibilidades.index')->withErrors([
+                'disponibilidad' => 'No podes eliminar esta disponibilidad porque tiene turnos pendientes.',
+            ]);
+        }
 
         $disponibilidad->delete();
 

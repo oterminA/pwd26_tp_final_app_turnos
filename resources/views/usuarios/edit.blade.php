@@ -5,6 +5,10 @@
     <div class="card shadow-sm border-0 rounded-4 p-4">
         <h3 class="fw-bold mb-3">Cambiar Estado del Turno #{{ $turno->codigo }}</h3>
 
+        @if ($errors->any())
+            <div class="alert alert-danger">{{ $errors->first() }}</div>
+        @endif
+
         <form action="{{ route('turnos.update', $turno->id) }}" method="POST">
             @csrf
             @method('PUT')
@@ -13,9 +17,11 @@
                 <label for="estado" class="form-label">Estado</label>
                 <select name="estado" id="estado" class="form-select" required>
                     @foreach (['finalizado', 'ausente'] as $estado)
+                        @if ($turno->puedeCambiarEstado($estado))
                         <option value="{{ $estado }}" {{ $turno->estado === $estado ? 'selected' : '' }}>
                             {{ ucfirst($estado) }}
                         </option>
+                        @endif
                     @endforeach
                 </select>
             </div>
