@@ -27,6 +27,14 @@ class Paciente extends Model
     }
 
     /**
+     * funcion para mostrar de formadinamica las obras sociales al paciente
+    */
+    public function obrasSocialesAsignadas(): array
+{
+    return $this->obra_social ? [$this->obra_social] : [];
+}
+
+    /**
      * funcion que hace una 'transaccion' para manejar el hecho de que tanto en user como en paciente manejamos datos de 'paciente', entonces al crear el paciente se tiene que crear en ambos lados y esto desde el control no se puede manejar
      */
     public function createDatos($datos)

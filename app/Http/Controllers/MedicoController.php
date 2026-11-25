@@ -110,40 +110,33 @@ class MedicoController extends Controller
     /**
      * funcion para guardar los datos editados del medico
      */
- public function update(Request $request)
+    public function update(Request $request)
     {
         $user = Auth::user();
         $medico = $user->medico;
 
+        //usamos la regla prohibited que valida que un campo no esté presente o esté vacío en los datos enviados en la solicitud HTTP, laravel da error si se reciben esos campos
         $datosValidados = $request->validate([
             'nombre'           => 'required|string|max:120',
             'apellido'         => 'required|string|max:120',
             'email'            => 'required|email|unique:users,email,' . $user->id,
             'password'         => 'nullable|min:8|confirmed',
-            'tipoMat'          => 'nullable|string', //esto quedó en nullable por si decidimos que el medico no tiene que modificar esos datos
-            'numMat'           => 'nullable|string|max:10',//esto quedó en nullable por si decidimos que el medico no tiene que modificar esos datos
+            'tipoMat'          => 'prohibited',
+            'numMat'           => 'prohibited',
+            'matricula'        => 'prohibited',
             'imagen'           => 'nullable|mimes:jpg,jpeg,png,webp|max:2048',
             'obras_sociales'   => 'nullable|array',
             'obras_sociales.*' => 'string',
             'especialidades'   => 'nullable|array',
             'especialidades.*' => 'integer|exists:especialidades,id',
+        ], [
+            'tipoMat.prohibited'   => 'No tenés permiso para modificar la matrícula desde este formulario.',
+            'numMat.prohibited'    => 'No tenés permiso para modificar la matrícula desde este formulario.',
+            'matricula.prohibited' => 'No tenés permiso para modificar la matrícula desde este formulario.',
         ]);
 
-        $tipoMat = trim($datosValidados['tipoMat'] ?? '');
-        $numMat  = trim($datosValidados['numMat'] ?? '');
-
-        if ($tipoMat !== '' && $numMat !== '') { //por si el medico no modificó los datos de matricula porque no los pusimos
-            $matricula = strtoupper($tipoMat) . '-' . $numMat;
-
-            $request->merge(['matricula' => $matricula]);
-            $request->validate([
-                'matricula' => 'nullable|string|unique:medicos,matricula,' . $medico->id,
-            ]);
-
-            $datosValidados['matricula'] = $matricula;
-        } else {
-            $datosValidados['matricula'] = $medico->matricula;
-        }
+        //dejamos la matricula original del medico porque es un dato importante
+        $datosValidados['matricula'] = $medico->matricula;
 
         if ($request->hasFile('imagen')) {
             if ($medico->imagen && File::exists(public_path($medico->imagen))) {
@@ -157,7 +150,7 @@ class MedicoController extends Controller
             $datosValidados['imagen'] = 'imagenes/' . $nombreArchivo;
         }
 
-        $medico->updateDatos($datosValidados);
+        $medico->updateDatos($datosValidados); //mandamos los datos a que se validen en la transaccion del modelo
 
         return redirect()->back()->with('success', 'Tus datos fueron actualizados correctamente.');
     }

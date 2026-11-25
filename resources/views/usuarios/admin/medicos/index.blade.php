@@ -72,7 +72,7 @@
         <div class="row g-3" id="listadoMedicos">
             @foreach ($medicos as $medico)
                 @php
-                    $nombre = $medico->user->name ?? 'Profesional sin nombre';
+                    $nombre = $medico->user->nombre_visible ?? 'Profesional sin nombre';
                     $siglas = collect(preg_split('/\s+/', trim($nombre)))
                         ->filter()
                         ->take(2)

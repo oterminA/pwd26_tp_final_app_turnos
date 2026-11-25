@@ -53,7 +53,7 @@
                                     <tr>
                                         <td class="fw-bold">{{ $turno->codigo }}</td>
                                         <td>{{ $turno->especialidad->nombre }}</td>
-                                        <td>{{ $turno->medico->user->name }}</td>
+                                        <td>{{ $turno->medico->user->nombre_visible }}</td>
                                         <td>
                                             <strong>{{ $turno->fecha->format('d/m/Y') }}</strong>
                                             <strong>{{ $turno->hora_inicio->format('H:i') }} hs</strong>

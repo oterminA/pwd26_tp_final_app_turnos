@@ -60,33 +60,42 @@ class Medico extends Model
     public function updateDatos($datos)
     {
         DB::transaction(function () use ($datos) {
-            //se actualizan los datos en la tabla user
-$datosUser = [
-    'name'  => trim($datos['nombre']) . ' | ' . trim($datos['apellido']),
-    'email' => $datos['email'],
-];
+            $datosUser = [ //como deben quedar los datos con la separacion de nombres y apellidos en name
+                'name'  => trim($datos['nombre']) . ' | ' . trim($datos['apellido']),
+                'email' => $datos['email'],
+            ];
 
-            if (!empty($datos['password'])) {
+            if (!empty($datos['password'])) { //si no viene una contraseña dejamos la anterior
                 $datosUser['password'] = $datos['password'];
             }
 
-            $this->user->update($datosUser);
+            $this->user->update($datosUser); //hacemos el update del USER
 
             $datosMedico = [
                 'matricula' => $datos['matricula'] ?? $this->matricula,
             ];
 
-            if (array_key_exists('obra_social', $datos)) {
+            if (array_key_exists('obras_sociales', $datos)) {
+                $listaObras = array_values(array_filter((array) $datos['obras_sociales']));
+                $datosMedico['obras_sociales'] = $listaObras;
+                $datosMedico['obra_social'] = $listaObras[0] ?? null;
+            } elseif (array_key_exists('obra_social', $datos)) {
                 $datosMedico['obra_social'] = $datos['obra_social'];
-            } elseif (!empty($datos['obras_sociales']) && is_array($datos['obras_sociales'])) {
-                $datosMedico['obra_social'] = $datos['obras_sociales'][0];
+                $datosMedico['obras_sociales'] = $datos['obra_social'] ? [$datos['obra_social']] : [];
+            } else {
+                $datosMedico['obras_sociales'] = [];
+                $datosMedico['obra_social'] = null;
             }
 
             if (!empty($datos['imagen'])) {
                 $datosMedico['imagen'] = $datos['imagen'];
             }
 
-            $this->update($datosMedico);
+            $this->update($datosMedico); //hacemos el update del medico
+
+            if (array_key_exists('especialidades', $datos)) {
+                $this->especialidades()->sync($datos['especialidades'] ?? []);
+            }
         });
     }
 

@@ -54,7 +54,7 @@
                                 @forelse($turnos as $turno)
                                     <tr>
                                         <td class="fw-bold">{{ $turno->codigo }}</td>
-                                        <td>{{ $turno->paciente->user->name }}</td>
+                                        <td>{{ $turno->paciente->user->nombre_visible }}</td>
                                         <td>{{ $turno->especialidad->nombre }}</td>
                                         <td>
                                             <strong>{{ $turno->fecha->format('d/m/Y') }}</strong>

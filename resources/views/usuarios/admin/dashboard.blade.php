@@ -33,7 +33,7 @@
                         <option value="">Todos los profesionales</option>
                         @foreach ($medicos as $medico)
                             <option value="{{ $medico->id }}" @selected((string) $medicoId === (string) $medico->id)>
-                                {{ $medico->user->name ?? 'Medico #' . $medico->id }}{{ $medico->trashed() ? ' (inactivo)' : '' }}
+                                {{ $medico->user->nombre_visible ?? 'Medico #' . $medico->id }}{{ $medico->trashed() ? ' (inactivo)' : '' }}
                             </option>
                         @endforeach
                     </select>

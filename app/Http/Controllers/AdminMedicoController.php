@@ -60,7 +60,7 @@ class AdminMedicoController extends Controller
         try {
             $medico = DB::transaction(function () use ($datos, $rutaImagen) {
             $user = User::create([
-                'name' => trim($datos['nombre'] . ' ' . $datos['apellido']),
+                'name' => trim($datos['nombre'] . ' | ' . $datos['apellido']),
                 'email' => $datos['email'],
                 'password' => $datos['password'], // User lo hashea por casts()
                 'rol' => 'medico',
@@ -144,7 +144,7 @@ class AdminMedicoController extends Controller
         try {
             DB::transaction(function () use ($datos, $medico, $rutaImagen) {
             $userDatos = [
-                'name' => trim($datos['nombre'] . ' ' . $datos['apellido']),
+                'name' => trim($datos['nombre'] . ' | ' . $datos['apellido']),
                 'email' => $datos['email'],
             ];
             if (!empty($datos['password'])) {

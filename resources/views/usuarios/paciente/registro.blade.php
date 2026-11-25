@@ -41,8 +41,8 @@
 
                 <div class="mb-3">
                     <label for="fechaNac" class="form-label">Fecha de nacimiento</label>
-                    <input type="date" name="fecha_nacimiento" id="fechaNac" class="form-control" value="{{ old('fechaNac') }}"
-                        required>
+                    <input type="date" name="fecha_nacimiento" id="fechaNac" class="form-control"
+                        value="{{ old('fechaNac') }}" required>
                 </div>
 
                 <div class="mb-3">
@@ -53,21 +53,19 @@
                 </div>
 
                 <div class="mb-3">
-                    {{-- lleva tom select --}}
-                    <label for="obra_social" class="form-label">Obra social</label>
-                    <select class="form-select" id="obra_social" name="obra_social" required>
-                        <option value="" disabled @selected(!old('obra_social'))>Seleccione una opción</option>
-                        <option value="particular" @selected(old('obra_social') == 'particular')>Particular</option>
-                        <option value="ipross" @selected(old('obra_social') == 'ipross')>IPROSS</option>
-                        <option value="issn" @selected(old('obra_social') == 'issn')>ISSN</option>
-                        <option value="osecac" @selected(old('obra_social') == 'osecac')>OSECAC</option>
-                        <option value="ospe" @selected(old('obra_social') == 'ospe')>OSPE / Construir Salud</option>
-                        <option value="osde" @selected(old('obra_social') == 'osde')>OSDE</option>
-                        <option value="swiss" @selected(old('obra_social') == 'swiss')>Swiss Medical</option>
-                        <option value="sancor" @selected(old('obra_social') == 'sancor')>Sancor Salud</option>
-                        <option value="medife" @selected(old('obra_social') == 'medife')>Medifé</option>
-                        <option value="galeno" @selected(old('obra_social') == 'galeno')>Galeno</option>
+                    @php
+                        $obrasForm = array_map('strval', (array) old('obras_sociales', $obrasSeleccionadas ?? []));
+                    @endphp
+
+                    <label for="obras_sociales" class="form-label">Obras sociales que acepta</label>
+                    <select class="form-select" name="obras_sociales[]" id="obras_sociales" multiple>
+                        @foreach (config('administracion.obras_sociales', []) as $codigo => $nombreObra)
+                            <option value="{{ $codigo }}" @selected(in_array((string) $codigo, $obrasForm, true))>
+                                {{ $nombreObra }}
+                            </option>
+                        @endforeach
                     </select>
+                    <small class="text-muted">Seleccioná una o varias coberturas.</small>
                 </div>
 
                 <div class="mb-3">

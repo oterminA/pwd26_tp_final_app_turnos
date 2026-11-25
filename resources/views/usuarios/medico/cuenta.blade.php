@@ -92,90 +92,66 @@
                                     value="{{ old('email', $user->email) }}" maxlength="255" required>
                             </div>
 
+                            <div class="mb-3">
+                                @php
+                                    $obrasForm = array_map(
+                                        'strval',
+                                        (array) old('obras_sociales', $obrasSeleccionadas ?? []),
+                                    );
+                                @endphp
 
+                                <label for="obras_sociales" class="form-label">Obras sociales que acepta</label>
+                                <select class="form-select" name="obras_sociales[]" id="obras_sociales" multiple>
+                                    @foreach (config('administracion.obras_sociales', []) as $codigo => $nombreObra)
+                                        <option value="{{ $codigo }}" @selected(in_array((string) $codigo, $obrasForm, true))>
+                                            {{ $nombreObra }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <small class="text-muted">Seleccioná una o varias coberturas.</small>
+                            </div>
 
-                            {{-- <div class="mb-3">
-                                <label for="tipoMat" class="form-label">Tipo de matricula</label>
-                                <select class="form-select" name="tipoMat" id="tipoMat" required>
-                                    <option value="">Seleccionar</option>
-                                    @foreach (config('administracion.tipos_matricula') as $codigo => $provincia)
-                                        <option value="{{ $codigo }}" @selected(old('tipoMat', $medico->tipoMat ?? '') == $codigo)>
-                                            {{ $provincia }}
+                            @php
+                                $especialidadesForm = array_map(
+                                    'strval',
+                                    (array) old('especialidades', $seleccionadas ?? []),
+                                );
+                            @endphp
+
+                            <div class="mb-3">
+                                <label for="especialidades" class="form-label">Especialidades (podés seleccionar
+                                    varias)</label>
+                                <select class="form-select" name="especialidades[]" id="especialidades" multiple>
+                                    @foreach ($especialidades ?? [] as $especialidad)
+                                        <option value="{{ $especialidad->id }}" @selected(in_array((string) $especialidad->id, $especialidadesForm, true))>
+                                            {{ $especialidad->nombre }}
                                         </option>
                                     @endforeach
                                 </select>
                             </div>
 
+                            <h6 class="text-muted mb-3">Seguridad (dejar en blanco para mantener la actual)</h6>
+
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label for="numMat" class="form-label">Numero de matricula</label>
-                                    <input class="form-control" type="text" name="numMat" id="numMat" maxlength="10"
-                                        pattern="[0-9]{1,10}" inputmode="numeric"
-                                        title="Ingresa entre 1 y 10 digitos, sin puntos ni guiones"
-                                        value="{{ old('numMat', $medico->numMat ?? '') }}" required>
+                                    <label for="password" class="form-label fw-semibold">Nueva contraseña</label>
+                                    <input type="password" class="form-control" id="password" name="password"
+                                        minlength="8" maxlength="12">
                                 </div>
-                                 --}}
-                                <div class="mb-3">
-                                    {{-- lleva tom select --}}
-                                    @php
-                                        $seleccionadas = array_map(
-                                            'strval',
-                                            (array) old('obras_sociales', $obrasSeleccionadas ?? []),
-                                        );
-                                    @endphp
-
-                                    <label for="obras_sociales" class="form-label">Obras sociales que acepta</label>
-                                    <select class="form-select" name="obras_sociales[]" id="obras_sociales" multiple>
-                                        @foreach (config('administracion.obras_sociales', []) as $codigo => $nombreObra)
-                                            <option value="{{ $codigo }}" @selected(in_array((string) $codigo, $seleccionadas, true))>
-                                                {{ $nombreObra }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    <small class="text-muted">Seleccioná una o varias coberturas.</small>
+                                <div class="col-md-6 mb-3">
+                                    <label for="password_confirmation" class="form-label fw-semibold">Confirmar nueva
+                                        contraseña</label>
+                                    <input type="password" class="form-control" id="password_confirmation"
+                                        name="password_confirmation" minlength="8" maxlength="12">
                                 </div>
+                            </div>
 
-                                @php
-                                    $seleccionadas = array_map(
-                                        'strval',
-                                        (array) old('especialidades', $seleccionadas ?? []),
-                                    );
-                                @endphp
-
-                                <div class="mb-3">
-                                    <label for="especialidades" class="form-label">Especialidades (podés seleccionar
-                                        varias)</label>
-                                    <select class="form-select" name="especialidades[]" id="especialidades" multiple>
-                                        @foreach ($especialidades ?? [] as $especialidad)
-                                            <option value="{{ $especialidad->id }}" @selected(in_array((string) $especialidad->id, $seleccionadas, true))>
-                                                {{ $especialidad->nombre }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-
-                                <h6 class="text-muted mb-3">Seguridad (dejar en blanco para mantener la actual)</h6>
-
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label for="password" class="form-label fw-semibold">Nueva contraseña</label>
-                                        <input type="password" class="form-control" id="password" name="password"
-                                            minlength="8" maxlength="12">
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label for="password_confirmation" class="form-label fw-semibold">Confirmar nueva
-                                            contraseña</label>
-                                        <input type="password" class="form-control" id="password_confirmation"
-                                            name="password_confirmation" minlength="8" maxlength="12">
-                                    </div>
-                                </div>
-
-                                <div class="d-flex justify-content-end mt-4">
-                                    <button type="submit" class="btn text-white px-4"
-                                        style="background-color: var(--clinic-primary);">
-                                        Guardar cambios
-                                    </button>
-                                </div>
+                            <div class="d-flex justify-content-end mt-4">
+                                <button type="submit" class="btn text-white px-4"
+                                    style="background-color: var(--clinic-primary);">
+                                    Guardar cambios
+                                </button>
+                            </div>
 
                         </form>
 

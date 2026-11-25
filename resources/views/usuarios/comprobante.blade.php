@@ -24,7 +24,7 @@
         <table class="datos">
             <tr>
                 <td class="etiqueta">Paciente:</td>
-                <td>{{ $turno->paciente->user->name }}</td>
+                <td>{{ $turno->paciente->user->nombre_visible }}</td>
             </tr>
             <tr>
                 <td class="etiqueta">DNI:</td>
@@ -40,7 +40,7 @@
             </tr>
             <tr>
                 <td class="etiqueta">Profesional:</td>
-                <td>Dr/a. {{ $turno->medico->user->name }}</td>
+                <td>Dr/a. {{ $turno->medico->user->nombre_visible }}</td>
             </tr>
             <tr>
                 <td class="etiqueta">Fecha del turno:</td>
