@@ -27,10 +27,6 @@
                 <h4 class="fw-bold text-dark mb-0">Turnos agendados</h4>
 
                 <div class="d-flex gap-2">
-                    <a href="{{ route('create.turno') }}" class="btn text-white"
-                        style="background-color: var(--clinic-primary);">
-                        Nuevo turno
-                    </a>
                     <a href="{{ route('medico.disponibilidades.index') }}" class="btn text-white"
                         style="background-color: var(--clinic-primary);">
                         Disponibilidad
