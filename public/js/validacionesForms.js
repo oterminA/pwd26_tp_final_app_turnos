@@ -39,12 +39,12 @@ document.addEventListener("DOMContentLoaded", () => {
             if (fotoInput && fotoInput.files && fotoInput.files.length > 0) {
                 const archivo = fotoInput.files[0];
                 const tiposPermitidos = ['image/jpeg', 'image/png', 'image/webp'];
-                const maxBytes = 300 * 1024; // 300 KB
+                const maxBytes = 2 * 1024 * 1024;  // 2mB
 
                 if (!tiposPermitidos.includes(archivo.type)) {
                     errores.push('La imagen debe ser JPG, PNG o WEBP.');
                 } else if (archivo.size > maxBytes) {
-                    errores.push('La imagen no puede superar los 300 KB.');
+                    errores.push('La imagen no puede superar los 2MB.');
                 }
             }
 

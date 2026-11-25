@@ -7,7 +7,7 @@
                 <h2 class="fw-bold text-dark display-6 mb-3">Panel de paciente</h2>
                 <h5 class="text-muted">
                     @auth
-                        <span>Hola, {{ Auth::user()->name }}!</span>
+                        <span>Hola, {{ Auth::user()->nombre_visible }}!</span>
                     @endauth
                 </h5>
             </div>

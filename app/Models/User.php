@@ -82,4 +82,13 @@ class User extends Authenticatable
         return $this->rol === 'admin';
     }
 
+    /**
+     * accessor para mostrar el nombre mejor en el msj de bienvenida ya que se tuvieron que cambiar cosas por los nombres compuestos
+     */
+    public function getNombreVisibleAttribute(): string
+    {
+        $name = trim($this->name ?? '');
+
+        return trim(str_replace(' | ', ' ', $name));
+    }
 }

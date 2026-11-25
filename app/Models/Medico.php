@@ -61,10 +61,10 @@ class Medico extends Model
     {
         DB::transaction(function () use ($datos) {
             //se actualizan los datos en la tabla user
-            $datosUser = [
-                'name'  => trim($datos['nombre'] . ' ' . $datos['apellido']), //acá concatenamos nombre y apellido porque eso es lo que representa el 'name' en la tabla user
-                'email' => $datos['email'],
-            ];
+$datosUser = [
+    'name'  => trim($datos['nombre']) . ' | ' . trim($datos['apellido']),
+    'email' => $datos['email'],
+];
 
             if (!empty($datos['password'])) {
                 $datosUser['password'] = $datos['password'];
@@ -72,12 +72,21 @@ class Medico extends Model
 
             $this->user->update($datosUser);
 
-            //se actualizan los datos en la tabla medico
-            $this->update([
-                'matricula'              => $datos['matricula'],
-                'obra_social'      => $datos['obra_social'],
-                'imagen'         => $datos['imagen'],
-            ]);
+            $datosMedico = [
+                'matricula' => $datos['matricula'] ?? $this->matricula,
+            ];
+
+            if (array_key_exists('obra_social', $datos)) {
+                $datosMedico['obra_social'] = $datos['obra_social'];
+            } elseif (!empty($datos['obras_sociales']) && is_array($datos['obras_sociales'])) {
+                $datosMedico['obra_social'] = $datos['obras_sociales'][0];
+            }
+
+            if (!empty($datos['imagen'])) {
+                $datosMedico['imagen'] = $datos['imagen'];
+            }
+
+            $this->update($datosMedico);
         });
     }
 
@@ -91,6 +100,36 @@ class Medico extends Model
         }
 
         return asset($ruta);
+    }
+
+
+    /**
+     * accessor para el nombre del medico, para usar en 'cuenta' con los old ya que se guardan en el name y no en apellido y nombre
+     */
+    public function getNombreAttribute(): string
+    {
+        $name = trim($this->user?->name ?? '');
+        if (str_contains($name, '|')) {
+            return trim(explode('|', $name, 2)[0]);
+        }
+
+        $partes = preg_split('/\s+/', $name);
+        return $partes[0] ?? '';
+    }
+
+    /**
+     * accessor para el apellido del medico, para usar en 'cuenta' con los old ya que se guardan en el name y no en apellido y nombre
+     */
+    public function getApellidoAttribute(): string
+    {
+        $name = trim($this->user?->name ?? '');
+        if (str_contains($name, '|')) {
+            return trim(explode('|', $name, 2)[1] ?? '');
+        }
+
+        $partes = preg_split('/\s+/', $name);
+        array_shift($partes);
+        return implode(' ', $partes);
     }
 
 

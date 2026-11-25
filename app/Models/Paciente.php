@@ -58,10 +58,10 @@ class Paciente extends Model
     {
         DB::transaction(function () use ($datos) {
             //se actualizan los datos en la tabla user
-            $datosUser = [
-                'name'  => trim($datos['nombre'] . ' ' . $datos['apellido']), //acá concatenamos nombre y apellido porque eso es lo que representa el 'name' en la tabla user
-                'email' => $datos['email'],
-            ];
+$datosUser = [
+    'name'  => trim($datos['nombre']) . ' | ' . trim($datos['apellido']),
+    'email' => $datos['email'],
+];
 
             if (!empty($datos['password'])) {
                 $datosUser['password'] = $datos['password'];
@@ -85,7 +85,12 @@ class Paciente extends Model
      */
     public function getNombreAttribute(): string
     {
-        $partes = preg_split('/\s+/', trim($this->user?->name ?? ''));
+        $name = trim($this->user?->name ?? '');
+        if (str_contains($name, '|')) {
+            return trim(explode('|', $name, 2)[0]);
+        }
+
+        $partes = preg_split('/\s+/', $name);
         return $partes[0] ?? '';
     }
 
@@ -94,7 +99,12 @@ class Paciente extends Model
      */
     public function getApellidoAttribute(): string
     {
-        $partes = preg_split('/\s+/', trim($this->user?->name ?? ''));
+        $name = trim($this->user?->name ?? '');
+        if (str_contains($name, '|')) {
+            return trim(explode('|', $name, 2)[1] ?? '');
+        }
+
+        $partes = preg_split('/\s+/', $name);
         array_shift($partes);
         return implode(' ', $partes);
     }

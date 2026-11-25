@@ -80,12 +80,16 @@ class UserController extends Controller
     {
         $user = auth()->user();
 
-        $datos = $request->validate([
-            'name'  => 'required| string|min:6|max:255|regex:/^[\pL\s]+$/u',
-            'email' => 'required|email|unique:user,email,' . $user->id,
+        $validados = $request->validate([
+            'nombre'   => ['required', 'string', 'max:120'],
+            'apellido' => ['required', 'string', 'max:120'],
+            'email'    => ['required', 'email', 'unique:users,email,' . $user->id],
         ]);
 
-        $user->update($datos);
+        $user->update([
+            'name'  => trim($validados['nombre']) . ' | ' . trim($validados['apellido']),
+            'email' => $validados['email'],
+        ]);
 
         return redirect()->back()->with('success', 'Tus datos fueron actualizados correctamente.');
     }

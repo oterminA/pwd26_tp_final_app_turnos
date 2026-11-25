@@ -21,9 +21,29 @@ document.addEventListener('DOMContentLoaded', function () {
         new TomSelect(obraSocialEl, configSelectEstatico);
     }
 
+    const obrasSocialesEl = document.getElementById('obras_sociales');
+    if (obrasSocialesEl) {
+        new TomSelect(obrasSocialesEl, {
+            ...configSelectEstatico,
+            maxItems: null,
+            plugins: ['remove_button'],
+            placeholder: 'Seleccioná una o más obras sociales'
+        });
+    }
+
     const tipoMatEl = document.getElementById('tipoMat');
     if (tipoMatEl) {
         new TomSelect(tipoMatEl, configSelectEstatico);
+    }
+
+    const especialidadesEl = document.getElementById('especialidades');
+    if (especialidadesEl && !especialidadesEl.tomselect) {
+        new TomSelect(especialidadesEl, {
+            ...configSelectEstatico,
+            maxItems: null,
+            plugins: ['remove_button'],
+            placeholder: 'Seleccioná una o más especialidades'
+        });
     }
 
     /////////////////////////////////////////////////////////////

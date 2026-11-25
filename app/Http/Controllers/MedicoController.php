@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Medico;
+use App\Models\Especialidad;
 use Illuminate\Support\Facades\File;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -92,13 +93,24 @@ class MedicoController extends Controller
         $user = auth()->user();
         $medico = $user->medico;
 
-        return view('usuarios.medico.cuenta', compact('user', 'medico'));
+        $especialidades = Especialidad::orderBy('nombre')->get();
+        $seleccionadas = $medico
+            ? $medico->especialidades()->pluck('especialidades.id')->all()
+            : [];
+        $obrasSeleccionadas = $medico ? $medico->obrasSocialesAsignadas() : [];
+        return view('usuarios.medico.cuenta', compact(
+            'user',
+            'medico',
+            'especialidades',
+            'seleccionadas',
+            'obrasSeleccionadas'
+        ));
     }
 
     /**
      * funcion para guardar los datos editados del medico
      */
-    public function update(Request $request)
+ public function update(Request $request)
     {
         $user = Auth::user();
         $medico = $user->medico;
@@ -108,10 +120,30 @@ class MedicoController extends Controller
             'apellido'         => 'required|string|max:120',
             'email'            => 'required|email|unique:users,email,' . $user->id,
             'password'         => 'nullable|min:8|confirmed',
-            'matricula'              => 'required|string|unique:medicos,matricula,' . $medico->id,
-            'imagen' => 'nullable|mimes:jpg,jpeg,png,webp|max:2048',
-            'obra_social'      => 'nullable|string|max:100',
+            'tipoMat'          => 'nullable|string', //esto quedó en nullable por si decidimos que el medico no tiene que modificar esos datos
+            'numMat'           => 'nullable|string|max:10',//esto quedó en nullable por si decidimos que el medico no tiene que modificar esos datos
+            'imagen'           => 'nullable|mimes:jpg,jpeg,png,webp|max:2048',
+            'obras_sociales'   => 'nullable|array',
+            'obras_sociales.*' => 'string',
+            'especialidades'   => 'nullable|array',
+            'especialidades.*' => 'integer|exists:especialidades,id',
         ]);
+
+        $tipoMat = trim($datosValidados['tipoMat'] ?? '');
+        $numMat  = trim($datosValidados['numMat'] ?? '');
+
+        if ($tipoMat !== '' && $numMat !== '') { //por si el medico no modificó los datos de matricula porque no los pusimos
+            $matricula = strtoupper($tipoMat) . '-' . $numMat;
+
+            $request->merge(['matricula' => $matricula]);
+            $request->validate([
+                'matricula' => 'nullable|string|unique:medicos,matricula,' . $medico->id,
+            ]);
+
+            $datosValidados['matricula'] = $matricula;
+        } else {
+            $datosValidados['matricula'] = $medico->matricula;
+        }
 
         if ($request->hasFile('imagen')) {
             if ($medico->imagen && File::exists(public_path($medico->imagen))) {
@@ -122,12 +154,11 @@ class MedicoController extends Controller
             $nombreArchivo = time() . '_' . $archivo->getClientOriginalName();
             $archivo->move(public_path('imagenes'), $nombreArchivo);
 
-            $validated['imagen'] = 'imagenes/' . $nombreArchivo;
+            $datosValidados['imagen'] = 'imagenes/' . $nombreArchivo;
         }
 
         $medico->updateDatos($datosValidados);
 
         return redirect()->back()->with('success', 'Tus datos fueron actualizados correctamente.');
     }
-
 }
