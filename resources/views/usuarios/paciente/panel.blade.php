@@ -64,16 +64,26 @@
                                             </span>
                                         </td>
                                         <td>
-                                            {{-- el paciente solo cancela sus propios turnos solo si faltan más de X dias y el turno deberia estar disponible otra vez --}}
-                                            <form action="{{ route('turnos.delete', $turno->id) }}" method="POST"
-                                                class="d-inline">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-outline-danger"
-                                                    onclick="return confirm('¿Seguro que querés cancelar este turno?')">
-                                                    Cancelar
-                                                </button>
-                                            </form>
+                                            @can('cancelar', $turno)
+                                                @if ($turno->puedeCancelarPorPaciente())
+                                                    <form action="{{ route('turnos.delete', $turno->id) }}" method="POST"
+                                                        class="d-inline">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                            onclick="return confirm('¿Seguro que querés cancelar este turno?')">
+                                                            Cancelar
+                                                        </button>
+                                                    </form>
+                                                @elseif ($turno->puedeCancelar())
+                                                    <button type="button" class="btn btn-sm btn-outline-danger" disabled>
+                                                        Cancelar
+                                                    </button>
+                                                    <small class="d-block text-muted">Se requiere un minimo de 48 horas de anticipacion.</small>
+                                                @else
+                                                    <span class="text-muted">—</span>
+                                                @endif
+                                            @endcan
                                         </td>
                                         <td>
                                             {{-- acá se usa la policy de turno que no deja que otro paciente descargue el comprobante si no es el dueño --}}
