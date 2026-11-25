@@ -58,12 +58,25 @@ document.addEventListener('DOMContentLoaded', function () {
         const opcionesEspecialidades = window.especialidadesBD || [];
 
         function mostrarMedico(data, escape) {
-            let fotoUrl = data.imagen ? data.imagen : '/css/Assets/medico-default.png';
+            const fotoUrl = data.imagen || '/css/Assets/medico-default.jpg';
+            let aviso = '';
 
-            return `<div class="producto-opcion d-flex align-items-center gap-2">
-                <img src="${escape(fotoUrl)}" alt="Foto" width="40" height="40" class="rounded-circle object-fit-cover">
-                <span>${escape(data.nombre)} ${escape(data.apellido)}</span>
-            </div>`;
+            if (data.mostrar_cobertura) {
+                aviso = data.acepta_obra_social
+                    ? '<small class="text-success">Acepta tu cobertura</small>'
+                    : '<small class="text-warning">Atención particular</small>';
+            }
+
+            return `
+                <div class="producto-opcion d-flex align-items-center gap-2">
+                    <img src="${escape(fotoUrl)}" alt="Foto" width="40"
+                         height="40" class="rounded-circle object-fit-cover">
+                    <div>
+                        <span>${escape(data.nombre)}</span>
+                        <div>${aviso}</div>
+                    </div>
+                </div>
+            `;
         }
 
         const selectEspecialidad = new TomSelect(especialidadEl, {
