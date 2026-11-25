@@ -77,6 +77,47 @@ class Disponibilidad extends Model
         });
     }
 
+    // Comprueba que los turnos pendientes sigan cubiertos por alguna franja.
+    public function afectaTurnosPendientes(?array $datos = null): bool
+    {
+        $ahora = Carbon::now();
+        $turnos = Turno::where('medico_id', $this->medico_id)
+            ->where('estado', 'pendiente')
+            ->whereDate('fecha', '>=', $ahora->toDateString())
+            ->get();
+
+        $otrasFranjas = self::where('medico_id', $this->medico_id)
+            ->where('id', '!=', $this->id)->get();
+
+        foreach ($turnos as $turno) {
+            $fecha = $turno->fecha->toDateString();
+            $inicio = Carbon::parse($fecha . ' ' . Carbon::parse($turno->hora_inicio)->format('H:i:s'));
+            $fin = Carbon::parse($fecha . ' ' . Carbon::parse($turno->hora_fin)->format('H:i:s'));
+
+            if ($fin->lte($ahora) || !$this->contieneTurno($this, $turno, $inicio, $fin)) {
+                continue;
+            }
+
+            if ($datos !== null && $this->contieneTurno((object) $datos, $turno, $inicio, $fin)) {
+                continue;
+            }
+
+            if (!$otrasFranjas->contains(fn ($franja) => $this->contieneTurno($franja, $turno, $inicio, $fin))) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function contieneTurno($franja, Turno $turno, Carbon $inicio, Carbon $fin): bool
+    {
+        return (int) $franja->dia_semana === $inicio->dayOfWeekIso
+            && ($franja->especialidad_id === null || (int) $franja->especialidad_id === (int) $turno->especialidad_id)
+            && Carbon::parse($franja->hora_inicio)->format('H:i:s') <= $inicio->format('H:i:s')
+            && Carbon::parse($franja->hora_fin)->format('H:i:s') >= $fin->format('H:i:s');
+    }
+
     public function especialidad()
     {
         return $this->belongsTo(Especialidad::class);
