@@ -227,6 +227,7 @@ class TurnosDisponibilidadTest extends TestCase
     {
         $this->franja($this->cardiologia);
         $turno = $this->reservar($this->cardiologia, '09:00', 30);
+        Carbon::setTestNow('2026-12-07 09:00:00');
 
         $this->actingAs($this->usuarioPaciente)
             ->put(route('turnos.update', $turno->id), ['estado'=>'finalizado'])
