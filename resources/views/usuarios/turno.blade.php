@@ -12,12 +12,19 @@
                             <h2 class="fw-bold text-dark">Solicitar turno</h2>
                         </div>
 
-                        <form action="{{ route('store.turno') }}" method="POST">
+                        <form id="form-turno" action="{{ route('store.turno') }}" method="POST">
                             @csrf
-                            {{-- revisar si falta algo más en la validación en html --}}
+                            @if ($errors->any())
+                                <div class="alert alert-danger" role="alert">
+                                    @foreach ($errors->all() as $error)
+                                        <div>{{ $error }}</div>
+                                    @endforeach
+                                </div>
+                            @endif
+                            <div class="error alert alert-danger d-none" role="alert"></div>
                             <div class="mb-3">
                                 {{-- lleva tom select --}}
-                                <label for="tel" class="form-label">Buscar por profesional</label>
+                                <label for="medico" class="form-label">Buscar por profesional</label>
                                 <select name="medico" id="medico" class="form-select" required>
                                 </select>
                             </div>
@@ -45,14 +52,14 @@
                                 </div>
                             </div>
 
-                            <input type="hidden" name="fecha_hora" id="fecha_hora_input" required>
+                            <input type="hidden" name="fecha_hora" id="fecha_hora_input">
 
                             <div class="text-center d-flex flex-column gap-2">
                                 <button type="button" class="btn btn-outline-primary btn-sm fw-semibold rounded-pill py-2"
                                     data-bs-toggle="modal" data-bs-target="#modalTurno">
-                                    Detalles turno
+                                    Revisar turno
                                 </button>
-                                <a href="{{ url('/') }}" class="text-secondary text-decoration-none small mt-2">
+                                <a href="{{ route('usuarios.paciente.panel') }}" class="text-secondary text-decoration-none small mt-2">
                                     Cancelar y volver
                                 </a>
                             </div>
@@ -66,13 +73,24 @@
                                         <div class="modal-header">
                                             <h5 class="modal-title" id="modalTurnoLabel">Confirmación de turno</h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                aria-label="Close"></button>
+                                                aria-label="Cerrar"></button>
                                         </div>
 
                                         <div class="modal-body text-start">
                                             <p>Estás a punto de solicitar el turno con los datos seleccionados. Verificá que
                                                 todo esté correcto antes de confirmar.</p>
-                                            {{-- de js podemos traer los datos para mostrarlos acá en el resumen --}}
+                                            <dl class="row mb-0">
+                                                <dt class="col-sm-4">Profesional</dt>
+                                                <dd class="col-sm-8" id="resumen-medico"></dd>
+                                                <dt class="col-sm-4">Especialidad</dt>
+                                                <dd class="col-sm-8" id="resumen-especialidad"></dd>
+                                                <dt class="col-sm-4">Fecha</dt>
+                                                <dd class="col-sm-8" id="resumen-fecha"></dd>
+                                                <dt class="col-sm-4">Horario</dt>
+                                                <dd class="col-sm-8" id="resumen-hora"></dd>
+                                                <dt class="col-sm-4">Cobertura</dt>
+                                                <dd class="col-sm-8" id="resumen-cobertura"></dd>
+                                            </dl>
                                         </div>
 
                                         <div class="modal-footer">
@@ -99,3 +117,7 @@
     window.especialidadesBD = @json($especialidades);
     </script>
 @endsection
+
+@push('scripts')
+    <script src="{{ asset('js/confirmacionTurno.js') }}"></script>
+@endpush

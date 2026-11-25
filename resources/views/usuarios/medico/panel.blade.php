@@ -23,6 +23,9 @@
                     {{ session('error') }}
                 </div>
             @endif
+            @if ($errors->any())
+                <div class="alert alert-danger">{{ $errors->first() }}</div>
+            @endif
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h4 class="fw-bold text-dark mb-0">Turnos agendados</h4>
 
@@ -54,7 +57,7 @@
                                 @forelse($turnos as $turno)
                                     <tr>
                                         <td class="fw-bold">{{ $turno->codigo }}</td>
-                                        <td>{{ $turno->paciente->user->name }}</td>
+                                        <td>{{ $turno->paciente->user->nombre_visible }}</td>
                                         <td>{{ $turno->especialidad->nombre }}</td>
                                         <td>
                                             <strong>{{ $turno->fecha->format('d/m/Y') }}</strong>
@@ -67,20 +70,29 @@
                                         </td>
                                         <td>
                                             <div class="d-flex flex-wrap gap-1">
-                                                <a href="{{ route('turnos.edit', $turno->id) }}"
-                                                    class="btn btn-sm btn-outline-secondary">
-                                                    Editar estado
-                                                </a>
+                                                @can('cambiarEstado', $turno)
+                                                    @if ($turno->puedeCambiarEstado())
+                                                        <a href="{{ route('turnos.edit', $turno->id) }}"
+                                                            class="btn btn-sm btn-outline-secondary">Editar estado</a>
+                                                    @elseif ($turno->estado === 'pendiente')
+                                                        <div>
+                                                            <button type="button" class="btn btn-sm btn-outline-secondary" disabled>Editar estado</button>
+                                                            <small class="d-block text-muted">Disponible cuando comience el turno.</small>
+                                                        </div>
+                                                    @endif
+                                                @endcan
 
-                                                <form action="{{ route('turnos.delete', $turno->id) }}" method="POST"
-                                                    class="d-inline"
-                                                    onsubmit="return confirm('¿Seguro que querés cancelar este turno?')">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger">
-                                                        Cancelar
-                                                    </button>
-                                                </form>
+                                                @can('cancelar', $turno)
+                                                    @if ($turno->puedeCancelar())
+                                                        <form action="{{ route('turnos.delete', $turno->id) }}" method="POST"
+                                                            class="d-inline"
+                                                            onsubmit="return confirm('¿Seguro que querés cancelar este turno?')">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="btn btn-sm btn-outline-danger">Cancelar</button>
+                                                        </form>
+                                                    @endif
+                                                @endcan
                                             </div>
                                         </td>
                                         <td>
