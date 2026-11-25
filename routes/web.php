@@ -152,7 +152,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/confirmar-turno', [TurnoController::class, 'store'])->name('store.turno');
     // Route::get('/turnos/{id}', [TurnoController::class, 'show'])->name('turnos.show');
     Route::get('/turnos/{id}/editar', [TurnoController::class, 'edit'])->name('turnos.edit');
-    // Route::patch('/turnos/{id}', [TurnoController::class, 'update'])->name('turnos.update');
+    Route::put('/turnos/{id}', [TurnoController::class, 'update'])->name('turnos.update');
     Route::delete('/turnos/{id}', [TurnoController::class, 'delete'])->name('turnos.delete');
 
     // Endpoints AJAX para Tom Select y Flatpickr (librerias.js)

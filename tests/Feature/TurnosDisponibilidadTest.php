@@ -183,4 +183,74 @@ class TurnosDisponibilidadTest extends TestCase
         $libres = $this->getJson($ruta)->assertOk()->json();
         $this->assertContains('09:00', $libres['2026-12-07'] ?? []);
     }
+
+    public function test_paciente_no_cancela_con_menos_de_48_horas(): void
+    {
+        $this->franja($this->cardiologia);
+        $turno = $this->reservar($this->cardiologia, '09:00', 30);
+        Carbon::setTestNow('2026-12-06 10:00:00');
+
+        $this->actingAs($this->usuarioPaciente)
+            ->from(route('usuarios.paciente.panel'))
+            ->delete(route('turnos.delete', $turno->id))
+            ->assertRedirect(route('usuarios.paciente.panel'))
+            ->assertSessionHasErrors('turno');
+
+        $this->assertDatabaseHas('turnos', ['id' => $turno->id, 'estado' => 'pendiente']);
+    }
+
+    public function test_medico_cancela_su_turno_y_vuelve_a_su_panel(): void
+    {
+        $this->franja($this->cardiologia);
+        $turno = $this->reservar($this->cardiologia, '09:00', 30);
+        Carbon::setTestNow('2026-12-07 08:30:00');
+
+        $this->actingAs($this->usuarioMedico)
+            ->delete(route('turnos.delete', $turno->id))
+            ->assertRedirect(route('usuarios.medico.panel'));
+
+        $this->assertDatabaseHas('turnos', ['id' => $turno->id, 'estado' => 'cancelado']);
+    }
+
+    public function test_otro_paciente_no_puede_cancelar_turnos_ajenos(): void
+    {
+        $this->franja($this->cardiologia);
+        $turno = $this->reservar($this->cardiologia, '09:00', 30);
+        $otroUser = User::create(['name'=>'Otro Paciente','email'=>'otro@example.test','password'=>'password','rol'=>'paciente']);
+        Paciente::create(['user_id'=>$otroUser->id,'dni'=>'99999999','telefono'=>'2990000000','fecha_nacimiento'=>'2000-01-01','obra_social'=>'OSDE']);
+
+        $this->actingAs($otroUser)->delete(route('turnos.delete', $turno->id))->assertForbidden();
+        $this->assertDatabaseHas('turnos', ['id' => $turno->id, 'estado' => 'pendiente']);
+    }
+
+    public function test_solo_medico_asignado_puede_marcar_finalizado_o_ausente(): void
+    {
+        $this->franja($this->cardiologia);
+        $turno = $this->reservar($this->cardiologia, '09:00', 30);
+
+        $this->actingAs($this->usuarioPaciente)
+            ->put(route('turnos.update', $turno->id), ['estado'=>'finalizado'])
+            ->assertForbidden();
+
+        $this->actingAs($this->usuarioMedico)
+            ->put(route('turnos.update', $turno->id), ['estado'=>'finalizado'])
+            ->assertRedirect(route('usuarios.medico.panel'));
+
+        $this->assertDatabaseHas('turnos', ['id'=>$turno->id, 'estado'=>'finalizado']);
+        $this->actingAs($this->usuarioMedico)
+            ->from(route('usuarios.medico.panel'))
+            ->delete(route('turnos.delete', $turno->id))
+            ->assertSessionHasErrors('turno');
+    }
+
+    public function test_no_se_puede_cancelar_desde_el_formulario_de_estados(): void
+    {
+        $this->franja($this->cardiologia);
+        $turno = $this->reservar($this->cardiologia, '09:00', 30);
+        $this->actingAs($this->usuarioMedico)
+            ->from(route('turnos.edit', $turno->id))
+            ->put(route('turnos.update', $turno->id), ['estado'=>'cancelado'])
+            ->assertSessionHasErrors('estado');
+        $this->assertDatabaseHas('turnos', ['id'=>$turno->id, 'estado'=>'pendiente']);
+    }
 }

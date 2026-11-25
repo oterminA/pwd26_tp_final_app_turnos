@@ -13,9 +13,6 @@ use Illuminate\Support\Facades\Gate;
 
 class TurnoController extends Controller
 {
-    // Cantidad mínima de días de anticipación requeridos para cancelar un turno
-    private const DIAS_MINIMOS_CANCELACION = 2;
-
     /**
      * 1. INDEX: Lista los turnos del paciente o del médico logueado.
      */
@@ -133,11 +130,17 @@ class TurnoController extends Controller
         $turno = Turno::findOrFail($id);
         Gate::authorize('cambiarEstado', $turno);
 
+        if (!$turno->puedeCambiarEstado()) {
+            return redirect()->route('usuarios.medico.panel')
+                ->withErrors(['turno' => 'Este turno ya no permite cambios de estado.']);
+        }
+
         return view('usuarios.edit', compact('turno'));
     }
 
     /**
-     * 6. UPDATE: Actualiza el estado del turno (ej: confirmado, atendido).
+     * 6. UPDATE: solo el medico asignado puede marcar finalizado o ausente.
+     * La cancelacion tiene su propia accion y sus propias reglas.
      */
     public function update(Request $request, $id)
     {
@@ -145,46 +148,50 @@ class TurnoController extends Controller
         Gate::authorize('cambiarEstado', $turno);
 
         $datos = $request->validate([
-            'estado' => 'required|in:pendiente,cancelado,finalizado,ausente',
+            'estado' => 'required|in:finalizado,ausente',
         ]);
 
-        $turno->update($datos);
+        if (!$turno->puedeCambiarEstado()) {
+            throw ValidationException::withMessages([
+                'estado' => 'Solo se puede cambiar el estado de un turno pendiente.',
+            ]);
+        }
+
+        $turno->marcarEstado($datos['estado']);
 
         return redirect()->route('usuarios.medico.panel')
             ->with('success', 'Estado del turno actualizado.');
     }
 
     /**
-     * 7. DELETE: Cancela el turno aplicando la regla de días mínimos con Carbon.
-     * Al pasar a 'cancelado', el horario vuelve a quedar libre automáticamente.
+     * 7. DELETE: el paciente cancela con al menos 48 horas de anticipacion.
+     * El medico asignado puede cancelar sin ese limite.
      */
     public function delete($id)
     {
         $turno = Turno::findOrFail($id);
-
-        // Policy: solo el paciente dueño o el médico asignado pueden cancelar
         Gate::authorize('cancelar', $turno);
+        $user = auth()->user();
+        $destino = $user->rol === 'medico'
+            ? 'usuarios.medico.panel'
+            : 'usuarios.paciente.panel';
 
-        if ($turno->estado === 'cancelado') {
-            return back()->withErrors(['turno' => 'Este turno ya se encuentra cancelado.']);
-        }
-
-        // Regla de negocio con Carbon: diferencia entre hoy y la fecha del turno
-        $hoy = Carbon::now()->startOfDay();
-        $fechaTurno = Carbon::parse($turno->fecha)->startOfDay();
-        $diasRestantes = $hoy->diffInDays($fechaTurno, false);
-
-        if ($diasRestantes < self::DIAS_MINIMOS_CANCELACION) {
+        if (!$turno->puedeCancelar()) {
             return back()->withErrors([
-                'turno' => 'No se puede cancelar el turno con menos de ' . self::DIAS_MINIMOS_CANCELACION . ' días de anticipación.'
+                'turno' => 'Solo se pueden cancelar turnos pendientes.',
             ]);
         }
 
-        // Marcamos como cancelado (libera el cupo automáticamente en disponibilidadMedico)
-        $turno->update(['estado' => 'cancelado']);
+        if ($user->rol === 'paciente' && !$turno->puedeCancelarPorPaciente()) {
+            return back()->withErrors([
+                'turno' => 'Los pacientes deben cancelar con al menos 48 horas de anticipacion.',
+            ]);
+        }
 
-        return redirect()->route('usuarios.paciente.panel')
-            ->with('success', 'Turno cancelado correctamente. El horario volvió a quedar disponible.');
+        $turno->cancelar();
+
+        return redirect()->route($destino)
+            ->with('success', 'Turno cancelado correctamente. El horario volvio a quedar disponible.');
     }
 
     /**
