@@ -5,6 +5,8 @@ use App\Http\Controllers\EspecialidadController;
 use App\Http\Controllers\AdminMedicoController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Middleware\SoloAdministrador;
+use App\Http\Middleware\SoloMedico;
+use App\Http\Middleware\SoloPaciente;
 use App\Http\Controllers\MedicoController;
 use App\Http\Controllers\PacienteController;
 use App\Http\Controllers\TurnoController;
@@ -29,7 +31,7 @@ Route::get('/iniciar-sesion-paciente', [PacienteController::class, 'mostrarLogin
 
 Route::post('/ingresar-paciente', [PacienteController::class, 'autenticar'])->name('paciente.autenticar');
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware([SoloPaciente::class])->group(function () {
     Route::put('/mi-cuenta-paciente', [PacienteController::class, 'update'])->name('paciente.update');
 
     Route::get('/mi-cuenta-paciente', [PacienteController::class, 'edit'])->name('paciente.edit');
@@ -43,20 +45,20 @@ Route::get('/iniciar-sesion-profesional', [MedicoController::class, 'mostrarLogi
 
 Route::post('/ingresar-profesional', [MedicoController::class, 'autenticar'])->name('medico.autenticar');
 
-Route::get('/panel-profesional', [MedicoController::class, 'panel'])->name('usuarios.medico.panel');
+Route::get('/panel-profesional', [MedicoController::class, 'panel'])->middleware(SoloMedico::class)->name('usuarios.medico.panel');
 
 
 // La duracion se configura en cada especialidad, no en el perfil del medico.
 // Conservamos la ruta anterior como redireccion para enlaces guardados.
 Route::get('/profesional/configurar-turno', fn () => redirect()->route('medico.edit'))
-    ->middleware('auth')->name('medico.configurar-turno');
+    ->middleware(SoloMedico::class)->name('medico.configurar-turno');
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware([SoloMedico::class])->group(function () {
     Route::get('/mi-cuenta-profesional', [MedicoController::class, 'edit'])->name('medico.edit');
     Route::put('/mi-cuenta-profesional', [MedicoController::class, 'update'])->name('medico.update');
 });
 /* Rutas de disponibilidad del medico: sus franjas no dependen de una duracion propia. */
-Route::middleware(['auth'])->prefix('profesional')->name('medico.')->group(function () {
+Route::middleware([SoloMedico::class])->prefix('profesional')->name('medico.')->group(function () {
     Route::get('/disponibilidades', [DisponibilidadController::class, 'index'])
         ->name('disponibilidades.index');
 
@@ -86,7 +88,7 @@ Route::get('/iniciar-sesion-admin', function () {
     return view('usuarios.admin.login');
 })->name('login.admin');
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware([SoloAdministrador::class])->group(function () {
     Route::get('/mi-cuenta-admin', [UserController::class, 'edit'])->name('admin.edit');
 
     Route::put('/mi-cuenta-admin', [UserController::class, 'update'])->name('admin.update');
@@ -145,26 +147,27 @@ Route::middleware([SoloAdministrador::class])->prefix('admin')->name('admin.')->
 
 
 /* TURNO */
-Route::middleware(['auth'])->group(function () {
-    // 7 métodos estándar
-    // Route::get('/turnos', [TurnoController::class, 'index'])->name('turnos.index');
+Route::middleware([SoloPaciente::class])->group(function () {
     Route::get('/solicitar-turno', [TurnoController::class, 'create'])->name('create.turno');
     Route::post('/confirmar-turno', [TurnoController::class, 'store'])->name('store.turno');
-    // Route::get('/turnos/{id}', [TurnoController::class, 'show'])->name('turnos.show');
-    Route::get('/turnos/{id}/editar', [TurnoController::class, 'edit'])->name('turnos.edit');
-    Route::put('/turnos/{id}', [TurnoController::class, 'update'])->name('turnos.update');
-    Route::delete('/turnos/{id}', [TurnoController::class, 'delete'])->name('turnos.delete');
 
     // Endpoints AJAX para Tom Select y Flatpickr (librerias.js)
     Route::get('/turnos/ajax/medicos/{especialidadId}', [TurnoController::class, 'medicosPorEspecialidad'])
         ->name('turnos.ajax.medicos');
     Route::get('/turnos/ajax/disponibilidad/{medicoId}', [TurnoController::class, 'disponibilidadMedico'])
         ->name('turnos.ajax.disponibilidad');
-
     Route::get('/turnos/ajax/especialidad/{medicoId}', [TurnoController::class, 'especialidadPorMedico'])
         ->name('turnos.ajax.especialidad');
+});
 
-    // Comprobante PDF
+Route::middleware([SoloMedico::class])->group(function () {
+    Route::get('/turnos/{id}/editar', [TurnoController::class, 'edit'])->name('turnos.edit');
+    Route::put('/turnos/{id}', [TurnoController::class, 'update'])->name('turnos.update');
+});
+
+// Rutas compartidas: la Policy verifica el turno de cada usuario.
+Route::middleware(['auth'])->group(function () {
+    Route::delete('/turnos/{id}', [TurnoController::class, 'delete'])->name('turnos.delete');
     Route::get('/turnos-{turno}-comprobante', [TurnoController::class, 'descargarComprobante'])
         ->name('turno.comprobante');
 });

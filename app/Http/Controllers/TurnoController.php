@@ -57,13 +57,15 @@ class TurnoController extends Controller
      */
     public function store(Request $request)
     {
+        $user = auth()->user();
+        abort_unless($user && $user->isPaciente() && $user->paciente, 403);
+
         $datos = $request->validate([
             'medico'       => 'required|integer|exists:medicos,id',
             'especialidad' => 'required|integer|exists:especialidades,id',
             'fecha_hora'   => 'required|date_format:Y-m-d H:i:s',
         ]);
 
-        $user = auth()->user();
         $inicio = Carbon::createFromFormat('!Y-m-d H:i:s', $datos['fecha_hora']);
         $especialidad = Especialidad::findOrFail($datos['especialidad']);
         $duracion = (int) $especialidad->duracion_turno;
@@ -85,19 +87,8 @@ class TurnoController extends Controller
         $medico = Medico::findOrFail($datos['medico']);
 
         // La obra social informa la cobertura, pero no impide reservar.
-        if ($user->rol === 'paciente' && $user->paciente) {
-            $pacienteId = $user->paciente->id;
-        } else {
-            // La asignacion segura por DNI queda para la siguiente etapa.
-            $pacienteId = $request->input('paciente_id');
-        }
-
+        $pacienteId = $user->paciente->id;
         Turno::reservarSiDisponible($medico->id, $especialidad, $inicio, $fin, $pacienteId);
-
-        if ($user->rol === 'medico') {
-            return redirect()->route('usuarios.medico.panel')
-                ->with('success', 'Turno reservado correctamente.');
-        }
 
         return redirect()->route('usuarios.paciente.panel')
             ->with('success', 'Turno reservado correctamente.');
