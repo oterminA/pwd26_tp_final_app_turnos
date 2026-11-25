@@ -40,8 +40,10 @@ class Turno extends Model
         // Usamos HH:mm:ss para comparar con las columnas TIME de la BD.
         return self::where('medico_id', $medicoId)
             ->whereDate('fecha', $inicio->toDateString())
-            ->where('hora_inicio', '<', $fin->format('H:i:s'))
-            ->where('hora_fin', '>', $inicio->format('H:i:s'))
+            // El cast datetime puede guardar fecha + hora en una columna TIME.
+            // Tomamos las ultimas 8 posiciones para comparar solo HH:mm:ss.
+            ->whereRaw('SUBSTR(hora_inicio, -8) < ?', [$fin->format('H:i:s')])
+            ->whereRaw('SUBSTR(hora_fin, -8) > ?', [$inicio->format('H:i:s')])
             ->where('estado', '!=', 'cancelado')
             ->exists();
     }
