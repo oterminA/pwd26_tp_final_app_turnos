@@ -46,20 +46,17 @@ Route::post('/ingresar-profesional', [MedicoController::class, 'autenticar'])->n
 Route::get('/panel-profesional', [MedicoController::class, 'panel'])->name('usuarios.medico.panel');
 
 
-Route::middleware(['auth'])->group(function () {
-    Route::get('/profesional/configurar-turno', [MedicoController::class, 'mostrarConfigurarTurno'])
-        ->name('medico.configurar-turno');
+// La duracion se configura en cada especialidad, no en el perfil del medico.
+// Conservamos la ruta anterior como redireccion para enlaces guardados.
+Route::get('/profesional/configurar-turno', fn () => redirect()->route('medico.edit'))
+    ->middleware('auth')->name('medico.configurar-turno');
 
-    Route::post('/profesional/configurar-turno', [MedicoController::class, 'guardarDuracionTurno'])
-        ->name('medico.guardar-turno');
-});
-/* Rutas protegidas del médico (si no configuró duracion_turno, el middleware lo frena acá) */
-Route::middleware(['auth', 'medico.onboarding'])->group(function () {
+Route::middleware(['auth'])->group(function () {
     Route::get('/mi-cuenta-profesional', [MedicoController::class, 'edit'])->name('medico.edit');
     Route::put('/mi-cuenta-profesional', [MedicoController::class, 'update'])->name('medico.update');
 });
-/* Rutas de disponibilidad del médico (requiere login y haber configurado duración de turno) */
-Route::middleware(['auth', 'medico.onboarding'])->prefix('profesional')->name('medico.')->group(function () {
+/* Rutas de disponibilidad del medico: sus franjas no dependen de una duracion propia. */
+Route::middleware(['auth'])->prefix('profesional')->name('medico.')->group(function () {
     Route::get('/disponibilidades', [DisponibilidadController::class, 'index'])
         ->name('disponibilidades.index');
 

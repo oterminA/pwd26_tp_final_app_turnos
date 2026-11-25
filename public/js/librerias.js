@@ -135,12 +135,13 @@ document.addEventListener('DOMContentLoaded', function () {
         selectMedico.on('change', async function (medicoId) {
             resetearFechaYHorarios();
 
-            if (!medicoId) {
+            const especialidadId = selectEspecialidad.getValue();
+            if (!medicoId || !especialidadId) {
                 return;
             }
 
             try {
-                const response = await fetch(`/turnos/ajax/disponibilidad/${medicoId}`);
+                const response = await fetch(`/turnos/ajax/disponibilidad/${medicoId}?especialidad=${encodeURIComponent(especialidadId)}`);
                 if (!response.ok) throw new Error('Error al obtener la disponibilidad');
                 disponibilidadActual = await response.json();
 

@@ -94,13 +94,35 @@ class TurnoController extends Controller
         }
 
         $inicio = Carbon::createFromFormat('Y-m-d H:i:s', $request->fecha_hora);
-        $duracion = $medico->duracion_turno ?? 30;
+        // Duracion definida por la especialidad, no por el medico.
+        $especialidad = Especialidad::findOrFail($request->especialidad);
+        $duracion = (int) $especialidad->duracion_turno;
         $fin = $inicio->copy()->addMinutes($duracion);
 
-        // Verificamos que ese horario no esté ocupado por otro turno activo (ignoramos los cancelados)
+        // La especialidad debe estar asignada al profesional.
+        if (!$medico->especialidades()->where('especialidades.id', $especialidad->id)->exists()) {
+            return back()->withErrors(['especialidad' => 'El profesional no atiende esa especialidad.']);
+        }
+
+        // Comprobamos que el turno este dentro de alguna franja semanal del medico.
+        $disponible = $medico->disponibilidades()
+            ->where('dia_semana', $inicio->dayOfWeekIso)
+            ->where(function ($q) use ($especialidad) {
+                $q->where('especialidad_id', $especialidad->id)->orWhereNull('especialidad_id');
+            })
+            ->where('hora_inicio', '<=', $inicio->format('H:i:s'))
+            ->where('hora_fin', '>=', $fin->format('H:i:s'))
+            ->exists();
+
+        if (!$inicio->isFuture() || $inicio->toDateString() !== $fin->toDateString() || !$disponible) {
+            return back()->withErrors(['fecha_hora' => 'La fecha y hora no estan disponibles para ese profesional.']);
+        }
+
+        // Controlamos intervalos completos, incluso turnos de otras especialidades.
         $ocupado = Turno::where('medico_id', $medico->id)
             ->whereDate('fecha', $inicio->toDateString())
-            ->whereTime('hora_inicio', $inicio->format('H:i:s'))
+            ->where('hora_inicio', '<', $fin->format('H:i:s'))
+            ->where('hora_fin', '>', $inicio->format('H:i:s'))
             ->where('estado', '!=', 'cancelado')
             ->exists();
 
@@ -247,68 +269,65 @@ class TurnoController extends Controller
      * ENDPOINT AJAX: Calcula las fechas y horarios libres de un médico
      * para los próximos 30 días usando Carbon, su duración estándar y turnos activos.
      */
-    public function disponibilidadMedico($medicoId)
+    public function disponibilidadMedico(Request $request, $medicoId)
     {
-        $medico = Medico::with('disponibilidades')->findOrFail($medicoId);
-        $duracion = $medico->duracion_turno ?? 30;
+        $datos = $request->validate([
+            'especialidad' => 'required|integer|exists:especialidades,id',
+        ]);
 
-        // Mapa de dayOfWeek de Carbon (0 = domingo ... 6 = sábado)
-        $mapaDias = ['domingo', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'];
+        $medico = Medico::with('disponibilidades')->findOrFail($medicoId);
+        $especialidad = Especialidad::findOrFail($datos['especialidad']);
+
+        if (!$medico->especialidades()->where('especialidades.id', $especialidad->id)->exists()) {
+            return response()->json(['message' => 'El profesional no atiende esta especialidad.'], 422);
+        }
+
+        $duracion = (int) $especialidad->duracion_turno;
+        if ($duracion < 1) {
+            return response()->json(['message' => 'La especialidad no tiene una duracion valida.'], 422);
+        }
 
         $hoy = Carbon::now();
         $limite = $hoy->copy()->addDays(30);
-
-        // Traemos solo turnos NO cancelados del médico en los próximos 30 días
-        $turnosOcupados = Turno::where('medico_id', $medico->id)
+        $turnosPorFecha = Turno::where('medico_id', $medico->id)
             ->whereBetween('fecha', [$hoy->toDateString(), $limite->toDateString()])
             ->where('estado', '!=', 'cancelado')
             ->get()
-            ->groupBy(fn($t) => Carbon::parse($t->fecha)->toDateString())
-            ->map(fn($grupo) => $grupo->map(fn($t) => Carbon::parse($t->hora_inicio)->format('H:i'))->toArray())
-            ->toArray();
+            ->groupBy(fn ($turno) => $turno->fecha->toDateString());
 
-        $disponibilidadFinal = [];
-
-        // Recorremos día por día los próximos 30 días
-        for ($fecha = $hoy->copy(); $fecha->lte($limite); $fecha->addDay()) {
-            $nombreDia = $mapaDias[$fecha->dayOfWeek];
-            $fechaStr = $fecha->toDateString();
-
-            // $franjas = $medico->disponibilidades->where('dia_semana', $nombreDia);
-            $franjas = $medico->disponibilidades->where('dia_semana', $fecha->dayOfWeekIso);
-            if ($franjas->isEmpty()) {
-                continue;
-            }
-
-            $horariosLibres = [];
-            $ocupadosHoy = $turnosOcupados[$fechaStr] ?? [];
+        $resultado = [];
+        for ($fecha = $hoy->copy()->startOfDay(); $fecha->lte($limite); $fecha->addDay()) {
+            $dia = $fecha->toDateString();
+            $franjas = $medico->disponibilidades
+                ->where('dia_semana', $fecha->dayOfWeekIso)
+                ->filter(fn ($franja) => $franja->especialidad_id === null || (int) $franja->especialidad_id === (int) $especialidad->id);
+            $horarios = [];
 
             foreach ($franjas as $franja) {
-                $horaInicioStr = Carbon::parse($franja->hora_inicio)->format('H:i:s');
-                $horaFinStr = Carbon::parse($franja->hora_fin)->format('H:i:s');
-
-                $cursor = Carbon::parse($fechaStr . ' ' . $horaInicioStr);
-                $finFranja = Carbon::parse($fechaStr . ' ' . $horaFinStr);
+                $cursor = Carbon::parse($dia . ' ' . Carbon::parse($franja->hora_inicio)->format('H:i:s'));
+                $finFranja = Carbon::parse($dia . ' ' . Carbon::parse($franja->hora_fin)->format('H:i:s'));
 
                 while ($cursor->copy()->addMinutes($duracion)->lte($finFranja)) {
-                    $horaStr = $cursor->format('H:i');
+                    $finCandidato = $cursor->copy()->addMinutes($duracion);
+                    $ocupado = ($turnosPorFecha[$dia] ?? collect())->contains(function ($turno) use ($dia, $cursor, $finCandidato) {
+                        $inicioOcupado = Carbon::parse($dia . ' ' . Carbon::parse($turno->hora_inicio)->format('H:i:s'));
+                        $finOcupado = Carbon::parse($dia . ' ' . Carbon::parse($turno->hora_fin)->format('H:i:s'));
+                        return $inicioOcupado->lt($finCandidato) && $finOcupado->gt($cursor);
+                    });
 
-                    // Evitamos horarios ya pasados si es el día de hoy, y horarios ocupados
-                    $esFuturo = $cursor->gt($hoy);
-                    if ($esFuturo && !in_array($horaStr, $ocupadosHoy)) {
-                        $horariosLibres[] = $horaStr;
+                    if ($cursor->gt($hoy) && !$ocupado) {
+                        $horarios[] = $cursor->format('H:i');
                     }
-
                     $cursor->addMinutes($duracion);
                 }
             }
 
-            if (!empty($horariosLibres)) {
-                $disponibilidadFinal[$fechaStr] = array_values(array_unique($horariosLibres));
+            if ($horarios) {
+                $resultado[$dia] = array_values(array_unique($horarios));
+                sort($resultado[$dia]);
             }
         }
-
-        return response()->json($disponibilidadFinal);
+        return response()->json($resultado);
     }
 
     /**

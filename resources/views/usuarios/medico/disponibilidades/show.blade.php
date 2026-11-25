@@ -7,6 +7,7 @@
                 <div class="card shadow-sm border-0 rounded-4 p-4 p-md-5">
                     <h3 class="fw-bold mb-4">Detalle de Disponibilidad</h3>
 
+                    <p><strong>Especialidad:</strong> {{ $disponibilidad->especialidad?->nombre ?? "General (sin asignar)" }}</p>
                     <p><strong>Día:</strong> {{ $disponibilidad->dia_nombre  }}</p>
                    <p><strong>Hora inicio:</strong> {{ $disponibilidad->hora_inicio->format('H:i') }}
                     <p><strong>Hora fin:</strong> {{ $disponibilidad->hora_fin->format('H:i') }} hs</p>

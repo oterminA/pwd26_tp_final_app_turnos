@@ -32,6 +32,7 @@
             <table class="table table-bordered align-middle bg-white">
                 <thead class="table-light">
                     <tr>
+                        <th>Especialidad</th>
                         <th>Día</th>
                         <th>Hora inicio</th>
                         <th>Hora fin</th>
@@ -41,6 +42,7 @@
                 <tbody>
                     @foreach ($disponibilidades as $disponibilidad)
                         <tr>
+                            <td>{{ $disponibilidad->especialidad?->nombre ?? "General (sin asignar)" }}</td>
                             <td>{{ $disponibilidad->dia_nombre }}</td>
                             <td>{{ $disponibilidad->hora_inicio->format('H:i') }} hs</td>
                             <td>{{ $disponibilidad->hora_fin->format('H:i') }} hs</td>

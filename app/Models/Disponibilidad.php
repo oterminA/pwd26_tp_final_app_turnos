@@ -9,7 +9,7 @@ class Disponibilidad extends Model
 {
     protected $table = 'disponibilidades';
 
-    protected $fillable = ['medico_id', 'dia_semana', 'hora_inicio', 'hora_fin'];
+    protected $fillable = ['medico_id', 'especialidad_id', 'dia_semana', 'hora_inicio', 'hora_fin'];
 
     /**
      * esta funcion es para mostrar los dias de disponibilidad en forma de strings
@@ -35,6 +35,11 @@ class Disponibilidad extends Model
         'hora_inicio' => 'datetime',
         'hora_fin' => 'datetime',
     ];
+
+    public function especialidad()
+    {
+        return $this->belongsTo(Especialidad::class);
+    }
 
     public function medico()
     {
