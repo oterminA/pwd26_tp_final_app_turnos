@@ -22,17 +22,19 @@
                                 </div>
                             @endif
                             <div class="error alert alert-danger d-none" role="alert"></div>
-                            <div class="mb-3">
-                                {{-- lleva tom select --}}
-                                <label for="medico" class="form-label">Buscar por profesional</label>
-                                <select name="medico" id="medico" class="form-select" required>
-                                </select>
-                            </div>
+
 
                             <div class="mb-3">
                                 {{-- lleva tom select --}}
                                 <label for="especialidad" class="form-label">Buscar por especialidad</label>
                                 <select name="especialidad" id="especialidad" class="form-select" required>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                {{-- lleva tom select --}}
+                                <label for="medico" class="form-label">Buscar por profesional</label>
+                                <select name="medico" id="medico" class="form-select" required>
                                 </select>
                             </div>
 
@@ -59,7 +61,8 @@
                                     data-bs-toggle="modal" data-bs-target="#modalTurno">
                                     Revisar turno
                                 </button>
-                                <a href="{{ route('usuarios.paciente.panel') }}" class="text-secondary text-decoration-none small mt-2">
+                                <a href="{{ route('usuarios.paciente.panel') }}"
+                                    class="text-secondary text-decoration-none small mt-2">
                                     Cancelar y volver
                                 </a>
                             </div>
@@ -114,7 +117,7 @@
         </div>
     </div>
     <script>
-    window.especialidadesBD = @json($especialidades);
+        window.especialidadesBD = @json($especialidades);
     </script>
 @endsection
 
