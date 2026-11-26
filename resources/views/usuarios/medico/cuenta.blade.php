@@ -51,7 +51,7 @@
 
                                 <div class="d-flex align-items-center gap-3 mb-2">
                                     @if ($medico->imagen)
-                                        <img src="{{ $medico->imagen }}"
+                                        <img src="{{ $medico->urlImagen($medico->imagen) }}"
                                             alt="Foto de {{ $medico->nombre ?? 'profesional' }}"
                                             class="rounded-circle border object-fit-cover shadow-sm"
                                             style="width: 96px; height: 96px;">

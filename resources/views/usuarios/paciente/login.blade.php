@@ -14,7 +14,7 @@
                 <div class="card-body p-4 w-100">
 
                     <div class="text-center mb-4">
-                        <h1 class="h3 fw-bold">Nombre Clínica</h1>
+                        <h1 class="h3 fw-bold">{{ config('app.name') }}</h1>
                         <h5 class="text-muted">Inicio de sesión</h5>
                         <h6 class="text-muted fst-italic">-Paciente-</h6>
 

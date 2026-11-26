@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Str;
 
 class MedicoController extends Controller
 {
@@ -119,38 +121,43 @@ class MedicoController extends Controller
         $datosValidados = $request->validate([
             'nombre'           => 'required|string|max:120',
             'apellido'         => 'required|string|max:120',
-            'email'            => 'required|email|unique:users,email,' . $user->id,
+            'email'            => 'required|email|max:255|unique:users,email,' . $user->id,
             'password'         => 'nullable|min:8|confirmed',
-            'tipoMat'          => 'prohibited',
-            'numMat'           => 'prohibited',
-            'matricula'        => 'prohibited',
-            'imagen'           => 'nullable|mimes:jpg,jpeg,png,webp|max:2048',
-            'obras_sociales'   => 'nullable|array',
-            'obras_sociales.*' => 'string',
-            'especialidades'   => 'nullable|array',
-            'especialidades.*' => 'integer|exists:especialidades,id',
+            'tipoMat' => 'prohibited',
+            'numMat' => 'prohibited',
+            'matricula' => 'prohibited',
+            'imagen' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'obras_sociales' => 'required|array|min:1',
+            'obras_sociales.*' => ['required', 'string', 'distinct', Rule::in(array_keys(config('administracion.obras_sociales')))],
+            'especialidades' => 'required|array|min:1',
+            'especialidades.*' => ['integer', 'distinct', Rule::exists('especialidades', 'id')->whereNull('deleted_at')],
         ], [
-            'tipoMat.prohibited'   => 'No tenés permiso para modificar la matrícula desde este formulario.',
-            'numMat.prohibited'    => 'No tenés permiso para modificar la matrícula desde este formulario.',
+            'tipoMat.prohibited' => 'No tenés permiso para modificar la matrícula desde este formulario.',
+            'numMat.prohibited' => 'No tenés permiso para modificar la matrícula desde este formulario.',
             'matricula.prohibited' => 'No tenés permiso para modificar la matrícula desde este formulario.',
         ]);
 
-        //dejamos la matricula original del medico porque es un dato importante
-        $datosValidados['matricula'] = $medico->matricula;
-
+        $medico->validarEspecialidades($datosValidados['especialidades']);
+        $rutaAnterior = $medico->imagen;
+        $rutaNueva = null;
         if ($request->hasFile('imagen')) {
-            if ($medico->imagen && File::exists(public_path($medico->imagen))) {
-                File::delete(public_path($medico->imagen));
-            }
-
+            File::ensureDirectoryExists(public_path('imagenes'));
             $archivo = $request->file('imagen');
-            $nombreArchivo = time() . '_' . $archivo->getClientOriginalName();
-            $archivo->move(public_path('imagenes'), $nombreArchivo);
-
-            $datosValidados['imagen'] = 'imagenes/' . $nombreArchivo;
+            $nombre = Str::uuid() . '.' . $archivo->extension();
+            $archivo->move(public_path('imagenes'), $nombre);
+            $rutaNueva = 'imagenes/' . $nombre;
+            $datosValidados['imagen'] = $rutaNueva;
         }
 
-        $medico->updateDatos($datosValidados); //mandamos los datos a que se validen en la transaccion del modelo
+        try {
+            $medico->updateDatos($datosValidados);
+        } catch (\Throwable $e) {
+            if ($rutaNueva) File::delete(public_path($rutaNueva));
+            throw $e;
+        }
+        if ($rutaNueva && $rutaAnterior && str_starts_with($rutaAnterior, 'imagenes/')) {
+            File::delete(public_path($rutaAnterior));
+        }
 
         return redirect()->back()->with('success', 'Tus datos fueron actualizados correctamente.');
     }

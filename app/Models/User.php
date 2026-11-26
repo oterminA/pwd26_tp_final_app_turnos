@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -80,6 +79,26 @@ class User extends Authenticatable
     public function isAdmin()
     {
         return $this->rol === 'admin';
+    }
+
+    public function getNombreAttribute(): string
+    {
+        $name = trim($this->name ?? '');
+        if (str_contains($name, '|')) {
+            return trim(explode('|', $name, 2)[0]);
+        }
+        return preg_split('/\s+/', $name)[0] ?? '';
+    }
+
+    public function getApellidoAttribute(): string
+    {
+        $name = trim($this->name ?? '');
+        if (str_contains($name, '|')) {
+            return trim(explode('|', $name, 2)[1] ?? '');
+        }
+        $partes = preg_split('/\s+/', $name);
+        array_shift($partes);
+        return implode(' ', $partes);
     }
 
     /**

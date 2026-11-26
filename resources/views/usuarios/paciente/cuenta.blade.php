@@ -95,7 +95,7 @@
                                         );
                                     @endphp
                                     <select class="form-select" name="obra_social" id="obra_social">
-                                        <option value="">Particular / Sin obra social</option>
+                                        <option value="" @selected(!$obraActual)>Sin obra social</option>
                                         @foreach (config('administracion.obras_sociales', []) as $codigo => $nombreObra)
                                             <option value="{{ $codigo }}" @selected($obraActual == $codigo)>
                                                 {{ $nombreObra }}

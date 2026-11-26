@@ -3,11 +3,6 @@
     <link rel="stylesheet" href="{{ asset('css/admin-gestion.css') }}">
 @endpush
 @section('content')
-    @php
-        $activos = $medicos->filter(fn($m) => !$m->trashed())->count();
-        $inactivos = $medicos->count() - $activos;
-        $especialidadesFiltro = $medicos->flatMap(fn($m) => $m->especialidades)->unique('id')->sortBy('nombre');
-    @endphp
     <div class="container py-4 py-lg-5 admin-gestion">
         <div class="gestion-header mb-4">
             <div>

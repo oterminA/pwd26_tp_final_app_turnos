@@ -4,7 +4,7 @@
         <div class="card-body p-4">
 
             <div class="text-center mb-4">
-                <h1 class="h3 fw-bold">Nombre Clínica</h1>
+                <h1 class="h3 fw-bold">{{ config('app.name') }}</h1>
                 <h5 class="text-muted">Crear cuenta</h5>
                 <h6 class="text-muted fst-italic">-Paciente-</h6>
 
@@ -42,7 +42,7 @@
                 <div class="mb-3">
                     <label for="fechaNac" class="form-label">Fecha de nacimiento</label>
                     <input type="date" name="fecha_nacimiento" id="fechaNac" class="form-control"
-                        value="{{ old('fechaNac') }}" required>
+                        value="{{ old('fecha_nacimiento') }}" required>
                 </div>
 
                 <div class="mb-3">
@@ -53,25 +53,21 @@
                 </div>
 
                 <div class="mb-3">
-                    @php
-                        $obrasForm = array_map('strval', (array) old('obras_sociales', $obrasSeleccionadas ?? []));
-                    @endphp
-
-                    <label for="obras_sociales" class="form-label">Obras sociales que acepta</label>
-                    <select class="form-select" name="obras_sociales[]" id="obras_sociales" multiple>
-                        @foreach (config('administracion.obras_sociales', []) as $codigo => $nombreObra)
-                            <option value="{{ $codigo }}" @selected(in_array((string) $codigo, $obrasForm, true))>
-                                {{ $nombreObra }}
-                            </option>
+                    {{-- lleva tom select --}}
+                    <label for="obra_social" class="form-label">Obra social</label>
+                    <select class="form-select" id="obra_social" name="obra_social" required>
+                        <option value="" disabled @selected(!old('obra_social'))>Seleccione una opción</option>
+                        @foreach (config('administracion.obras_sociales') as $codigo => $nombre)
+                            <option value="{{ $codigo }}" @selected(old('obra_social') == $codigo)>{{ $nombre }}</option>
                         @endforeach
                     </select>
-                    <small class="text-muted">Seleccioná una o varias coberturas.</small>
+                    <small class="text-muted">Seleccioná tu obra social o Particular.</small>
                 </div>
 
                 <div class="mb-3">
                     <label for="tel" class="form-label">Teléfono</label>
                     <input type="tel" name="telefono" id="tel" class="form-control" placeholder="Ej: 2991234567"
-                        value="{{ old('tel') }}" pattern="[0-9]{8,15}"
+                        value="{{ old('telefono') }}" pattern="[0-9]{8,15}"
                         title="Ingresá solo números (entre 8 y 15 dígitos)" required>
                 </div>
 

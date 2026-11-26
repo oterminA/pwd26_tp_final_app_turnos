@@ -76,6 +76,7 @@
             </div>
         </div>
 
+        <p class="admin-hint mb-2">Totales generales de la clínica (no dependen de los filtros).</p>
         <div class="row g-3 mb-4">
             <div class="col-md-4">
                 <div class="admin-mini-stat"><span>Profesionales activos</span><strong>{{ $medicosActivos }}</strong></div>
@@ -162,6 +163,7 @@
 
         <div class="admin-panel">
             <h2 class="admin-section-title mb-3">Próximos turnos pendientes</h2>
+            <p class="admin-hint">Desde hoy, independientemente del mes seleccionado. Respeta el filtro de profesional.</p>
             <div class="table-responsive">
                 <table class="table align-middle admin-table mb-0">
                     <thead>
@@ -177,8 +179,8 @@
                         @forelse($proximos as $turno)
                             <tr>
                                 <td>{{ $turno->fecha->format('d/m/Y') }}</td>
-                                <td>{{ substr((string) $turno->getRawOriginal('hora_inicio'), 0, 5) }}</td>
-                                <td>{{ $turno->medico?->user?->name ?? 'Sin profesional' }}</td>
+                                <td>{{ substr((string) $turno->getRawOriginal('hora_inicio'), -8, 5) }}</td>
+                                <td>{{ $turno->medico?->user?->nombre_visible ?? 'Sin profesional' }}</td>
                                 <td>{{ $turno->especialidad?->nombre ?? '-' }}</td>
                                 <td><span class="admin-small-tag">{{ ucfirst($turno->estado) }}</span></td>
                             </tr>

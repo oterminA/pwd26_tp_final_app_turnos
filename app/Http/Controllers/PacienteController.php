@@ -6,6 +6,7 @@ use App\Models\Paciente;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 
 class PacienteController extends Controller
 {
@@ -24,7 +25,7 @@ class PacienteController extends Controller
     public function autenticar(Request $request)
     {
         $request->validate([
-            'dni' => ['required'],
+            'dni' => ['required', 'digits_between:7,8'],
             'password' => ['required'],
         ]);
 
@@ -78,18 +79,19 @@ class PacienteController extends Controller
         $datos = $request->validate([ //se validan los datos que vienen del formulario de registro
             'nombre'           => 'required|string|max:120',
             'apellido'         => 'required|string|max:120',
-            'email'            => 'required|email|unique:users,email',
+            'email'            => 'required|email|max:255|unique:users,email',
             'password'         => 'required|string|min:8|confirmed',
-            'dni'              => 'required|string|unique:pacientes,dni',
-            'fecha_nacimiento' => 'required|date',
+            'dni'              => 'required|digits_between:7,8|unique:pacientes,dni',
+            'fecha_nacimiento' => 'required|date|before_or_equal:today',
             'telefono'         => 'required|string|max:50',
-            'obra_social'      => 'nullable|string|max:100',
+            'obra_social'      => ['nullable', 'string', Rule::in(array_keys(config('administracion.obras_sociales')))],
         ]);
 
         $paciente = new Paciente();
         $user = $paciente->createDatos($datos); //esos datos se mandan al modelo para hacer la db::Transaction que es que en user y paciente se crea el usuario al mismo tiempo
 
         Auth::login($user); //se loguea el usuario
+        $request->session()->regenerate();
 
         return redirect()->route('usuarios.paciente.panel') //se redirige al panel de usuario
             ->with('success', '¡Cuenta creada!');
@@ -119,12 +121,12 @@ class PacienteController extends Controller
         $datosValidados = $request->validate([
             'nombre'           => 'required|string|max:120',
             'apellido'         => 'required|string|max:120',
-            'email'            => 'required|email|unique:users,email,' . $user->id,
+            'email'            => 'required|email|max:255|unique:users,email,' . $user->id,
             'password'         => 'nullable|min:8|confirmed',
-            'dni'              => 'required|string|unique:pacientes,dni,' . $paciente->id,
-            'fecha_nacimiento' => 'required|date',
+            'dni'              => 'required|digits_between:7,8|unique:pacientes,dni,' . $paciente->id,
+            'fecha_nacimiento' => 'required|date|before_or_equal:today',
             'telefono'         => 'required|string|max:50',
-            'obra_social'      => 'nullable|string|max:100',
+            'obra_social'      => ['nullable', 'string', Rule::in(array_keys(config('administracion.obras_sociales')))],
         ]);
 
         $paciente->updateDatos($datosValidados);

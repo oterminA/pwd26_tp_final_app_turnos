@@ -4,9 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Especialidad;
 use App\Models\Medico;
-use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
@@ -20,7 +18,10 @@ class AdminMedicoController extends Controller
         $medicos = Medico::withTrashed()->with(['user', 'especialidades'])
             ->orderBy('id', 'desc')->get();
 
-        return view('usuarios.admin.medicos.index', compact('medicos'));
+        $activos = $medicos->filter(fn ($m) => !$m->trashed())->count();
+        $inactivos = $medicos->count() - $activos;
+        $especialidadesFiltro = $medicos->flatMap(fn ($m) => $m->especialidades)->unique('id')->sortBy('nombre');
+        return view('usuarios.admin.medicos.index', compact('medicos', 'activos', 'inactivos', 'especialidadesFiltro'));
     }
 
     // muestra el formulario de alta
@@ -58,26 +59,7 @@ class AdminMedicoController extends Controller
         }
 
         try {
-            $medico = DB::transaction(function () use ($datos, $rutaImagen) {
-            $user = User::create([
-                'name' => trim($datos['nombre'] . ' | ' . $datos['apellido']),
-                'email' => $datos['email'],
-                'password' => $datos['password'], // User lo hashea por casts()
-                'rol' => 'medico',
-            ]);
-
-            $medico = Medico::create([
-                'user_id' => $user->id,
-                'tipoMat' => $datos['tipoMat'],
-                'numMat' => $datos['numMat'],
-                'matricula' => $datos['tipoMat'] . '-' . $datos['numMat'],
-                'obra_social' => $datos['obras_sociales'][0], // valor anterior para compatibilidad
-                'obras_sociales' => $datos['obras_sociales'],
-                'imagen' => $rutaImagen,
-            ]);
-            $medico->especialidades()->sync($datos['especialidades']);
-            return $medico;
-        });
+            $medico = Medico::crearDesdeAdmin($datos, $rutaImagen);
 
         } catch (\Throwable $e) {
             if ($rutaImagen) File::delete(public_path($rutaImagen));
@@ -128,9 +110,11 @@ class AdminMedicoController extends Controller
             'estado' => 'required|in:activo,inactivo',
         ]);
 
-        if ($datos['estado'] === 'inactivo' && !$medico->trashed() && $this->tieneTurnosFuturos($medico)) {
+        if ($datos['estado'] === 'inactivo' && !$medico->trashed() && $medico->tieneTurnosFuturos()) {
             return back()->withInput()->with('error', 'No se puede desactivar un medico con turnos futuros pendientes.');
         }
+
+        $medico->validarEspecialidades($datos['especialidades']);
 
         $rutaAnterior = $medico->imagen;
         $rutaImagen = null;
@@ -142,32 +126,7 @@ class AdminMedicoController extends Controller
             $rutaImagen = 'imagenes/' . $nombre;
         }
         try {
-            DB::transaction(function () use ($datos, $medico, $rutaImagen) {
-            $userDatos = [
-                'name' => trim($datos['nombre'] . ' | ' . $datos['apellido']),
-                'email' => $datos['email'],
-            ];
-            if (!empty($datos['password'])) {
-                $userDatos['password'] = $datos['password'];
-            }
-            $medico->user->update($userDatos);
-
-            $medico->update([
-                'tipoMat' => $datos['tipoMat'],
-                'numMat' => $datos['numMat'],
-                'matricula' => $datos['tipoMat'] . '-' . $datos['numMat'],
-                'obra_social' => $datos['obras_sociales'][0], // valor anterior para compatibilidad
-                'obras_sociales' => $datos['obras_sociales'],
-                'imagen' => $rutaImagen ?? $medico->imagen,
-            ]);
-            $medico->especialidades()->sync($datos['especialidades']);
-
-            if ($datos['estado'] === 'inactivo' && !$medico->trashed()) {
-                $medico->delete();
-            } elseif ($datos['estado'] === 'activo' && $medico->trashed()) {
-                $medico->restore();
-            }
-        });
+            $medico->actualizarDesdeAdmin($datos, $rutaImagen);
 
         } catch (\Throwable $e) {
             if ($rutaImagen) File::delete(public_path($rutaImagen));
@@ -185,7 +144,7 @@ class AdminMedicoController extends Controller
     public function delete($id)
     {
         $medico = Medico::findOrFail($id);
-        if ($this->tieneTurnosFuturos($medico)) {
+        if ($medico->tieneTurnosFuturos()) {
             return back()->with('error', 'No se puede desactivar un medico con turnos futuros pendientes.');
         }
         $medico->delete();
@@ -193,11 +152,4 @@ class AdminMedicoController extends Controller
         return redirect()->route('admin.medicos.index')->with('success', 'Medico desactivado correctamente.');
     }
 
-    private function tieneTurnosFuturos(Medico $medico): bool
-    {
-        return $medico->turnos()
-            ->whereDate('fecha', '>=', now()->toDateString())
-            ->whereNotIn('estado', ['cancelado', 'finalizado', 'ausente'])
-            ->exists();
-    }
 }

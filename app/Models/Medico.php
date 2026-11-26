@@ -54,47 +54,115 @@ class Medico extends Model
     }
 
 
-    /**
-     * funcion que hace una 'transaccion' para manejar el hecho de que tanto en user como en medico manejamos datos de 'medico', entonces al actualizar se tiene que cambiar en ambos lados y esto desde el control no se puede manejar
-     */
+    public static function crearDesdeAdmin(array $datos, ?string $rutaImagen): self
+    {
+        return DB::transaction(function () use ($datos, $rutaImagen) {
+            $user = User::create([
+                'name' => trim($datos['nombre']) . ' | ' . trim($datos['apellido']),
+                'email' => $datos['email'],
+                'password' => $datos['password'], // User lo hashea por casts()
+                'rol' => 'medico',
+            ]);
+
+            $medico = Medico::create([
+                'user_id' => $user->id,
+                'tipoMat' => $datos['tipoMat'],
+                'numMat' => $datos['numMat'],
+                'matricula' => $datos['tipoMat'] . '-' . $datos['numMat'],
+                'obra_social' => $datos['obras_sociales'][0], // valor anterior para compatibilidad
+                'obras_sociales' => $datos['obras_sociales'],
+                'imagen' => $rutaImagen,
+            ]);
+            $medico->especialidades()->sync($datos['especialidades']);
+            return $medico;
+        });
+    }
+
+    public function actualizarDesdeAdmin(array $datos, ?string $rutaImagen): void
+    {
+        DB::transaction(function () use ($datos, $rutaImagen) {
+            if ($datos['estado'] === 'inactivo' && !$this->trashed() && $this->tieneTurnosFuturos()) {
+                throw \Illuminate\Validation\ValidationException::withMessages(['estado' => 'No se puede desactivar un medico con turnos futuros pendientes.']);
+            }
+            $userDatos = [
+                'name' => trim($datos['nombre']) . ' | ' . trim($datos['apellido']),
+                'email' => $datos['email'],
+            ];
+            if (!empty($datos['password'])) {
+                $userDatos['password'] = $datos['password'];
+            }
+            $this->user->update($userDatos);
+
+            $this->update([
+                'tipoMat' => $datos['tipoMat'],
+                'numMat' => $datos['numMat'],
+                'matricula' => $datos['tipoMat'] . '-' . $datos['numMat'],
+                'obra_social' => $datos['obras_sociales'][0], // valor anterior para compatibilidad
+                'obras_sociales' => $datos['obras_sociales'],
+                'imagen' => $rutaImagen ?? $this->imagen,
+            ]);
+            $this->actualizarEspecialidades($datos['especialidades']);
+
+            if ($datos['estado'] === 'inactivo' && !$this->trashed()) {
+                $this->delete();
+            } elseif ($datos['estado'] === 'activo' && $this->trashed()) {
+                $this->restore();
+            }
+        });
+    }
+
+    public function tieneTurnosFuturos(): bool
+    {
+        return $this->turnos()->pendientesVigentes()->exists();
+    }
+
+    public function validarEspecialidades(array $ids): void
+    {
+        // Solo se quitan especialidades activas que el formulario permite editar.
+        $quitadas = $this->especialidades()->whereNotIn('especialidades.id', $ids)->get();
+        foreach ($quitadas as $especialidad) {
+            if ($this->disponibilidades()->where(function ($q) use ($especialidad) {
+                $q->where('especialidad_id', $especialidad->id)->orWhereNull('especialidad_id');
+            })->exists() || $this->turnos()->pendientesVigentes()->where('especialidad_id', $especialidad->id)->exists()) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'especialidades' => 'No se puede quitar ' . $especialidad->nombre . ' porque tiene disponibilidades o turnos pendientes.',
+                ]);
+            }
+        }
+    }
+
+    private function actualizarEspecialidades(array $ids): void
+    {
+        $this->validarEspecialidades($ids);
+        // Conservamos las asociaciones inactivas que no aparecen en el formulario.
+        $inactivas = $this->especialidades()->onlyTrashed()->pluck('especialidades.id')->all();
+        $this->especialidades()->sync(array_merge($ids, $inactivas));
+    }
+
     public function updateDatos($datos)
     {
         DB::transaction(function () use ($datos) {
-            $datosUser = [ //como deben quedar los datos con la separacion de nombres y apellidos en name
-                'name'  => trim($datos['nombre']) . ' | ' . trim($datos['apellido']),
+            $datosUser = [
+                'name' => trim($datos['nombre']) . ' | ' . trim($datos['apellido']),
                 'email' => $datos['email'],
             ];
-
-            if (!empty($datos['password'])) { //si no viene una contraseña dejamos la anterior
+            if (!empty($datos['password'])) {
                 $datosUser['password'] = $datos['password'];
             }
-
-            $this->user->update($datosUser); //hacemos el update del USER
-
-            $datosMedico = [
-                'matricula' => $datos['matricula'] ?? $this->matricula,
-            ];
-
-            if (array_key_exists('obras_sociales', $datos)) {
-                $listaObras = array_values(array_filter((array) $datos['obras_sociales']));
+            $this->user->update($datosUser);
+            $datosMedico = [];
+            if (isset($datos['obras_sociales'])) {
+                // Guardamos todas las coberturas y mantenemos el campo anterior.
+                $listaObras = array_values(array_filter($datos['obras_sociales']));
                 $datosMedico['obras_sociales'] = $listaObras;
                 $datosMedico['obra_social'] = $listaObras[0] ?? null;
-            } elseif (array_key_exists('obra_social', $datos)) {
-                $datosMedico['obra_social'] = $datos['obra_social'];
-                $datosMedico['obras_sociales'] = $datos['obra_social'] ? [$datos['obra_social']] : [];
-            } else {
-                $datosMedico['obras_sociales'] = [];
-                $datosMedico['obra_social'] = null;
             }
-
             if (!empty($datos['imagen'])) {
                 $datosMedico['imagen'] = $datos['imagen'];
             }
-
-            $this->update($datosMedico); //hacemos el update del medico
-
-            if (array_key_exists('especialidades', $datos)) {
-                $this->especialidades()->sync($datos['especialidades'] ?? []);
+            $this->update($datosMedico);
+            if (isset($datos['especialidades'])) {
+                $this->actualizarEspecialidades($datos['especialidades']);
             }
         });
     }
@@ -117,13 +185,7 @@ class Medico extends Model
      */
     public function getNombreAttribute(): string
     {
-        $name = trim($this->user?->name ?? '');
-        if (str_contains($name, '|')) {
-            return trim(explode('|', $name, 2)[0]);
-        }
-
-        $partes = preg_split('/\s+/', $name);
-        return $partes[0] ?? '';
+        return $this->user?->nombre ?? '';
     }
 
     /**
@@ -131,14 +193,7 @@ class Medico extends Model
      */
     public function getApellidoAttribute(): string
     {
-        $name = trim($this->user?->name ?? '');
-        if (str_contains($name, '|')) {
-            return trim(explode('|', $name, 2)[1] ?? '');
-        }
-
-        $partes = preg_split('/\s+/', $name);
-        array_shift($partes);
-        return implode(' ', $partes);
+        return $this->user?->apellido ?? '';
     }
 
 

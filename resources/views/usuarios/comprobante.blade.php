@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     {{-- creo que dompdf necesita la ruta entera al css para poder ponerlo de forma externa --}}
     <link rel="stylesheet" href="{{ public_path('css/comprobante.css') }}">
-    <title>Comprobante de turno</title>
+    <title>Comprobante de turno - {{ config('app.name') }}</title>
 </head>
 
 <body>
@@ -62,7 +62,7 @@
 
         <div class="footer">
             En caso de no poder asistir, recuerde cancelar su turno con anticipación desde el portal. <br>
-            <i>Clinica Nombre</i>
+            <i>{{ config('app.name') }}</i>
         </div>
     </div>
 </body>
