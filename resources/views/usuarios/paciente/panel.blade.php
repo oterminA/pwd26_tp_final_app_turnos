@@ -79,7 +79,7 @@
                                                     <button type="button" class="btn btn-sm btn-outline-danger" disabled>
                                                         Cancelar
                                                     </button>
-                                                    <small class="d-block text-muted">Se requiere un minimo de 48 horas de anticipacion.</small>
+                                                    <small class="d-block text-muted">Se requiere mas de 48 horas de anticipacion.</small>
                                                 @else
                                                     <span class="text-muted">—</span>
                                                 @endif

@@ -53,4 +53,38 @@ class IdentidadTurnAppTest extends TestCase
         $this->get(route('login.medico'))->assertOk()->assertSee('TurnApp');
         $this->get(route('login.admin'))->assertOk()->assertSee('TurnApp');
     }
+    public function test_admin_cambia_password_y_valida_confirmacion(): void
+    {
+        $admin = User::create([
+            'name' => 'Admin | Prueba',
+            'email' => 'admin.password@example.test',
+            'password' => 'password',
+            'rol' => 'admin',
+        ]);
+        $datos = ['nombre' => 'Admin', 'apellido' => 'Prueba', 'email' => $admin->email];
+        $this->actingAs($admin)->from(route('admin.edit'))->put(route('admin.update'), $datos + [
+            'password' => 'nuevaClave123456', 'password_confirmation' => 'distinta',
+        ])->assertSessionHasErrors('password');
+        $this->assertTrue(\Illuminate\Support\Facades\Hash::check('password', $admin->fresh()->password));
+
+        $this->put(route('admin.update'), $datos + [
+            'password' => 'nuevaClave123456', 'password_confirmation' => 'nuevaClave123456',
+        ])->assertSessionHasNoErrors();
+        $this->assertTrue(\Illuminate\Support\Facades\Hash::check('nuevaClave123456', $admin->fresh()->password));
+        $this->assertFalse(\Illuminate\Support\Facades\Hash::check('password', $admin->fresh()->password));
+    }
+
+    public function test_admin_conserva_password_si_no_la_cambia(): void
+    {
+        $admin = User::create([
+            'name' => 'Admin | Prueba', 'email' => 'admin.sin.cambio@example.test',
+            'password' => 'password', 'rol' => 'admin',
+        ]);
+        $hash = $admin->password;
+        $this->actingAs($admin)->put(route('admin.update'), [
+            'nombre' => 'Admin', 'apellido' => 'Prueba', 'email' => $admin->email,
+            'password' => '', 'password_confirmation' => '',
+        ])->assertSessionHasNoErrors();
+        $this->assertSame($hash, $admin->fresh()->password);
+    }
 }

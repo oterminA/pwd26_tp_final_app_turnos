@@ -97,7 +97,9 @@ document.addEventListener('DOMContentLoaded', function () { //esperamos a que el
             },
             placeholder: "Ej: Marta Pereira"
         });
-        // selectMedico.disable();
+        selectMedico.disable();
+        let pedidoMedicos = 0;
+        let pedidoHorarios = 0;
 
         let disponibilidadActual = {}; //acá guardamos la disponibilidad que viene del servidor
 
@@ -138,14 +140,21 @@ document.addEventListener('DOMContentLoaded', function () { //esperamos a que el
         });
 
         function resetearFechaYHorarios() { //funcion aux limpia el calendario, deshabilita el input de fecha, basicamente limpia todo como si se empezara de nuevo
+            disponibilidadActual = {};
             flatPickr.clear();
             flatPickr.set('enable', []);
             fechaInput.disabled = true;
+            flatPickr.altInput.disabled = true;
             fechaHoraInput.value = '';
             contenedorHorarios.innerHTML = '<span class="text-muted small">Elegí un médico y una fecha.</span>';
         }
 
+        resetearFechaYHorarios();
+
         selectEspecialidad.on('change', async function (especialidadId) { //esto se ejecuta cuando el paciente elije una especialidad
+            const pedido = ++pedidoMedicos;
+            ++pedidoHorarios;
+            selectMedico.disable();
             selectMedico.clear(); //se limpia al medico elegido
             selectMedico.clearOptions();
             resetearFechaYHorarios(); //llamamosa la funcion que limpia todo porque si se eligió otra especialidad se tienen que mostrar opciones adecuadas
@@ -161,15 +170,18 @@ document.addEventListener('DOMContentLoaded', function () { //esperamos a que el
                 if (!response.ok) throw new Error('Error al obtener los médicos');
                 const medicos = await response.json();
 
+                if (pedido !== pedidoMedicos) return;
                 selectMedico.enable();
                 selectMedico.addOptions(medicos);
             } catch (error) {
+                if (pedido !== pedidoMedicos) return;
                 console.error("Error AJAX:", error);
                 contenedorHorarios.innerHTML = '<span class="text-danger small">No se pudieron cargar los médicos. Intentá nuevamente.</span>';
             }
         });
 
         selectMedico.on('change', async function (medicoId) { //se ejecuta cuando el paciente elige a un medico
+            const pedido = ++pedidoHorarios;
             resetearFechaYHorarios(); //limpiamos todo
 
             const especialidadId = selectEspecialidad.getValue(); //revisamos que medico y especialidad sean seleccionados, sino cortamos
@@ -181,13 +193,17 @@ document.addEventListener('DOMContentLoaded', function () { //esperamos a que el
             try {
                 const response = await fetch(`/turnos/ajax/disponibilidad/${medicoId}?especialidad=${encodeURIComponent(especialidadId)}`);
                 if (!response.ok) throw new Error('Error al obtener la disponibilidad');
-                disponibilidadActual = await response.json();
+                const disponibilidad = await response.json();
+                if (pedido !== pedidoHorarios) return;
+                disponibilidadActual = disponibilidad;
 
                 //habilitamos en flat pickr las fechas que vinieron como claves del objeto
                 flatPickr.set('enable', Object.keys(disponibilidadActual));
                 fechaInput.disabled = false;
+                flatPickr.altInput.disabled = false;
                 contenedorHorarios.innerHTML = '<span class="text-muted small">Seleccioná un día en el calendario.</span>';
             } catch (error) { //catch por si hay un error en el servidor o algo
+                if (pedido !== pedidoHorarios) return;
                 console.error("Error AJAX:", error);
                 contenedorHorarios.innerHTML = '<span class="text-danger small">No se pudo cargar la disponibilidad. Intentá nuevamente.</span>';
             }

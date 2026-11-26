@@ -108,7 +108,7 @@ class TurnoController extends Controller
     }
 
     /**
-     * 7. DELETE: el paciente cancela con al menos 48 horas de anticipacion.
+     * 7. DELETE: el paciente cancela con mas de 48 horas de anticipacion.
      * El medico asignado puede cancelar sin ese limite.
      */
     public function delete($id)
@@ -128,7 +128,7 @@ class TurnoController extends Controller
 
         if ($user->rol === 'paciente' && !$turno->puedeCancelarPorPaciente()) {
             return back()->withErrors([
-                'turno' => 'Los pacientes deben cancelar con al menos 48 horas de anticipacion.',
+                'turno' => 'Los pacientes deben cancelar con mas de 48 horas de anticipacion.',
             ]);
         }
 
@@ -192,7 +192,7 @@ class TurnoController extends Controller
             return response()->json(['message' => 'La especialidad no tiene una duracion valida.'], 422);
         }
 
-        $resultado = Turno::horariosDisponibles($medico, $especialidad);
+        $resultado = Turno::horariosDisponibles($medico, $especialidad, $request->user()->paciente->id);
         return response()->json($resultado);
     }
 

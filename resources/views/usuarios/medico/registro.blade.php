@@ -4,7 +4,7 @@
         <div class="card-body p-4">
 
             <div class="text-center mb-4">
-                <h1 class="h3 fw-bold">Nombre Clínica</h1>
+                <h1 class="h3 fw-bold">{{ config('app.name') }}</h1>
                 <h5 class="text-muted">Crear cuenta</h5>
                 <h6 class="text-muted fst-italic">-Profesional-</h6>
 
@@ -129,8 +129,8 @@
                 <div class="mb-3">
                     <label for="password" class="form-label">Contraseña</label>
                     <input type="password" name="password" class="form-control" id="password"
-                        pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,12}"
-                        title="Debe contener al menos un número, una letra mayúscula, una minúscula, y entre 8 y 12 caracteres."
+                        minlength="8"
+                        title="Debe tener al menos 8 caracteres."
                         placeholder="••••••••••" required>
                 </div>
 

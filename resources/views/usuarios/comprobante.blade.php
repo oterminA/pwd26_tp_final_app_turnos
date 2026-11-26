@@ -31,8 +31,10 @@
                 <td>{{ $turno->paciente->dni }}</td>
             </tr>
             <tr>
-                <td class="etiqueta">Obra social:</td>
-                <td>{{ $turno->paciente->obra_social ?? 'Particular' }}</td>
+                <td class="etiqueta">Cobertura:</td>
+                <td>{{ $turno->medico->aceptaObraSocial($turno->paciente->obra_social)
+                    ? config('administracion.obras_sociales.' . $turno->paciente->obra_social, $turno->paciente->obra_social)
+                    : 'Particular' }}</td>
             </tr>
             <tr>
                 <td class="etiqueta">Especialidad:</td>

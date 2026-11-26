@@ -26,9 +26,14 @@ class Turno extends Model
         'hora_inicio' => 'datetime',
     ];
 
-    public static function proximosPorMedico($medicoId, Carbon $hoy, Carbon $limite)
+    public static function proximosPorMedico($medicoId, Carbon $hoy, Carbon $limite, $pacienteId = null)
     {
-        return self::where('medico_id', $medicoId)
+        return self::where(function ($query) use ($medicoId, $pacienteId) {
+            $query->where('medico_id', $medicoId);
+            if ($pacienteId !== null) {
+                $query->orWhere('paciente_id', $pacienteId);
+            }
+        })
             ->whereDate('fecha', '>=', $hoy->toDateString())
             ->whereDate('fecha', '<=', $limite->toDateString())
             ->where('estado', '!=', 'cancelado')
@@ -53,6 +58,7 @@ class Turno extends Model
     public static function reservarSiDisponible($medicoId, Especialidad $especialidad, Carbon $inicio, Carbon $fin, $pacienteId): self
     {
         return DB::transaction(function () use ($medicoId, $especialidad, $inicio, $fin, $pacienteId) {
+            Paciente::whereKey($pacienteId)->lockForUpdate()->firstOrFail();
             $medico = Medico::whereKey($medicoId)->lockForUpdate()->firstOrFail();
 
             if (!$medico->especialidades()->where('especialidades.id', $especialidad->id)->exists()) {
@@ -73,7 +79,17 @@ class Turno extends Model
                 ]);
             }
 
-            $horarios = self::horariosDisponibles($medico, $especialidad);
+            if (self::where('paciente_id', $pacienteId)
+                ->whereDate('fecha', $inicio->toDateString())
+                ->whereRaw('SUBSTR(hora_inicio, -8) < ?', [$fin->format('H:i:s')])
+                ->whereRaw('SUBSTR(hora_fin, -8) > ?', [$inicio->format('H:i:s')])
+                ->where('estado', '!=', 'cancelado')->exists()) {
+                throw ValidationException::withMessages([
+                    'fecha_hora' => 'Ya tenes otro turno en ese horario.',
+                ]);
+            }
+
+            $horarios = self::horariosDisponibles($medico, $especialidad, $pacienteId);
             if ($inicio->format('s') !== '00'
                 || !$fin->eq($inicio->copy()->addMinutes((int) $especialidad->duracion_turno))
                 || !in_array($inicio->format('H:i'), $horarios[$inicio->toDateString()] ?? [], true)) {
@@ -95,7 +111,7 @@ class Turno extends Model
         });
     }
 
-    public static function horariosDisponibles(Medico $medico, Especialidad $especialidad): array
+    public static function horariosDisponibles(Medico $medico, Especialidad $especialidad, $pacienteId = null): array
     {
         $duracion = (int) $especialidad->duracion_turno;
         if ($duracion < 1 || $medico->trashed() || $especialidad->trashed()) {
@@ -103,7 +119,7 @@ class Turno extends Model
         }
         $hoy = Carbon::now();
         $limite = $hoy->copy()->addDays(30);
-        $turnosPorFecha = self::proximosPorMedico($medico->id, $hoy, $limite);
+        $turnosPorFecha = self::proximosPorMedico($medico->id, $hoy, $limite, $pacienteId);
         $medico->loadMissing('disponibilidades');
         $resultado = [];
 
@@ -176,7 +192,7 @@ class Turno extends Model
         $fechaHoraTurno = Carbon::parse(
             $this->fecha->toDateString() . ' ' . Carbon::parse($this->hora_inicio)->format('H:i:s')
         );
-        return Carbon::now()->addHours(48)->lte($fechaHoraTurno);
+        return Carbon::now()->addHours(48)->lt($fechaHoraTurno);
     }
 
     public function cancelar(): void

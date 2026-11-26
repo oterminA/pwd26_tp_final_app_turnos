@@ -119,8 +119,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (!esEdicion && password === '') {
                     errores.push("Por favor ingresá una contraseña.");
                 } else if (password !== '') {
-                    if (password.length < 8 || password.length > 12) {
-                        errores.push("La contraseña debe tener entre 8 y 12 caracteres.");
+                    if (password.length < 8) {
+                        errores.push("La contraseña debe tener al menos 8 caracteres.");
                     }
                     if (passwordConfirmInput && password !== passwordConfirmInput.value) {
                         errores.push("Las contraseñas no coinciden.");

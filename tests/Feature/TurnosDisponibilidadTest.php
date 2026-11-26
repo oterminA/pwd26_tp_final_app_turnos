@@ -254,4 +254,13 @@ class TurnosDisponibilidadTest extends TestCase
             ->assertSessionHasErrors('estado');
         $this->assertDatabaseHas('turnos', ['id'=>$turno->id, 'estado'=>'pendiente']);
     }
+    public function test_paciente_necesita_mas_de_48_horas_para_cancelar(): void
+    {
+        $this->franja($this->cardiologia);
+        $turno = $this->reservar($this->cardiologia, '09:00', 30);
+        Carbon::setTestNow('2026-12-05 09:00:00');
+        $this->assertFalse($turno->puedeCancelarPorPaciente());
+        Carbon::setTestNow('2026-12-05 08:59:59');
+        $this->assertTrue($turno->puedeCancelarPorPaciente());
+    }
 }
