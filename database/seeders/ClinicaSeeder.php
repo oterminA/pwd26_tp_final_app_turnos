@@ -121,8 +121,8 @@ class ClinicaSeeder extends Seeder
                     $horarios = Turno::horariosDisponibles($medico, $principal);
                     $inicio = null;
                     foreach ($horarios as $fecha => $horas) {
-                        if ($fecha >= Carbon::today()->addDays(3)->toDateString()) {
-                            $inicio = Carbon::parse($fecha . ' ' . $horas[0]);
+                       if ($fecha >= Carbon::today()->addDays(3)->toDateString()) {
+                            $inicio = Carbon::parse($fecha . ' ' . ($horas[$i] ?? $horas[0]));
                             break;
                         }
                     }
@@ -130,12 +130,12 @@ class ClinicaSeeder extends Seeder
                         throw new RuntimeException('No hay horarios disponibles para los turnos demo.');
                     }
                     $turno = Turno::reservarSiDisponible(
-                        $medico->id,
-                        $principal,
-                        $inicio,
-                        $inicio->copy()->addMinutes($principal->duracion_turno),
-                        $pacientes[($i + $j + 2) % count($pacientes)]->id
-                    );
+                                $medico->id,
+                                $principal,
+                                $inicio,
+                                $inicio->copy()->addMinutes($principal->duracion_turno),
+                                 $pacientes[($i * 2 + $j - 1) % count($pacientes)]->id
+                            );
                     $turno->update(['codigo' => $codigo]);
                 }
             }
