@@ -46,9 +46,15 @@
                             <div class="alert alert-danger error d-none" role="alert"></div>
 
                             <div class="mb-3">
-                                <label for="name" class="form-label fw-semibold">Nombre y apellido</label>
-                                <input type="text" class="form-control" id="name" name="name"
-                                    value="{{ old('name', Auth::user()->name) }}" required>
+                                <label for="nombre" class="form-label fw-semibold">Nombre</label>
+                                <input type="text" class="form-control" id="nombre" name="nombre"
+                                    value="{{ old('nombre', $user->nombre) }}" maxlength="120" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="apellido" class="form-label fw-semibold">Apellido</label>
+                                <input type="text" class="form-control" id="apellido" name="apellido"
+                                    value="{{ old('apellido', $user->apellido) }}" maxlength="120" required>
                             </div>
 
                             <div class="mb-3">

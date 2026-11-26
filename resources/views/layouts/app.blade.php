@@ -21,7 +21,7 @@
 
     @stack('styles')
 
-    <title>{{ $title ?? 'Nombre Clinica' }}</title>
+    <title>{{ isset($title) ? $title . ' - ' . config('app.name') : config('app.name') }}</title>
 </head>
 
 <body class="bg-light">
@@ -33,7 +33,7 @@
                 {{-- logo de la clinica --}}
                 <a class="navbar-brand fw-bold"
                     href="{{ Auth::check() && Auth::user()->isAdmin() ? route('admin.dashboard') : url('/') }}">
-                    <span>CLÍNICA MÉDICA</span>
+                    <span>{{ config('app.name') }}</span>
                 </a>
 
                 {{-- boton para menu en celular --}}
@@ -166,7 +166,7 @@
     <footer class="py-4 mt-5 text-white">
         <div class="container">
             <p class="small mb-0">
-                TP Final Integrador - PWD 2026<br>
+                {{ config('app.name') }} - TP Final Integrador - PWD 2026<br>
                 <i>Hernández · Villagran · Otermin</i>
             </p>
         </div>

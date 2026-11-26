@@ -4,7 +4,7 @@
         <div class="card-body p-4">
 
             <div class="text-center mb-4">
-                <h1 class="h3 fw-bold">Nombre Clínica</h1>
+                <h1 class="h3 fw-bold">{{ config('app.name') }}</h1>
                 <h5 class="text-muted">Crear cuenta</h5>
                 <h6 class="text-muted fst-italic">-Paciente-</h6>
 
@@ -57,16 +57,9 @@
                     <label for="obra_social" class="form-label">Obra social</label>
                     <select class="form-select" id="obra_social" name="obra_social" required>
                         <option value="" disabled @selected(!old('obra_social'))>Seleccione una opción</option>
-                        <option value="particular" @selected(old('obra_social') == 'particular')>Particular</option>
-                        <option value="ipross" @selected(old('obra_social') == 'ipross')>IPROSS</option>
-                        <option value="issn" @selected(old('obra_social') == 'issn')>ISSN</option>
-                        <option value="osecac" @selected(old('obra_social') == 'osecac')>OSECAC</option>
-                        <option value="ospe" @selected(old('obra_social') == 'ospe')>OSPE / Construir Salud</option>
-                        <option value="osde" @selected(old('obra_social') == 'osde')>OSDE</option>
-                        <option value="swiss" @selected(old('obra_social') == 'swiss')>Swiss Medical</option>
-                        <option value="sancor" @selected(old('obra_social') == 'sancor')>Sancor Salud</option>
-                        <option value="medife" @selected(old('obra_social') == 'medife')>Medifé</option>
-                        <option value="galeno" @selected(old('obra_social') == 'galeno')>Galeno</option>
+                        @foreach (config('administracion.obras_sociales') as $codigo => $nombre)
+                            <option value="{{ $codigo }}" @selected(old('obra_social') == $codigo)>{{ $nombre }}</option>
+                        @endforeach
                     </select>
                 </div>
 
