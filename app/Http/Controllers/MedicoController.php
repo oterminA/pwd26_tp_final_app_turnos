@@ -112,11 +112,12 @@ class MedicoController extends Controller
     /**
      * funcion para guardar los datos editados del medico
      */
- public function update(Request $request)
+    public function update(Request $request)
     {
         $user = Auth::user();
         $medico = $user->medico;
 
+        //usamos la regla prohibited que valida que un campo no esté presente o esté vacío en los datos enviados en la solicitud HTTP, laravel da error si se reciben esos campos
         $datosValidados = $request->validate([
             'nombre'           => 'required|string|max:120',
             'apellido'         => 'required|string|max:120',
@@ -130,6 +131,10 @@ class MedicoController extends Controller
             'obras_sociales.*' => ['required', 'string', 'distinct', Rule::in(array_keys(config('administracion.obras_sociales')))],
             'especialidades' => 'required|array|min:1',
             'especialidades.*' => ['integer', 'distinct', Rule::exists('especialidades', 'id')->whereNull('deleted_at')],
+        ], [
+            'tipoMat.prohibited' => 'No tenés permiso para modificar la matrícula desde este formulario.',
+            'numMat.prohibited' => 'No tenés permiso para modificar la matrícula desde este formulario.',
+            'matricula.prohibited' => 'No tenés permiso para modificar la matrícula desde este formulario.',
         ]);
 
         $medico->validarEspecialidades($datosValidados['especialidades']);

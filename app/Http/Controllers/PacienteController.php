@@ -105,8 +105,9 @@ class PacienteController extends Controller
     {
         $user = auth()->user();
         $paciente = $user->paciente;
+        $obrasSeleccionadas = $paciente ? $paciente->obrasSocialesAsignadas() : [];
 
-        return view('usuarios.paciente.cuenta', compact('user', 'paciente'));
+        return view('usuarios.paciente.cuenta', compact('user', 'paciente', 'obrasSeleccionadas'));
     }
 
     /**

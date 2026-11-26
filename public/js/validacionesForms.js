@@ -171,10 +171,12 @@ document.addEventListener("DOMContentLoaded", () => {
             //si hay errores en el array se frena el envio del formulario y se muestra el mensaje
             if (errores.length > 0) {
                 event.preventDefault();
-                msjError.innerHTML = errores.join('<br>'); //se le insertan los errores al campo de error en los formularios
-                msjError.classList.remove('d-none');
-            } else {
-                msjError.innerHTML = ""; // si está todo bien se limpia el campo
+                if (msjError) { //para que no de error en los scripts donde no se reciben los msjs de validacion de js
+                    msjError.innerHTML = errores.join('<br>');
+                    msjError.classList.remove('d-none');
+                }
+            } else if (msjError) {
+                msjError.innerHTML = "";
                 msjError.classList.add('d-none');
             }
         });

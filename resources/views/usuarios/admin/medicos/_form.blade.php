@@ -52,12 +52,12 @@
         <div class="col-md-6 mb-3">
             <label for="nombre" class="form-label">Nombre</label>
             <input class="form-control" type="text" id="nombre" name="nombre"
-                value="{{ old('nombre', $nombre) }}" required maxlength="80">
+                value="{{ old('nombre', $medico->nombre) }}" required maxlength="80">
         </div>
         <div class="col-md-6 mb-3">
             <label for="apellido" class="form-label">Apellido</label>
             <input class="form-control" type="text" id="apellido" name="apellido"
-                value="{{ old('apellido', $apellido) }}" required maxlength="80">
+                value="{{ old('apellido', $medico->apellido) }}" required maxlength="80">
         </div>
     </div>
 

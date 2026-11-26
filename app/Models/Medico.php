@@ -152,8 +152,10 @@ class Medico extends Model
             $this->user->update($datosUser);
             $datosMedico = [];
             if (isset($datos['obras_sociales'])) {
-                $datosMedico['obras_sociales'] = $datos['obras_sociales'];
-                $datosMedico['obra_social'] = $datos['obras_sociales'][0];
+                // Guardamos todas las coberturas y mantenemos el campo anterior.
+                $listaObras = array_values(array_filter($datos['obras_sociales']));
+                $datosMedico['obras_sociales'] = $listaObras;
+                $datosMedico['obra_social'] = $listaObras[0] ?? null;
             }
             if (!empty($datos['imagen'])) {
                 $datosMedico['imagen'] = $datos['imagen'];

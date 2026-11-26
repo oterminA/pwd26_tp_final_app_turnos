@@ -49,13 +49,13 @@
                                 <div class="col-md-6">
                                     <label for="nombre" class="form-label">Nombre</label>
                                     <input type="text" name="nombre" id="nombre" class="form-control"
-                                         value="{{ old('nombre', $paciente->nombre) }}" minlength="3" maxlength="30"
+                                        value="{{ old('nombre', $paciente->nombre) }}" minlength="3" maxlength="30"
                                         required>
                                 </div>
                                 <div class="col-md-6 mt-3 mt-md-0">
                                     <label for="apellido" class="form-label">Apellido</label>
                                     <input type="text" name="apellido" id="apellido" class="form-control"
-                                         value="{{ old('apellido', $paciente->apellido) }}" minlength="3" maxlength="30"
+                                        value="{{ old('apellido', $paciente->apellido) }}" minlength="3" maxlength="30"
                                         required>
                                 </div>
                             </div>
@@ -85,14 +85,24 @@
                                         value="{{ old('telefono', $paciente->telefono) }}" required>
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    {{-- lleva tom select --}}
+
+
                                     <label for="obra_social" class="form-label fw-semibold">Obra social</label>
-                                    <select class="form-select" id="obra_social" name="obra_social" required>
-                                        <option value="" disabled>Seleccione una opción</option>
-                                        @foreach (config('administracion.obras_sociales') as $codigo => $nombre)
-                            <option value="{{ $codigo }}" @selected(old('obra_social', $paciente->obra_social) == $codigo)>{{ $nombre }}</option>
-                        @endforeach
+                                    @php
+                                        $obraActual = old(
+                                            'obra_social',
+                                            $obrasSeleccionadas[0] ?? $paciente->obra_social,
+                                        );
+                                    @endphp
+                                    <select class="form-select" name="obra_social" id="obra_social">
+                                        <option value="" @selected(!$obraActual)>Sin obra social</option>
+                                        @foreach (config('administracion.obras_sociales', []) as $codigo => $nombreObra)
+                                            <option value="{{ $codigo }}" @selected($obraActual == $codigo)>
+                                                {{ $nombreObra }}
+                                            </option>
+                                        @endforeach
                                     </select>
+
                                 </div>
                             </div>
 

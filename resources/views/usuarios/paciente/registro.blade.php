@@ -41,8 +41,8 @@
 
                 <div class="mb-3">
                     <label for="fechaNac" class="form-label">Fecha de nacimiento</label>
-                    <input type="date" name="fecha_nacimiento" id="fechaNac" class="form-control" value="{{ old('fechaNac') }}"
-                        required>
+                    <input type="date" name="fecha_nacimiento" id="fechaNac" class="form-control"
+                        value="{{ old('fecha_nacimiento') }}" required>
                 </div>
 
                 <div class="mb-3">
@@ -61,12 +61,13 @@
                             <option value="{{ $codigo }}" @selected(old('obra_social') == $codigo)>{{ $nombre }}</option>
                         @endforeach
                     </select>
+                    <small class="text-muted">Seleccioná tu obra social o Particular.</small>
                 </div>
 
                 <div class="mb-3">
                     <label for="tel" class="form-label">Teléfono</label>
                     <input type="tel" name="telefono" id="tel" class="form-control" placeholder="Ej: 2991234567"
-                        value="{{ old('tel') }}" pattern="[0-9]{8,15}"
+                        value="{{ old('telefono') }}" pattern="[0-9]{8,15}"
                         title="Ingresá solo números (entre 8 y 15 dígitos)" required>
                 </div>
 

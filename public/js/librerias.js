@@ -17,12 +17,12 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     const obraSocialEl = document.getElementById('obra_social');
-    if (obraSocialEl) {
+    if (obraSocialEl && !obraSocialEl.tomselect) {
         new TomSelect(obraSocialEl, configSelectEstatico);
     }
 
     const obrasSocialesEl = document.getElementById('obras_sociales');
-    if (obrasSocialesEl) {
+    if (obrasSocialesEl && !obrasSocialesEl.tomselect) {
         new TomSelect(obrasSocialesEl, {
             ...configSelectEstatico,
             maxItems: null,
@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     const tipoMatEl = document.getElementById('tipoMat');
-    if (tipoMatEl) {
+    if (tipoMatEl && !tipoMatEl.tomselect) {
         new TomSelect(tipoMatEl, configSelectEstatico);
     }
 
