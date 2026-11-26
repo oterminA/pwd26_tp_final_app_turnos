@@ -15,7 +15,8 @@ class EspecialidadController extends Controller
             ->orderBy('nombre')
             ->get();
 
-        return view('usuarios.admin.especialidades.index', compact('especialidades'));
+        $activas = $especialidades->filter(fn ($e) => !$e->trashed())->count();
+        return view('usuarios.admin.especialidades.index', compact('especialidades', 'activas'));
     }
 
     // muestra el formulario para agregar una especialidad
@@ -85,30 +86,7 @@ class EspecialidadController extends Controller
             'estado' => 'required|in:activa,inactiva',
         ]);
 
-        // controla que no tenga turnos antes de desactivarla
-        if ($datos['estado'] == 'inactiva' && !$especialidad->trashed()) {
-            if ($especialidad->turnos()->exists()) {
-                return redirect()->back()
-                    ->withInput()
-                    ->with('error', 'No se puede desactivar la especialidad porque tiene turnos asociados.');
-            }
-        }
-
-        // actualiza los datos
-        $especialidad->nombre = $datos['nombre'];
-        $especialidad->descripcion = $datos['descripcion'] ?? null;
-        $especialidad->duracion_turno = $datos['duracion_turno'];
-        $especialidad->save();
-
-        // desactiva la especialidad
-        if ($datos['estado'] == 'inactiva' && !$especialidad->trashed()) {
-            $especialidad->delete();
-        }
-
-        // reactiva la especialidad
-        if ($datos['estado'] == 'activa' && $especialidad->trashed()) {
-            $especialidad->restore();
-        }
+        $especialidad->actualizarDatos($datos);
 
         Log::info('Admin modifico especialidad', ['admin_id' => auth()->id(), 'especialidad_id' => $especialidad->id, 'estado' => $datos['estado']]);
         return redirect()->route('admin.especialidades.index')
@@ -121,9 +99,9 @@ class EspecialidadController extends Controller
         $especialidad = Especialidad::findOrFail($id);
 
         // verifica si tiene turnos asociados
-        if ($especialidad->turnos()->exists()) {
+        if (!$especialidad->puedeDesactivarse()) {
             return redirect()->route('admin.especialidades.index')
-                ->with('error', 'No se puede desactivar la especialidad porque tiene turnos asociados.');
+                ->with('error', 'No se puede desactivar la especialidad porque tiene turnos pendientes.');
         }
 
         // realiza el borrado logico

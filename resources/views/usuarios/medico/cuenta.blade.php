@@ -94,31 +94,11 @@
 
 
 
-                            {{-- <div class="mb-3">
-                                <label for="tipoMat" class="form-label">Tipo de matricula</label>
-                                <select class="form-select" name="tipoMat" id="tipoMat" required>
-                                    <option value="">Seleccionar</option>
-                                    @foreach (config('administracion.tipos_matricula') as $codigo => $provincia)
-                                        <option value="{{ $codigo }}" @selected(old('tipoMat', $medico->tipoMat ?? '') == $codigo)>
-                                            {{ $provincia }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
 
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="numMat" class="form-label">Numero de matricula</label>
-                                    <input class="form-control" type="text" name="numMat" id="numMat" maxlength="10"
-                                        pattern="[0-9]{1,10}" inputmode="numeric"
-                                        title="Ingresa entre 1 y 10 digitos, sin puntos ni guiones"
-                                        value="{{ old('numMat', $medico->numMat ?? '') }}" required>
-                                </div>
-                                 --}}
                                 <div class="mb-3">
                                     {{-- lleva tom select --}}
                                     @php
-                                        $seleccionadas = array_map(
+                                        $coberturasSeleccionadas = array_map(
                                             'strval',
                                             (array) old('obras_sociales', $obrasSeleccionadas ?? []),
                                         );
@@ -127,7 +107,7 @@
                                     <label for="obras_sociales" class="form-label">Obras sociales que acepta</label>
                                     <select class="form-select" name="obras_sociales[]" id="obras_sociales" multiple>
                                         @foreach (config('administracion.obras_sociales', []) as $codigo => $nombreObra)
-                                            <option value="{{ $codigo }}" @selected(in_array((string) $codigo, $seleccionadas, true))>
+                                            <option value="{{ $codigo }}" @selected(in_array((string) $codigo, $coberturasSeleccionadas, true))>
                                                 {{ $nombreObra }}
                                             </option>
                                         @endforeach

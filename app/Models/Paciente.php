@@ -33,7 +33,7 @@ class Paciente extends Model
     {
         return DB::transaction(function () use ($datos) {
             $user = User::create([
-                'name'     => trim($datos['nombre'] . ' ' . $datos['apellido']),
+                'name'     => trim($datos['nombre']) . ' | ' . trim($datos['apellido']),
                 'email'    => $datos['email'],
                 'password' => $datos['password'],
                 'rol'      => 'paciente',
@@ -44,9 +44,6 @@ class Paciente extends Model
                 'telefono'         => $datos['telefono'],
                 'obra_social'      => $datos['obra_social'] ?? null,
             ]);
-            if ($user->rol === 'paciente') {
-                return $user;
-            }
             return $user;
         });
     }
@@ -74,7 +71,7 @@ $datosUser = [
                 'dni'              => $datos['dni'],
                 'fecha_nacimiento' => $datos['fecha_nacimiento'],
                 'telefono'         => $datos['telefono'],
-                'obra_social'      => $datos['obra_social'],
+                'obra_social'      => $datos['obra_social'] ?? null,
             ]);
         });
     }
@@ -85,13 +82,7 @@ $datosUser = [
      */
     public function getNombreAttribute(): string
     {
-        $name = trim($this->user?->name ?? '');
-        if (str_contains($name, '|')) {
-            return trim(explode('|', $name, 2)[0]);
-        }
-
-        $partes = preg_split('/\s+/', $name);
-        return $partes[0] ?? '';
+        return $this->user?->nombre ?? '';
     }
 
     /**
@@ -99,13 +90,6 @@ $datosUser = [
      */
     public function getApellidoAttribute(): string
     {
-        $name = trim($this->user?->name ?? '');
-        if (str_contains($name, '|')) {
-            return trim(explode('|', $name, 2)[1] ?? '');
-        }
-
-        $partes = preg_split('/\s+/', $name);
-        array_shift($partes);
-        return implode(' ', $partes);
+        return $this->user?->apellido ?? '';
     }
 }

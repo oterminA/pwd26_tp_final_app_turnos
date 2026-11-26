@@ -13,10 +13,8 @@
 @endif
 
 @php
-    // Los usuarios actuales guardan nombre y apellido juntos en users.name.
-    $partes = isset($medico) ? explode(' ', trim($medico->user->name), 2) : ['', ''];
-    $nombre = $partes[0];
-    $apellido = $partes[1] ?? '';
+    $nombre = isset($medico) ? $medico->nombre : '';
+    $apellido = isset($medico) ? $medico->apellido : '';
     $seleccionadas = old('especialidades', isset($medico) ? $medico->especialidades->pluck('id')->all() : []);
     $obrasSeleccionadas = old('obras_sociales', isset($medico) ? $medico->obrasSocialesAsignadas() : []);
 @endphp

@@ -1,9 +1,6 @@
 @extends('layouts.app')
 @push('styles')<link rel="stylesheet" href="{{ asset('css/admin-gestion.css') }}">@endpush
 @section('content')
-@php
-    $activas = $especialidades->filter(fn($e) => !$e->trashed())->count();
-@endphp
 <div class="container py-4 py-lg-5 admin-gestion">
     <div class="gestion-header mb-4">
         <div><div class="gestion-eyebrow">ADMINISTRACIÓN / ESPECIALIDADES</div><h1>Especialidades</h1><p>Organizá las áreas de atención y consultá los médicos asociados.</p></div>

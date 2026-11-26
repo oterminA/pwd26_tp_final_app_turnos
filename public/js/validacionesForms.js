@@ -2,10 +2,10 @@
 document.addEventListener("DOMContentLoaded", () => {
     const form = document.querySelector('main form'); //esto hace referencia al form de los login/registro/cuenta, no a algun form que pueda haber en los layout o algo asi
 
-    if (form) {//esto es para asegurarnos de que existe el elemento form y se ejecute solo si existe, para no generar problemas en los scripts donde pueden no haber forms ya que este script está en el layout principal
+    if (form && form.method.toLowerCase() !== "get" && form.querySelector(".error")) {//esto es para asegurarnos de que existe el elemento form y se ejecute solo si existe, para no generar problemas en los scripts donde pueden no haber forms ya que este script está en el layout principal
         form.addEventListener('submit', function (event) {
             let errores = []; //arreglo de errores para ir colocandolos juntos en el formulario, en la parte de arriba
-            let msjError = document.querySelector('.error'); //espacio vacio donde se inserta el mensaje de error arriba en el formulario
+            let msjError = form.querySelector('.error'); //espacio vacio donde se inserta el mensaje de error arriba en el formulario
             const esEdicion = Boolean(form.querySelector('input[name="_method"][value="PUT"]')); //esto es para revisar despues si la contraseña tambien viene de formulario de cuenta donde es opcional cambiarla, para que no genere problemas si es que no se cambia ya que tienen el mismo id
 
 

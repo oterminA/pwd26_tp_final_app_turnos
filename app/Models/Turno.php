@@ -189,6 +189,90 @@ class Turno extends Model
         $this->update(['estado' => $estado]);
     }
 
+    // Turnos pendientes que todavia no terminaron.
+    public function scopePendientesVigentes($query)
+    {
+        $ahora = now();
+        return $query->where('estado', 'pendiente')->where(function ($q) use ($ahora) {
+            $q->whereDate('fecha', '>', $ahora->toDateString())
+                ->orWhere(function ($q) use ($ahora) {
+                    $q->whereDate('fecha', $ahora->toDateString())
+                        ->whereRaw('SUBSTR(hora_fin, -8) > ?', [$ahora->format('H:i:s')]);
+                });
+        });
+    }
+
+    public static function resumenMensual($mes, Carbon $inicio, Carbon $fin, $medicoId): array
+    {
+        $base = Turno::query()->whereDate('fecha', '>=', $inicio->toDateString())
+            ->whereDate('fecha', '<=', $fin->toDateString());
+        if ($medicoId) {
+            $base->where('medico_id', $medicoId);
+        }
+
+        $total = (clone $base)->count();
+        $finalizados = (clone $base)->where('estado', 'finalizado')->count();
+        $cancelados = (clone $base)->where('estado', 'cancelado')->count();
+        $pendientes = (clone $base)->where('estado', 'pendiente')->count();
+        $ausentes = (clone $base)->where('estado', 'ausente')->count();
+        $pacientesUnicos = (clone $base)->distinct()->count('paciente_id');
+        $tasaCancelacion = $total ? round($cancelados / $total * 100, 1) : 0;
+
+        $porDia = (clone $base)
+            ->selectRaw('DATE(fecha) AS dia, COUNT(*) AS total')
+            ->groupByRaw('DATE(fecha)')->orderBy('dia')->pluck('total', 'dia');
+        $dias = [];
+        $cantidadDia = [];
+        for ($dia = $inicio->copy(); $dia->lte($fin); $dia->addDay()) {
+            $dias[] = $dia->format('d');
+            $cantidadDia[] = (int) ($porDia[$dia->toDateString()] ?? 0);
+        }
+
+        $porEspecialidad = (clone $base)
+            ->join('especialidades', 'turnos.especialidad_id', '=', 'especialidades.id')
+            ->select('especialidades.nombre', DB::raw('COUNT(*) AS total'))
+            ->groupBy('especialidades.id', 'especialidades.nombre')
+            ->orderByDesc('total')->limit(6)->get();
+
+        $porMedico = (clone $base)
+            ->join('medicos', 'turnos.medico_id', '=', 'medicos.id')
+            ->join('users', 'medicos.user_id', '=', 'users.id')
+            ->select('medicos.id', DB::raw("REPLACE(users.name, ' | ', ' ') AS name"), DB::raw('COUNT(*) AS total'))
+            ->groupBy('medicos.id', 'users.name')
+            ->orderByDesc('total')->limit(6)->get();
+
+        $proximos = Turno::with(['medico.user', 'especialidad'])
+            ->whereDate('fecha', '>=', today())
+            ->whereNotIn('estado', ['cancelado', 'finalizado', 'ausente'])
+            ->when($medicoId, fn ($query) => $query->where('medico_id', $medicoId))
+            ->orderBy('fecha')->orderBy('hora_inicio')->limit(8)->get();
+
+        $medicos = Medico::withTrashed()->with('user')->get()
+            ->sortBy(fn ($medico) => $medico->user->nombre_visible ?? '')->values();
+
+        return [
+            'mes' => $mes,
+            'medicoId' => $medicoId,
+            'medicos' => $medicos,
+            'total' => $total,
+            'finalizados' => $finalizados,
+            'cancelados' => $cancelados,
+            'pendientes' => $pendientes,
+            'estadosGrafico' => [$pendientes, $finalizados, $cancelados, $ausentes],
+            'ausentes' => $ausentes,
+            'pacientesUnicos' => $pacientesUnicos,
+            'tasaCancelacion' => $tasaCancelacion,
+            'medicosActivos' => Medico::count(),
+            'especialidadesActivas' => Especialidad::count(),
+            'pacientesRegistrados' => Paciente::count(),
+            'dias' => $dias,
+            'cantidadDia' => $cantidadDia,
+            'porEspecialidad' => $porEspecialidad,
+            'porMedico' => $porMedico,
+            'proximos' => $proximos,
+        ];
+    }
+
     public function paciente()
     {
         return $this->belongsTo(Paciente::class);

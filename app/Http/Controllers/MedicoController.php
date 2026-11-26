@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Str;
 
 class MedicoController extends Controller
 {
@@ -118,46 +120,39 @@ class MedicoController extends Controller
         $datosValidados = $request->validate([
             'nombre'           => 'required|string|max:120',
             'apellido'         => 'required|string|max:120',
-            'email'            => 'required|email|unique:users,email,' . $user->id,
+            'email'            => 'required|email|max:255|unique:users,email,' . $user->id,
             'password'         => 'nullable|min:8|confirmed',
-            'tipoMat'          => 'nullable|string', //esto quedó en nullable por si decidimos que el medico no tiene que modificar esos datos
-            'numMat'           => 'nullable|string|max:10',//esto quedó en nullable por si decidimos que el medico no tiene que modificar esos datos
-            'imagen'           => 'nullable|mimes:jpg,jpeg,png,webp|max:2048',
-            'obras_sociales'   => 'nullable|array',
-            'obras_sociales.*' => 'string',
-            'especialidades'   => 'nullable|array',
-            'especialidades.*' => 'integer|exists:especialidades,id',
+            'tipoMat' => 'prohibited',
+            'numMat' => 'prohibited',
+            'matricula' => 'prohibited',
+            'imagen' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'obras_sociales' => 'required|array|min:1',
+            'obras_sociales.*' => ['required', 'string', 'distinct', Rule::in(array_keys(config('administracion.obras_sociales')))],
+            'especialidades' => 'required|array|min:1',
+            'especialidades.*' => ['integer', 'distinct', Rule::exists('especialidades', 'id')->whereNull('deleted_at')],
         ]);
 
-        $tipoMat = trim($datosValidados['tipoMat'] ?? '');
-        $numMat  = trim($datosValidados['numMat'] ?? '');
-
-        if ($tipoMat !== '' && $numMat !== '') { //por si el medico no modificó los datos de matricula porque no los pusimos
-            $matricula = strtoupper($tipoMat) . '-' . $numMat;
-
-            $request->merge(['matricula' => $matricula]);
-            $request->validate([
-                'matricula' => 'nullable|string|unique:medicos,matricula,' . $medico->id,
-            ]);
-
-            $datosValidados['matricula'] = $matricula;
-        } else {
-            $datosValidados['matricula'] = $medico->matricula;
-        }
-
+        $medico->validarEspecialidades($datosValidados['especialidades']);
+        $rutaAnterior = $medico->imagen;
+        $rutaNueva = null;
         if ($request->hasFile('imagen')) {
-            if ($medico->imagen && File::exists(public_path($medico->imagen))) {
-                File::delete(public_path($medico->imagen));
-            }
-
+            File::ensureDirectoryExists(public_path('imagenes'));
             $archivo = $request->file('imagen');
-            $nombreArchivo = time() . '_' . $archivo->getClientOriginalName();
-            $archivo->move(public_path('imagenes'), $nombreArchivo);
-
-            $datosValidados['imagen'] = 'imagenes/' . $nombreArchivo;
+            $nombre = Str::uuid() . '.' . $archivo->extension();
+            $archivo->move(public_path('imagenes'), $nombre);
+            $rutaNueva = 'imagenes/' . $nombre;
+            $datosValidados['imagen'] = $rutaNueva;
         }
 
-        $medico->updateDatos($datosValidados);
+        try {
+            $medico->updateDatos($datosValidados);
+        } catch (\Throwable $e) {
+            if ($rutaNueva) File::delete(public_path($rutaNueva));
+            throw $e;
+        }
+        if ($rutaNueva && $rutaAnterior && str_starts_with($rutaAnterior, 'imagenes/')) {
+            File::delete(public_path($rutaAnterior));
+        }
 
         return redirect()->back()->with('success', 'Tus datos fueron actualizados correctamente.');
     }

@@ -27,7 +27,7 @@
                                             </span>
                                         @endforeach
 
-                                        <h5 class="fw-bold text-dark mb-1">{{ $medico->user->name }}</h5>
+                                        <h5 class="fw-bold text-dark mb-1">{{ $medico->user->nombre_visible }}</h5>
                                         <p class="text-muted small mb-3">{{ $medico->matricula }}</p>
                                         {{-- cambiar eso por la combinacion final --}}
                                     </div>

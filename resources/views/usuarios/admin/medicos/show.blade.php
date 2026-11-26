@@ -4,7 +4,7 @@
 @endpush
 @section('content')
     @php
-        $nombre = $medico->user->name ?? 'Profesional';
+        $nombre = $medico->user->nombre_visible ?? 'Profesional';
         $iniciales = collect(preg_split('/\s+/', trim($nombre)))
             ->filter()
             ->take(2)

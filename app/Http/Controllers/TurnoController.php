@@ -14,34 +14,6 @@ use Illuminate\Support\Facades\Gate;
 class TurnoController extends Controller
 {
     /**
-     * 1. INDEX: Lista los turnos del paciente o del médico logueado.
-     */
-    public function index()
-    {
-        $user = auth()->user();
-
-        if ($user->rol === 'paciente' && $user->paciente) {
-            $turnos = $user->paciente->turnos()
-                ->with(['medico.user', 'especialidad'])
-                ->orderBy('fecha', 'desc')
-                ->orderBy('hora_inicio', 'desc')
-                ->get();
-        } elseif ($user->rol === 'medico' && $user->medico) {
-            $turnos = $user->medico->turnos()
-                ->with(['paciente.user', 'especialidad'])
-                ->orderBy('fecha', 'desc')
-                ->orderBy('hora_inicio', 'desc')
-                ->get();
-        } else {
-            $turnos = Turno::with(['paciente.user', 'medico.user', 'especialidad'])
-                ->orderBy('fecha', 'desc')
-                ->get();
-        }
-
-        return view('usuarios.turnos.index', compact('turnos'));
-    }
-
-    /**
      * 2. CREATE: Muestra el formulario de pedido de turno.
      */
     public function create()
@@ -92,17 +64,6 @@ class TurnoController extends Controller
 
         return redirect()->route('usuarios.paciente.panel')
             ->with('success', 'Turno reservado correctamente.');
-    }
-
-    /**
-     * 4. SHOW: Muestra el detalle de un turno puntual (protegido con Policy).
-     */
-    public function show($id)
-    {
-        $turno = Turno::with(['paciente.user', 'medico.user', 'especialidad'])->findOrFail($id);
-        Gate::authorize('view', $turno);
-
-        return view('usuarios.turnos.show', compact('turno'));
     }
 
     /**
