@@ -7,6 +7,7 @@ use App\Models\Especialidad;
 use App\Models\Medico;
 use App\Models\Paciente;
 use App\Models\User;
+use App\Models\Turno;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -124,5 +125,40 @@ class ObrasSocialesTurnosTest extends TestCase
             'fecha' => '2026-12-07 00:00:00',
             'estado' => 'pendiente',
         ]);
+    }
+    private function habilitarMedicos(): void
+    {
+        foreach ([$this->conCobertura, $this->particular] as $medico) {
+            Disponibilidad::create([
+                'medico_id' => $medico->id,
+                'especialidad_id' => $this->especialidad->id,
+                'dia_semana' => 1,
+                'hora_inicio' => '08:00',
+                'hora_fin' => '11:00',
+            ]);
+        }
+    }
+
+    public function test_paciente_no_reserva_turnos_simultaneos_con_distintos_medicos(): void
+    {
+        $this->habilitarMedicos();
+        $this->actingAs($this->usuarioPaciente)->post(route('store.turno'), [
+            'medico' => $this->conCobertura->id,
+            'especialidad' => $this->especialidad->id,
+            'fecha_hora' => '2026-12-07 09:00:00',
+        ])->assertSessionHasNoErrors();
+        $ruta = route('turnos.ajax.disponibilidad', [
+            'medicoId' => $this->particular->id, 'especialidad' => $this->especialidad->id,
+        ]);
+        $horarios = $this->getJson($ruta)->assertOk()->json();
+        $this->assertNotContains('09:00', $horarios['2026-12-07']);
+        $this->assertContains('09:30', $horarios['2026-12-07']);
+        $datos = ['medico' => $this->particular->id, 'especialidad' => $this->especialidad->id];
+        $this->post(route('store.turno'), $datos + ['fecha_hora' => '2026-12-07 09:00:00'])
+            ->assertSessionHasErrors('fecha_hora');
+        $this->assertDatabaseCount('turnos', 1);
+        $this->post(route('store.turno'), $datos + ['fecha_hora' => '2026-12-07 09:30:00'])
+            ->assertSessionHasNoErrors();
+        $this->assertDatabaseCount('turnos', 2);
     }
 }

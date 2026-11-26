@@ -84,12 +84,19 @@ class UserController extends Controller
             'nombre'   => ['required', 'string', 'max:120'],
             'apellido' => ['required', 'string', 'max:120'],
             'email'    => ['required', 'email', 'unique:users,email,' . $user->id],
+            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
         ]);
 
-        $user->update([
+        $datos = [
             'name'  => trim($validados['nombre']) . ' | ' . trim($validados['apellido']),
             'email' => $validados['email'],
-        ]);
+        ];
+
+        if (!empty($validados['password'])) {
+            $datos['password'] = $validados['password'];
+        }
+
+        $user->update($datos);
 
         return redirect()->back()->with('success', 'Tus datos fueron actualizados correctamente.');
     }

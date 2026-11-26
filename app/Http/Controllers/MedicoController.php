@@ -122,7 +122,7 @@ class MedicoController extends Controller
             'nombre'           => 'required|string|max:120',
             'apellido'         => 'required|string|max:120',
             'email'            => 'required|email|max:255|unique:users,email,' . $user->id,
-            'password'         => 'nullable|min:8|confirmed',
+            'password'         => 'nullable|string|min:8|confirmed',
             'tipoMat' => 'prohibited',
             'numMat' => 'prohibited',
             'matricula' => 'prohibited',

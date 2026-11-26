@@ -122,7 +122,7 @@ class PacienteController extends Controller
             'nombre'           => 'required|string|max:120',
             'apellido'         => 'required|string|max:120',
             'email'            => 'required|email|max:255|unique:users,email,' . $user->id,
-            'password'         => 'nullable|min:8|confirmed',
+            'password'         => 'nullable|string|min:8|confirmed',
             'dni'              => 'required|digits_between:7,8|unique:pacientes,dni,' . $paciente->id,
             'fecha_nacimiento' => 'required|date|before_or_equal:today',
             'telefono'         => 'required|string|max:50',

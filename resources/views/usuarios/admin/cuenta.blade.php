@@ -69,13 +69,13 @@
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label for="password" class="form-label fw-semibold">Nueva contraseña</label>
-                                    <input type="password" class="form-control" id="password" name="password">
+                                    <input type="password" class="form-control" id="password" name="password" minlength="8">
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label for="password_confirmation" class="form-label fw-semibold">Confirmar nueva
                                         contraseña</label>
                                     <input type="password" class="form-control" id="password_confirmation"
-                                        name="password_confirmation">
+                                        name="password_confirmation" minlength="8">
                                 </div>
                             </div>
 

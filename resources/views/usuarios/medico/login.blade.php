@@ -57,7 +57,7 @@
                         <div class="mb-4">
                             <label for="password" class="form-label">Contraseña</label>
                             <input type="password" name="password" class="form-control" id="password"
-                                placeholder="••••••••••" required minlength="8" maxlength="12">
+                                placeholder="••••••••••" required minlength="8">
                         </div>
 
                         <button type="submit" class="btn btn-primary w-100 mb-3">Ingresar</button>
